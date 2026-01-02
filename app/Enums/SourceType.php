@@ -2,7 +2,27 @@
 
 namespace App\Enums;
 
-enum SourceType: string
+use Filament\Support\Contracts\HasIcon;
+use Filament\Support\Contracts\HasLabel;
+use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
+use BackedEnum;
+
+enum SourceType: string implements HasLabel, HasIcon
 {
     case RSS = 'rss';
+
+    public function getLabel(): string|Htmlable|null
+    {
+        return match ($this) {
+            self::RSS => 'RSS',
+        };
+    }
+
+    public function getIcon(): string | BackedEnum | Htmlable | null
+    {
+        return match ($this) {
+            self::RSS => Heroicon::Rss,
+        };
+    }
 }
