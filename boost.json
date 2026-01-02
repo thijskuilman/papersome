@@ -5,6 +5,7 @@
     "editors": [
         "phpstorm"
     ],
-    "guidelines": [],
-    "herd_mcp": true
+    "guidelines": [
+        "filament/filament"
+    ]
 }
