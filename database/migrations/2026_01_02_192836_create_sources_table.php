@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('type')->default(SourceType::RSS->value);
             $table->string('url');
+            $table->string('prefix_parse_url')->nullable();
             $table->timestamp('last_fetched_at')->nullable();
             $table->timestamps();
         });

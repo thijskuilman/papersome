@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\Sources\Schemas;
 
-use App\Enums\SourceType;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -24,10 +22,9 @@ class SourceForm
                         ->url()
                         ->required()
                         ->maxLength(255),
-                    Select::make('type')
-                        ->label('Type')
-                        ->options(SourceType::class)
-                        ->required(),
+                    TextInput::make('prefix_parse_url')
+                        ->url()
+                        ->maxLength(255),
                 ])->columnSpanFull()
             ]);
     }

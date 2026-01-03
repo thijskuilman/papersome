@@ -18,7 +18,7 @@ class FeedService
                 [
                     'source_id' => $source->id,
                     'title' => $item['title'],
-                    'excerpt' => $item['description'],
+                    'excerpt' => $item['description'] ?? '',
                     'published_at' => $item['date'],
                 ]
             );

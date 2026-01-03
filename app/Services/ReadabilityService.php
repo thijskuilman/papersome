@@ -9,6 +9,7 @@ use andreskrey\Readability\Configuration;
 use andreskrey\Readability\ParseException;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizer;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
+use Illuminate\Support\Facades\Http;
 
 class ReadabilityService
 {
@@ -16,7 +17,14 @@ class ReadabilityService
     {
         $readability = new Readability(new Configuration());
 
-        $html = file_get_contents($article->url);
+        $urlPrefix = $article->source->prefix_parse_url;
+
+        $url = ($urlPrefix ?? '') . $article->url;
+
+        $response = Http::get($url);
+
+        $html = $response->body();
+
 
         try {
             $readability->parse($html);

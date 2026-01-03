@@ -104,7 +104,10 @@ class ArticlesRelationManager extends RelationManager
 
                 Action::make('open')
                     ->icon(Heroicon::ArrowTopRightOnSquare)
-                    ->url(fn(Article $article) => $article->url)
+                    ->url(function (Article $article) {
+                        $urlPrefix = $article->source->prefix_parse_url;
+                        return ($urlPrefix ?? '') . $article->url;
+                    })
                     ->openUrlInNewTab(),
 
                 Action::make('parse')
