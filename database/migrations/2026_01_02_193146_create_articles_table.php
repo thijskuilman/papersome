@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ArticleStatus;
 use App\Models\Collection;
 use App\Models\Source;
 use Illuminate\Database\Migrations\Migration;
@@ -18,8 +19,11 @@ return new class extends Migration
             $table->foreignIdFor(Source::class, 'source_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->string('url');
-            $table->longText('html_content');
+            $table->string('image')->nullable();
+            $table->longText('excerpt');
+            $table->longText('html_content')->nullable();
             $table->timestamp('published_at')->nullable();
+            $table->string('status')->default(ArticleStatus::Pending->value);
             $table->timestamps();
         });
     }
