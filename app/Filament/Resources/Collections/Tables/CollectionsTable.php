@@ -23,6 +23,9 @@ class CollectionsTable
                     ->label('Channel')
                     ->badge()
                     ->sortable(),
+                TextColumn::make('sources.name')
+                    ->badge()
+                    ->sortable(),
                 IconColumn::make('enabled')
                     ->boolean()
                     ->label('Enabled')

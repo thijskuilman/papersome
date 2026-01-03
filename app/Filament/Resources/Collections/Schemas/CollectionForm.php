@@ -26,6 +26,11 @@ class CollectionForm
                        ->options(DeliveryChannel::class)
                        ->required(),
 
+                   Select::make('sources')
+                       ->multiple()
+                       ->preload()
+                       ->relationship('sources', 'name'),
+
                    Toggle::make('enabled')
                        ->label('Enabled')
                        ->default(true),
