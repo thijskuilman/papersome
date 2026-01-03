@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Sources;
 use App\Filament\Resources\Sources\Pages\CreateSource;
 use App\Filament\Resources\Sources\Pages\EditSource;
 use App\Filament\Resources\Sources\Pages\ListSources;
+use App\Filament\Resources\Sources\RelationManagers\ArticlesRelationManager;
 use App\Filament\Resources\Sources\Schemas\SourceForm;
 use App\Filament\Resources\Sources\Tables\SourcesTable;
 use App\Models\Source;
@@ -35,7 +36,7 @@ class SourceResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ArticlesRelationManager::class,
         ];
     }
 
