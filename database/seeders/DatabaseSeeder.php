@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Collection;
+use App\Models\Source;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -15,11 +17,35 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Admin',
+            'email' => 'admin@newspaparr.com',
+            'password' => bcrypt('password'),
         ]);
+
+        Source::create([
+            'name' => 'NOS Algemeen',
+            'url' => 'https://feeds.nos.nl/nosnieuwsalgemeen',
+            'type' => 'rss',
+        ]);
+
+        Source::create([
+            'name' => 'Tweakers - Reviews',
+            'url' => 'https://tweakers.net/feeds/reviews.xml',
+            'type' => 'rss',
+        ]);
+
+        Source::create([
+            'name' => 'Leeuwarder Courant',
+            'url' => 'https://lc.nl/api/feed/rss',
+            'type' => 'rss',
+        ]);
+
+        Collection::create([
+           'name' => 'Daily News',
+           'delivery_channel' => 'booklore',
+           'enabled' => true,
+        ]);
+
     }
 }
