@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "andreskrey/readability.php": "^1.0",
+        "ashallendesign/favicon-fetcher": "^3.10",
         "filament/filament": "^4.0",
         "fivefilters/readability.php": ">=3.0",
         "laravel/framework": "^12.0",

@@ -11,6 +11,7 @@ return new class extends Migration
     {
         Schema::create('sources', function (Blueprint $table) {
             $table->id();
+            $table->string('icon')->nullable();
             $table->string('name');
             $table->string('type')->default(SourceType::RSS->value);
             $table->string('url');
