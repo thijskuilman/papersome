@@ -27,18 +27,30 @@ class DatabaseSeeder extends Seeder
             'name' => 'NOS Algemeen',
             'url' => 'https://feeds.nos.nl/nosnieuwsalgemeen',
             'type' => 'rss',
+            'icon' => 'https://static.nos.nl/img/favicon/favicon-32x32.png',
         ]);
 
         Source::create([
             'name' => 'Tweakers - Reviews',
             'url' => 'https://tweakers.net/feeds/reviews.xml',
             'type' => 'rss',
+            'icon' => 'https://tweakers.net/android-touch-icon-192x192.png',
         ]);
 
         Source::create([
-            'name' => 'Leeuwarder Courant',
-            'url' => 'https://lc.nl/api/feed/rss',
+            'name' => 'NRC',
+            'url' => 'https://nrc.nl/rss/',
             'type' => 'rss',
+            'prefix_parse_url' => 'http://192.168.1.137:5000/',
+            'icon' => 'https://assets.nrc.nl/static/front/icons/favicon.ico',
+        ]);
+
+        Source::create([
+            'name' => 'Volkskrant',
+            'url' => 'https://www.volkskrant.nl/nieuws-achtergrond/rss.xml',
+            'type' => 'rss',
+            'prefix_parse_url' => 'http://192.168.1.137:5000/',
+            'icon' => 'https://www.volkskrant.nl/favicon.ico',
         ]);
 
         Collection::create([
@@ -46,6 +58,5 @@ class DatabaseSeeder extends Seeder
            'delivery_channel' => 'booklore',
            'enabled' => true,
         ]);
-
     }
 }
