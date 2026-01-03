@@ -15,7 +15,8 @@
         "laravel/tinker": "^2.10.1",
         "sebastiansantillan/phpepub": "^0.3.0-beta",
         "symfony/html-sanitizer": "^7.4",
-        "willvincent/feeds": "^2.7"
+        "willvincent/feeds": "^2.7",
+        "ext-dom": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
