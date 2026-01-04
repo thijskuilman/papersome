@@ -6,6 +6,7 @@ use App\Dto\ArticleChapter;
 use App\Dto\ArticleImage;
 use App\Models\Article;
 use App\Models\Collection;
+use App\Models\Publication;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -16,16 +17,16 @@ class EpubService
 {
     public function createEpubFor(Collection $collection): ?string
     {
-        $epub = new EpubBuilder();
+        $epub = new EpubBuilder;
 
-        $name = $collection->name . ' - ' . now()->toDateString();
+        $name = $collection->name.' - '.now()->toDateString();
 
         $epub->setTitle($name)
             ->setAuthor('Various authors')
             ->setLanguage('en')
             ->setDescription('');
 
-        $epub->getMetadata()->setIdentifier('collection-' . $collection->id);
+        $epub->getMetadata()->setIdentifier('collection-'.$collection->id);
 
         // Accessibility metadata
         $epub->addAccessMode('textual')
@@ -52,9 +53,10 @@ class EpubService
         }
 
         // Save EPUB
-        $filename = Str::slug($name) . '.epub';
-        $tmpPath = storage_path('app/epubs/' . $filename);
-        if (!is_dir(dirname($tmpPath))) {
+        $filename = Str::slug($name).'.epub';
+        $relativePath = 'epubs/'.$filename;
+        $tmpPath = storage_path('app/'.$relativePath);
+        if (! is_dir(dirname($tmpPath))) {
             mkdir(dirname($tmpPath), 0755, true);
         }
 
@@ -64,6 +66,12 @@ class EpubService
             // TODO: Error logging
             return null;
         }
+
+        // Persist publication record
+        Publication::query()->create([
+            'collection_id' => $collection->id,
+            'epub_file_path' => $relativePath,
+        ]);
 
         return $tmpPath;
     }
@@ -93,7 +101,7 @@ class EpubService
             $pathInfo = pathinfo(parse_url($imageUrl, PHP_URL_PATH));
             $extension = strtolower($pathInfo['extension'] ?? 'jpg');
 
-            if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+            if (! in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
                 $extension = 'jpg';
             }
 
@@ -115,14 +123,14 @@ class EpubService
         try {
             $response = Http::get($imageUrl);
 
-            if (!$response->ok()) {
+            if (! $response->ok()) {
                 return null;
             }
 
             $pathInfo = pathinfo(parse_url($imageUrl, PHP_URL_PATH));
             $extension = strtolower($pathInfo['extension'] ?? 'jpg');
 
-            if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+            if (! in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
                 $extension = 'jpg';
             }
 
@@ -155,17 +163,17 @@ class EpubService
         /** @var \DOMElement $img */
         foreach ($imgNodes as $index => $img) {
             $src = $img->getAttribute('src');
-            if (!$src || str_starts_with($src, '../Images/')) {
+            if (! $src || str_starts_with($src, '../Images/')) {
                 continue;
             }
 
             $image = $this->storeInlineImage($src, $article->id, $index);
-            if (!$image) {
+            if (! $image) {
                 continue;
             }
 
             $epub->addImage($image->tempPath);
-            $img->setAttribute('src', '../Images/' . $image->fileName);
+            $img->setAttribute('src', '../Images/'.$image->fileName);
             $img->setAttribute('alt', $img->getAttribute('alt') ?: $article->title);
 
             // If <img> is inside <picture>, replace <picture> with <img> itself
@@ -189,7 +197,6 @@ class EpubService
         // Remove XML declaration if present
         return preg_replace('/^<\?xml.*?\?>\s*/', '', $innerHtml);
     }
-
 
     private function createChapter(Article $article, &$epub): ArticleChapter
     {
@@ -221,7 +228,7 @@ class EpubService
 
         return new ArticleChapter(
             title: $article->title,
-            fileName: 'chapter-' . $article->id . '.xhtml',
+            fileName: 'chapter-'.$article->id.'.xhtml',
             content: $html
         );
     }
