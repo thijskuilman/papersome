@@ -8,6 +8,7 @@ use App\Services\ReadabilityService;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -35,6 +36,11 @@ class ArticlesRelationManager extends RelationManager
     {
         return $schema
             ->components([
+                ImageEntry::make('image')
+                    ->hiddenLabel()
+                    ->columnSpanFull()
+                    ->extraImgAttributes(['style' => 'width: 100%; object-fit: cover; height: 400px;']),
+
                 TextEntry::make('html_content')
                     ->hiddenLabel()
                     ->html()
@@ -52,8 +58,7 @@ class ArticlesRelationManager extends RelationManager
                 ImageColumn::make('image'),
 
                 TextColumn::make('title')
-                    ->wrap()
-                    ->searchable(),
+                    ->wrap(),
 
                 TextColumn::make('status')
                     ->badge()
@@ -65,6 +70,7 @@ class ArticlesRelationManager extends RelationManager
             ->headerActions([
                 Action::make('parse-all-articles')
                     ->color('gray')
+                    ->icon(Heroicon::DocumentMagnifyingGlass)
                     ->label('Parse all articles')
                     ->action(function () {
                         $source = $this->ownerRecord;
@@ -75,12 +81,15 @@ class ArticlesRelationManager extends RelationManager
                     }),
 
                 Action::make('feed')
+                    ->color('gray')
+                    ->icon(Heroicon::ArrowPath)
                     ->label('Refresh feed')
                     ->action(fn() => app(FeedService::class)->storeArticlesFromSource($this->ownerRecord)),
 
             ])
             ->recordActions([
                 ViewAction::make()
+                    ->slideOver()
                     ->modalHeading(fn(Article $article) => $article->title),
 
                 Action::make('open')
