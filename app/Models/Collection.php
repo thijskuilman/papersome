@@ -35,4 +35,9 @@ class Collection extends Model
         return $this->belongsToMany(Source::class, 'collection_source')
             ->withTimestamps();
     }
+
+    public function publications(): HasMany
+    {
+        return $this->hasMany(Publication::class);
+    }
 }
