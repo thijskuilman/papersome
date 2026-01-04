@@ -15,7 +15,17 @@ class EditSource extends EditRecord
     {
         return [
             DeleteAction::make(),
+
+            $this->getSaveFormAction()
+                ->submit(null)
+                ->action(fn() => $this->save()),
+
         ];
+    }
+
+    protected function getFormActions(): array
+    {
+        return [];
     }
 
     protected function mutateFormDataBeforeSave(array $data): array
