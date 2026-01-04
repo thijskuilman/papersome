@@ -7,16 +7,17 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ext-dom": "*",
         "andreskrey/readability.php": "^1.0",
         "ashallendesign/favicon-fetcher": "^3.10",
         "filament/filament": "^4.0",
+        "filament/spatie-laravel-settings-plugin": "^4.0",
         "fivefilters/readability.php": ">=3.0",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "sebastiansantillan/phpepub": "^0.3.0-beta",
         "symfony/html-sanitizer": "^7.4",
-        "willvincent/feeds": "^2.7",
-        "ext-dom": "*"
+        "willvincent/feeds": "^2.7"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
