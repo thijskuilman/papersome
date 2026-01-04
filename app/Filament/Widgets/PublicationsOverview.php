@@ -1,14 +1,10 @@
 <?php
 
-namespace App\Filament\Resources\Collections\RelationManagers;
+namespace App\Filament\Widgets;
 
-use App\Models\Collection;
 use App\Models\Publication;
-use App\Services\BookloreService;
-use App\Services\PublicationService;
 use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
-use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Actions\BulkActionGroup;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
@@ -16,15 +12,19 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Widgets\TableWidget;
+use Illuminate\Database\Eloquent\Builder;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-class PublicationsRelationManager extends RelationManager
+class PublicationsOverview extends TableWidget
 {
-    protected static string $relationship = 'publications';
+    protected int | string | array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
         return $table
+            ->query(fn(): Builder => Publication::query())
+            ->heading('Latest Publications')
             ->columns([
                 Stack::make([
                     ImageColumn::make('cover_image_path')
@@ -45,22 +45,20 @@ class PublicationsRelationManager extends RelationManager
                         ->size(TextSize::Large)
                         ->weight(FontWeight::Bold),
 
-                    TextColumn::make('created_at')
-                        ->date()
-                        ->extraAttributes(['style' => 'margin-bottom: 10px;']),
-
-                    TextColumn::make('booklore_delivery_status')
-                        ->prefix('Booklore: ')
-                        ->label('Booklore')
-                        ->badge(),
-
-
+                    TextColumn::make('created_at')->date(),
                 ])
             ])
             ->defaultSort('created_at', 'desc')
+            ->paginated(false)
+            ->filters([
+                //
+            ])
             ->contentGrid([
                 'md' => 4,
                 'xl' => 5,
+            ])
+            ->headerActions([
+                //
             ])
             ->recordActions([
                 Action::make('download-epub')
@@ -68,23 +66,10 @@ class PublicationsRelationManager extends RelationManager
                     ->icon(Heroicon::ArrowDownTray)
                     ->action(fn (Publication $record): ?BinaryFileResponse => $record->download()),
             ])
-            ->emptyStateHeading('No publications yet')
-            ->headerActions([
-                Action::make('sync-to-booklore')
-                    ->label('Sync to Booklore')
-                    ->color('gray')
-                    ->icon(Heroicon::CloudArrowUp)
-                    ->action(function (Collection $collection) {
-                        app(BookloreService::class)->syncToBooklore();
-                    }),
-
-                Action::make('create-publication')
-                    ->label('Create publication')
-                    ->action(function () {
-                        $publication = app(PublicationService::class)->createPublication(collection: $this->ownerRecord);
-                        return $publication->download();
-                    }),
-            ])
-            ->emptyStateDescription('Generate an EPUB for this collection to see publications here.');
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    //
+                ]),
+            ]);
     }
 }

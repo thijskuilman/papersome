@@ -16,6 +16,11 @@ class CollectionForm
         return $schema
             ->components([
                Section::make()->components([
+
+                   Toggle::make('enabled')
+                       ->label('Enabled')
+                       ->default(true),
+
                    TextInput::make('name')
                        ->label('Name')
                        ->required()
@@ -30,10 +35,6 @@ class CollectionForm
                        ->multiple()
                        ->preload()
                        ->relationship('sources', 'name'),
-
-                   Toggle::make('enabled')
-                       ->label('Enabled')
-                       ->default(true),
                ])->columnSpanFull()
             ]);
     }

@@ -6,7 +6,6 @@ use App\Dto\ArticleChapter;
 use App\Dto\ArticleImage;
 use App\Models\Article;
 use App\Models\Collection;
-use App\Models\Publication;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -28,7 +27,6 @@ class EpubService
 
         $epub->getMetadata()->setIdentifier('collection-'.$collection->id);
 
-        // Accessibility metadata
         $epub->addAccessMode('textual')
             ->addAccessMode('visual')
             ->addAccessibilityFeature('structuralNavigation')
@@ -67,13 +65,7 @@ class EpubService
             return null;
         }
 
-        // Persist publication record
-        Publication::query()->create([
-            'collection_id' => $collection->id,
-            'epub_file_path' => $relativePath,
-        ]);
-
-        return $tmpPath;
+        return $relativePath;
     }
 
     private function addTableOfContents(array $chapters, &$epub): void

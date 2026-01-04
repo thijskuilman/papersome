@@ -16,7 +16,7 @@ class BookloreService
     /**
      * @throws Exception
      */
-    public function uploadToBooklore(): void
+    public function syncToBooklore(): void
     {
         dd($this->loginAndStoreToken());
     }

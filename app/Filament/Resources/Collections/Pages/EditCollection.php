@@ -3,10 +3,6 @@
 namespace App\Filament\Resources\Collections\Pages;
 
 use App\Filament\Resources\Collections\CollectionResource;
-use App\Models\Collection;
-use App\Services\BookloreService;
-use App\Services\EpubService;
-use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -17,25 +13,16 @@ class EditCollection extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('download-epub')
-                ->label('Download .epub')
-                ->action(function (Collection $collection) {
-                    $filePath = app(EpubService::class)->createEpubFor($collection);
-
-                    if ($filePath) {
-                        return response()->download($filePath);
-                    }
-
-                    return null;
-                }),
-
-            Action::make('upload-to-booklore')
-                ->label('Upload to Booklore')
-                ->action(function (Collection $collection) {
-                    app(BookloreService::class)->uploadToBooklore();
-                }),
-
             DeleteAction::make(),
+
+            $this->getSaveFormAction()
+                ->submit(null)
+                ->action(fn() => $this->save()),
         ];
+    }
+
+    protected function getFormActions(): array
+    {
+        return [];
     }
 }
