@@ -3,12 +3,13 @@
 namespace App\Enums;
 
 use BackedEnum;
+use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 
-enum DeliveryStatus: string implements HasIcon, HasLabel
+enum DeliveryStatus: string implements HasIcon, HasLabel, HasColor
 {
     case Pending = 'pending';
     case Failed = 'failed';
@@ -29,6 +30,15 @@ enum DeliveryStatus: string implements HasIcon, HasLabel
             self::Pending => Heroicon::Clock,
             self::Failed => Heroicon::ExclamationTriangle,
             self::Delivered => Heroicon::CheckBadge,
+        };
+    }
+
+    public function getColor(): string | array | null
+    {
+        return match ($this) {
+            self::Pending => 'gray',
+            self::Failed => 'danger',
+            self::Delivered => 'success',
         };
     }
 }
