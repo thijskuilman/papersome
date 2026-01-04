@@ -3,18 +3,9 @@
 namespace App\Filament\Resources\Sources\RelationManagers;
 
 use App\Models\Article;
-use App\Models\Source;
 use App\Services\FeedService;
 use App\Services\ReadabilityService;
 use Filament\Actions\Action;
-use Filament\Actions\AssociateAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\DissociateAction;
-use Filament\Actions\DissociateBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
@@ -24,8 +15,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Database\Eloquent\Model;
 
 class ArticlesRelationManager extends RelationManager
 {
@@ -46,11 +35,6 @@ class ArticlesRelationManager extends RelationManager
     {
         return $schema
             ->components([
-//                TextEntry::make('title')
-//                    ->extraAttributes(['style' => 'font-size: 20px; font-weight: bold;'])
-//                    ->hiddenLabel()
-//                    ->columnSpanFull(),
-
                 TextEntry::make('html_content')
                     ->hiddenLabel()
                     ->html()
@@ -77,9 +61,6 @@ class ArticlesRelationManager extends RelationManager
 
                 TextColumn::make('published_at')
                     ->since(),
-            ])
-            ->filters([
-                //
             ])
             ->headerActions([
                 Action::make('parse-all-articles')
@@ -112,9 +93,6 @@ class ArticlesRelationManager extends RelationManager
 
                 Action::make('parse')
                     ->action(fn(Article $article) => app(ReadabilityService::class)->parseArticleContent($article)),
-            ])
-            ->toolbarActions([
-                //
             ]);
     }
 }
