@@ -27,19 +27,11 @@ class PublicationsRelationManager extends RelationManager
         return $table
             ->columns([
                 Stack::make([
-                    ImageColumn::make('cover_image_path')
-                        ->extraImgAttributes(['style' => 'width: 100%; height: 250px; object-fit: cover; margin-bottom: 15px;'])
-                        ->getStateUsing(function () {
-                            $covers = [
-                                'https://files.coverscdn.com/imgix-covers/retro-gamer-magazine-issue-280-362-cover.webp',
-                                'https://files.coverscdn.com/imgix-covers/dungeon-masters-guide-magazine-game-masters-guide-volume-two-362-cover.webp',
-                                'https://files.coverscdn.com/covers/290227/mid/0000.jpg',
-                                'https://files.coverscdn.com/covers/288447/mid/0000.jpg',
-                                'https://kagi.com/proxy/pdf_120d8fba-a16f-11ed-930a-318ed05ccad0.jpg?c=lytl_0lDwgEXQ-9v3kF1Mpvw0H3QmobApAdas7gjEmW-9XSnC-zX55gkdQdvy_dx7egFix7v_PSB3qXPDMXcvfAD_6geZdTZTRj8p8X8i5vujFcjQ3oYWZ4Xpv0yA3yhGMPadtfTUNUkB-IQ0pUSQl0440DxhR-rzLCch4gMcd1YD1j6mJhZcEDdxnP6bdHM',
-                            ];
-
-                            return $covers[array_rand($covers)];
-                        }),
+                    ImageColumn::make('cover_image')
+                        ->disk('public')
+                        ->extraImgAttributes([
+                            'style' => 'width: 100%; height: 310px; object-fit: cover; margin-bottom: 15px;'
+                        ]),
 
                     TextColumn::make('collection.name')
                         ->size(TextSize::Large)
@@ -53,20 +45,20 @@ class PublicationsRelationManager extends RelationManager
                         ->prefix('Booklore: ')
                         ->label('Booklore')
                         ->badge(),
-
-
                 ])
             ])
             ->defaultSort('created_at', 'desc')
             ->contentGrid([
-                'md' => 4,
-                'xl' => 5,
+                'md' => 3,
+                'xl' => 4,
             ])
             ->recordActions([
                 Action::make('download-epub')
-                    ->label('Download .epub')
+                    ->label('Download')
                     ->icon(Heroicon::ArrowDownTray)
                     ->action(fn (Publication $record): ?BinaryFileResponse => $record->download()),
+
+                DeleteAction::make(),
             ])
             ->emptyStateHeading('No publications yet')
             ->headerActions([
