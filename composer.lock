@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "65151556a000433bc0b4f391485aca52",
+    "content-hash": "6d49e75f020ab1b327b38388d2eb4ba6",
     "packages": [
         {
             "name": "andreskrey/readability.php",
@@ -5590,16 +5590,16 @@
         },
         {
             "name": "sebastiansantillan/phpepub",
-            "version": "v0.3.0-beta",
+            "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "https://github.com/sebastiansantillan/phpepub.git",
-                "reference": "64fdc50b3945f13a9b997c85a529c0886d74e6e2"
+                "url": "https://github.com/thijskuilman/phpepub.git",
+                "reference": "20baa35c9a8b794246180bbc66e9c14a179b5426"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastiansantillan/phpepub/zipball/64fdc50b3945f13a9b997c85a529c0886d74e6e2",
-                "reference": "64fdc50b3945f13a9b997c85a529c0886d74e6e2",
+                "url": "https://api.github.com/repos/thijskuilman/phpepub/zipball/20baa35c9a8b794246180bbc66e9c14a179b5426",
+                "reference": "20baa35c9a8b794246180bbc66e9c14a179b5426",
                 "shasum": ""
             },
             "require": {
@@ -5612,13 +5612,43 @@
                 "phpstan/phpstan": "^1.0",
                 "phpunit/phpunit": "^9.0"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "PHPEpub\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "PHPEpub\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ],
+                "analyze": [
+                    "phpstan analyse src --level=5"
+                ],
+                "check-syntax": [
+                    "find src tests examples -name '*.php' -exec php -l {} \\;"
+                ],
+                "validate": [
+                    "composer validate --strict"
+                ],
+                "quality": [
+                    "@validate",
+                    "@check-syntax",
+                    "@analyze",
+                    "@test"
+                ],
+                "examples": [
+                    "php examples/basic_example.php",
+                    "php examples/advanced_example.php",
+                    "php examples/libro_avanzado_es.php"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -5630,10 +5660,9 @@
             ],
             "description": "A modern PHP library for creating EPUB3 files",
             "support": {
-                "issues": "https://github.com/sebastiansantillan/phpepub/issues",
-                "source": "https://github.com/sebastiansantillan/phpepub/tree/v0.3.0-beta"
+                "source": "https://github.com/thijskuilman/phpepub/tree/main"
             },
-            "time": "2025-08-02T15:19:24+00:00"
+            "time": "2026-01-05T16:28:03+00:00"
         },
         {
             "name": "simplepie/simplepie",
@@ -5715,6 +5744,74 @@
                 "source": "https://github.com/simplepie/simplepie/tree/1.9.0"
             },
             "time": "2025-09-12T06:34:27+00:00"
+        },
+        {
+            "name": "spatie/browsershot",
+            "version": "5.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/browsershot.git",
+                "reference": "9bc6b8d67175810d7a399b2588c3401efe2d02a8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/browsershot/zipball/9bc6b8d67175810d7a399b2588c3401efe2d02a8",
+                "reference": "9bc6b8d67175810d7a399b2588c3401efe2d02a8",
+                "shasum": ""
+            },
+            "require": {
+                "ext-fileinfo": "*",
+                "ext-json": "*",
+                "php": "^8.2",
+                "spatie/temporary-directory": "^2.0",
+                "symfony/process": "^6.0|^7.0|^8.0"
+            },
+            "require-dev": {
+                "pestphp/pest": "^3.0|^4.0",
+                "spatie/image": "^3.6",
+                "spatie/pdf-to-text": "^1.52",
+                "spatie/phpunit-snapshot-assertions": "^5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\Browsershot\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "homepage": "https://github.com/freekmurze",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Convert a webpage to an image or pdf using headless Chrome",
+            "homepage": "https://github.com/spatie/browsershot",
+            "keywords": [
+                "chrome",
+                "convert",
+                "headless",
+                "image",
+                "pdf",
+                "puppeteer",
+                "screenshot",
+                "webpage"
+            ],
+            "support": {
+                "source": "https://github.com/spatie/browsershot/tree/5.2.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-12-22T10:02:16+00:00"
         },
         {
             "name": "spatie/invade",
@@ -12355,7 +12452,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "sebastiansantillan/phpepub": 10
+        "sebastiansantillan/phpepub": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

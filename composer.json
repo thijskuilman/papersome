@@ -15,7 +15,8 @@
         "fivefilters/readability.php": ">=3.0",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
-        "sebastiansantillan/phpepub": "^0.3.0-beta",
+        "sebastiansantillan/phpepub": "dev-main",
+        "spatie/browsershot": "^5.2",
         "symfony/html-sanitizer": "^7.4",
         "willvincent/feeds": "^2.7"
     },
@@ -42,6 +43,12 @@
             "Tests\\": "tests/"
         }
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/thijskuilman/phpepub"
+        }
+    ],
     "scripts": {
         "setup": [
             "composer install",
