@@ -8,10 +8,9 @@ use Illuminate\Http\Request;
 
 class CoverImageController extends Controller
 {
-    public function getTemplate(Publication $publication, string $templateName = 'newspaper.nyt')
+    public function getTemplate(Publication $publication)
     {
-        // TODO: templateName should be stored in either publication or collection
-        return view("covers.$templateName", [
+        return view("covers." . $publication->collection->cover_template->getView(), [
             'publication' => $publication,
             'articles' => $publication->articles,
         ]);

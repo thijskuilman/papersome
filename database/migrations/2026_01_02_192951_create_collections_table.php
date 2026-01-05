@@ -18,6 +18,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('delivery_channel')->default(DeliveryChannel::Booklore->value);
+            $table->string('cover_template')->default(\App\Enums\CoverTemplate::ClassicNewspaper->value);
             $table->time('cron')->nullable();
             $table->boolean('enabled')->default(true);
             $table->timestamps();

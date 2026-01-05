@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CoverTemplate;
 use App\Enums\DeliveryChannel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,6 +26,7 @@ class Collection extends Model
     {
         return [
             'delivery_channel' => DeliveryChannel::class,
+            'cover_template' => CoverTemplate::class,
             'cron' => 'datetime:H:i:s',
             'enabled' => 'boolean',
         ];
