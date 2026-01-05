@@ -5,27 +5,28 @@ namespace App\Services;
 use App\Dto\ArticleChapter;
 use App\Dto\ArticleImage;
 use App\Models\Article;
-use App\Models\Collection;
+use App\Models\Publication;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use PHPEpub\EpubBuilder;
-use Storage;
+use Illuminate\Support\Facades\Storage;
 
 class EpubService
 {
-    public function createEpubFor(Collection $collection): ?string
+    public function createEpubFor(Publication $publication, Collection $articles): ?string
     {
         $epub = new EpubBuilder;
 
-        $name = $collection->name.' - '.now()->toDateString();
+        $name = $publication->collection->name . ' - ' . now()->toDateString();
 
         $epub->setTitle($name)
             ->setAuthor('Various authors')
             ->setLanguage('en')
             ->setDescription('');
 
-        $epub->getMetadata()->setIdentifier('collection-'.$collection->id);
+        $epub->getMetadata()->setIdentifier(Str::slug($name));
 
         $epub->addAccessMode('textual')
             ->addAccessMode('visual')
@@ -38,28 +39,34 @@ class EpubService
 
         // Build chapters
         $chapters = [];
-        foreach ($collection->sources as $source) {
-            foreach ($source->articles as $article) {
-                $chapters[] = $this->createChapter($article, $epub);
-            }
+        foreach ($articles as $article) {
+            $chapters[] = $this->createChapter($article, $epub);
         }
 
-        // Build EPUB
+        // Set cover image
+        if ($publication->cover_image && Storage::disk('public')->exists($publication->cover_image)) {
+            $epub->setCover(Storage::disk('public')->path($publication->cover_image));
+        }
+
+        // Add Table of Contents
         $this->addTableOfContents($chapters, $epub);
+
+        // Add chapters to EPUB
         foreach ($chapters as $chapter) {
             $epub->addChapter($chapter->title, $chapter->content, $chapter->fileName);
         }
 
-        // Save EPUB
-        $filename = Str::slug($name).'.epub';
-        $relativePath = 'epubs/'.$filename;
-        $tmpPath = storage_path('app/'.$relativePath);
-        if (! is_dir(dirname($tmpPath))) {
-            mkdir(dirname($tmpPath), 0755, true);
+        // Save EPUB on public disk
+        $filename = Str::slug($name) . '.epub';
+        $relativePath = 'epubs/' . $filename;
+        $fullPath = Storage::disk('public')->path($relativePath);
+
+        if (!is_dir(dirname($fullPath))) {
+            mkdir(dirname($fullPath), 0755, true);
         }
 
         try {
-            $epub->save($tmpPath);
+            $epub->save($fullPath);
         } catch (\Exception $e) {
             // TODO: Error logging
             return null;
@@ -68,7 +75,7 @@ class EpubService
         return $relativePath;
     }
 
-    private function addTableOfContents(array $chapters, &$epub): void
+    private function addTableOfContents(array $chapters, EpubBuilder $epub): void
     {
         $tocHtml = '<h1>Table of Contents</h1><ul>';
         foreach ($chapters as $chapter) {
@@ -83,56 +90,62 @@ class EpubService
         $epub->addChapter('Table of Contents', $tocHtml, 'toc.xhtml');
     }
 
-    private function storeMainImage(Article $article): ?ArticleImage
+    private function createChapter(Article $article, EpubBuilder $epub): ArticleChapter
     {
-        $imageUrl = $article->image;
+        $html = '<style>
+            body { color: #000; }
+            h1, h2, h3, p { color: #000; }
+        </style>';
 
-        $response = Http::get($imageUrl);
+        // Main image
+        if ($article->image) {
+            $mainImage = $this->storeTempImage($article->image, "main-$article->id");
 
-        if ($response->ok()) {
-            $pathInfo = pathinfo(parse_url($imageUrl, PHP_URL_PATH));
-            $extension = strtolower($pathInfo['extension'] ?? 'jpg');
-
-            if (! in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
-                $extension = 'jpg';
+            if ($mainImage) {
+                $epub->addImage($mainImage->tempPath);
+                $html .= "<img src=\"../Images/{$mainImage->fileName}\" alt=\"{$article->title}\" style=\"max-width:100%; height:auto;\" />";
             }
-
-            $fileName = "main-$article->id.$extension";
-            $tempPath = "temp/articles/$article->id/$fileName";
-            Storage::put($tempPath, $response->body());
-
-            return new ArticleImage(
-                tempPath: Storage::path($tempPath),
-                fileName: $fileName
-            );
         }
 
-        return null;
+        // Process inline content images
+        $processedContent = $this->processContentImages($article->html_content, $article, $epub);
+
+        // Add article title
+        $html .= Blade::render(
+            '<h1>{{ $article->title }}</h1>{!! $content !!}',
+            [
+                'article' => $article,
+                'content' => $processedContent,
+            ]
+        );
+
+        return new ArticleChapter(
+            title: $article->title,
+            fileName: 'chapter-' . $article->id . '.xhtml',
+            content: $html
+        );
     }
 
-    private function storeInlineImage(string $imageUrl, int $articleId, int $index): ?ArticleImage
+    /**
+     * Store a temporary image on the local disk for EPUB processing
+     */
+    private function storeTempImage(string $imageUrl, string $fileNamePrefix): ?ArticleImage
     {
         try {
             $response = Http::get($imageUrl);
-
-            if (! $response->ok()) {
-                return null;
-            }
+            if (! $response->ok()) return null;
 
             $pathInfo = pathinfo(parse_url($imageUrl, PHP_URL_PATH));
             $extension = strtolower($pathInfo['extension'] ?? 'jpg');
+            if (!in_array($extension, ['jpg','jpeg','png','gif','webp'])) $extension = 'jpg';
 
-            if (! in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
-                $extension = 'jpg';
-            }
+            $fileName = "$fileNamePrefix.$extension";
+            $tempPath = "temp/epub-images/$fileName";
 
-            $fileName = "article-{$articleId}-img-{$index}.{$extension}";
-            $tempPath = "temp/articles/{$articleId}/{$fileName}";
-
-            Storage::put($tempPath, $response->body());
+            Storage::disk('local')->put($tempPath, $response->body());
 
             return new ArticleImage(
-                tempPath: Storage::path($tempPath),
+                tempPath: Storage::disk('local')->path($tempPath),
                 fileName: $fileName
             );
         } catch (\Throwable $e) {
@@ -149,26 +162,20 @@ class EpubService
 
         $xpath = new \DOMXPath($dom);
 
-        // Find all <img> tags
         $imgNodes = $xpath->query('//img');
 
-        /** @var \DOMElement $img */
         foreach ($imgNodes as $index => $img) {
             $src = $img->getAttribute('src');
-            if (! $src || str_starts_with($src, '../Images/')) {
-                continue;
-            }
+            if (! $src || str_starts_with($src, '../Images/')) continue;
 
-            $image = $this->storeInlineImage($src, $article->id, $index);
-            if (! $image) {
-                continue;
-            }
+            $image = $this->storeTempImage($src, "article-{$article->id}-img-{$index}");
+            if (! $image) continue;
 
             $epub->addImage($image->tempPath);
             $img->setAttribute('src', '../Images/'.$image->fileName);
             $img->setAttribute('alt', $img->getAttribute('alt') ?: $article->title);
 
-            // If <img> is inside <picture>, replace <picture> with <img> itself
+            // Replace <picture> wrapper with <img> if present
             $parent = $img->parentNode;
             if ($parent && $parent->nodeName === 'picture') {
                 $parent->parentNode->replaceChild($img, $parent);
@@ -180,48 +187,12 @@ class EpubService
         $innerHtml = '';
         if ($body) {
             foreach ($body->childNodes as $child) {
-                $innerHtml .= $dom->saveXML($child); // ensures self-closing <img />
+                $innerHtml .= $dom->saveXML($child);
             }
         } else {
             $innerHtml = $dom->saveXML();
         }
 
-        // Remove XML declaration if present
         return preg_replace('/^<\?xml.*?\?>\s*/', '', $innerHtml);
-    }
-
-    private function createChapter(Article $article, &$epub): ArticleChapter
-    {
-        $html = '<style>
-            body { color: #000000; }
-            h1, h2, h3, p { color: #000000; }
-        </style>';
-
-        // Main image
-        if ($article->image) {
-            $mainImage = $this->storeMainImage($article);
-
-            if ($mainImage) {
-                $epub->addImage($mainImage->tempPath);
-                $html .= "<img src=\"../Images/$mainImage->fileName\" alt=\"{$article->title}\" style=\"max-width:100%; height:auto;\"/>";
-            }
-        }
-
-        // Process all images inside content
-        $processedContent = $this->processContentImages($article->html_content, $article, $epub);
-
-        $html .= Blade::render(
-            '<h1>{{ $article->title }}</h1>{!! $content !!}',
-            [
-                'article' => $article,
-                'content' => $processedContent,
-            ]
-        );
-
-        return new ArticleChapter(
-            title: $article->title,
-            fileName: 'chapter-'.$article->id.'.xhtml',
-            content: $html
-        );
     }
 }
