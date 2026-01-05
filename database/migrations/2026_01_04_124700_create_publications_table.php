@@ -15,7 +15,8 @@ return new class extends Migration
             $table->foreignIdFor(Collection::class, 'collection_id')
                 ->constrained()
                 ->cascadeOnDelete();
-            $table->string('epub_file_path');
+            $table->string('epub_file_path')->nullable();
+            $table->string('cover_image')->nullable();
             $table->string('booklore_delivery_status')
                 ->default(DeliveryStatus::Pending->value);
             $table->timestamps();
