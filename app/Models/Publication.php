@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\DeliveryStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class Publication extends Model
@@ -21,6 +23,12 @@ class Publication extends Model
     public function collection(): BelongsTo
     {
         return $this->belongsTo(Collection::class);
+    }
+
+    public function articles(): BelongsToMany
+    {
+        return $this->belongsToMany(Article::class, 'publication_article')
+            ->withTimestamps();
     }
 
     public function download(): ?BinaryFileResponse
