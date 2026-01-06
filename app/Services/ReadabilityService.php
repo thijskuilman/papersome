@@ -7,6 +7,7 @@ use App\Models\Article;
 use andreskrey\Readability\Readability;
 use andreskrey\Readability\Configuration;
 use andreskrey\Readability\ParseException;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizer;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerConfig;
 use Illuminate\Support\Facades\Http;
@@ -39,7 +40,7 @@ class ReadabilityService
 
         } catch (ParseException $e) {
             $article->update(['status' => ArticleStatus::Failed->value]);
-            echo sprintf('Error processing text: %s', $e->getMessage());
+            Log::error(sprintf('Error parsing article with ID ' . $article . ': %s', $e->getMessage()));
         }
     }
 
