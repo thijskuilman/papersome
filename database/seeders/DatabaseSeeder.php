@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Collection;
 use App\Models\Source;
 use App\Models\User;
+use App\Settings\ApplicationSettings;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -54,9 +55,15 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Collection::create([
-           'name' => 'Daily News',
-           'delivery_channel' => 'booklore',
-           'enabled' => true,
+            'name' => 'Daily News',
+            'delivery_channel' => 'booklore',
+            'enabled' => true,
         ]);
+
+        $settings = app(ApplicationSettings::class);
+        $settings->booklore_url = config('booklore.url');
+        $settings->booklore_username = config('booklore.username');
+        $settings->booklore_password = config('booklore.password');
+        $settings->save();
     }
 }
