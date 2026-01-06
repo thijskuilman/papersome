@@ -2,24 +2,30 @@
 
 namespace App\Services;
 
+use App\Models\Article;
 use App\Models\Collection;
 use App\Models\Publication;
 use Illuminate\Support\Collection as SupportCollection;
 
 readonly class PublicationService
 {
+
+    private ?Publication $previousPublication;
+
     public function __construct(private EpubService $epubService)
     {
     }
 
     public function createPublication(Collection $collection): ?Publication
     {
+        $this->previousPublication = $collection->publications()->latest()->first();
+
         $publication = Publication::create([
             'collection_id' => $collection->id,
         ]);
 
-        // Attach articles
         $articles = $this->retrieveArticles($collection);
+
         if ($articles->isEmpty()) {
             return null;
         }
@@ -40,16 +46,18 @@ readonly class PublicationService
         return $publication;
     }
 
-
     private function retrieveArticles(Collection $collection): SupportCollection
     {
-        // TODO: Algorithm to retrieve articles from sources
-        $articles = [];
-        foreach ($collection->sources as $source) {
-            foreach ($source->articles as $article) {
-                $articles[] = $article;
+        $articlesQuery = Article::query()
+            ->whereIn('source_id', $collection->sources->pluck('id'));
+
+        if ($this->previousPublication) {
+            $lastArticle = $this->previousPublication->articles()->latest()->first();
+            if ($lastArticle) {
+                $articlesQuery->where('created_at', '>', $lastArticle->created_at);
             }
         }
-        return collect($articles);
+
+        return $articlesQuery->latest()->take(10)->get();
     }
 }
