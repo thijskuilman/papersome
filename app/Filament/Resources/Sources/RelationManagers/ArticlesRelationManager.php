@@ -65,8 +65,10 @@ class ArticlesRelationManager extends RelationManager
                     ->sortable(),
 
                 TextColumn::make('published_at')
+                    ->sortable()
                     ->since(),
             ])
+            ->defaultSort('published_at', 'desc')
             ->headerActions([
                 Action::make('parse-all-articles')
                     ->color('gray')
