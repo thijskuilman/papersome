@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\Collections\Schemas;
 
+use App\Enums\CoverTemplate;
 use App\Enums\DeliveryChannel;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -35,6 +37,11 @@ class CollectionForm
                        ->multiple()
                        ->preload()
                        ->relationship('sources', 'name'),
+
+                   Radio::make('cover_template')
+                       ->label('Cover style')
+                       ->options(CoverTemplate::class)
+
                ])->columnSpanFull()
             ]);
     }
