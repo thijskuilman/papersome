@@ -10,8 +10,6 @@ class ApplicationSettings extends Settings
     public ?string $booklore_url;
 
     public ?string $booklore_username;
-    public ?string $booklore_password;
-
     public ?string $booklore_library_id;
 
     public ?string $booklore_access_token;
@@ -26,7 +24,6 @@ class ApplicationSettings extends Settings
     public static function encrypted(): array
     {
         return [
-            'booklore_password',
             'booklore_access_token',
             'booklore_refresh_token',
         ];

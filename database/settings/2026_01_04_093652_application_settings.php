@@ -8,7 +8,6 @@ return new class extends SettingsMigration
     {
         $this->migrator->add('application.booklore_url', null);
 
-        $this->migrator->addEncrypted('application.booklore_password', null);
         $this->migrator->add('application.booklore_username', null);
 
         $this->migrator->add('application.booklore_library_id', null);
