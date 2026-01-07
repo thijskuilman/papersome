@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Collection;
 use App\Models\Source;
 use App\Models\User;
+use App\Services\BookloreApiService;
 use App\Settings\ApplicationSettings;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -60,11 +61,26 @@ class DatabaseSeeder extends Seeder
             'enabled' => true,
         ]);
 
-        $settings = app(ApplicationSettings::class);
-        $settings->booklore_url = config('booklore.url');
-        $settings->booklore_username = config('booklore.username');
-        $settings->booklore_password = config('booklore.password');
-        $settings->booklore_library_id = config('booklore.library_id');
-        $settings->save();
+
+        $bookloreUsername = config('booklore.username');
+        $booklorePassword = config('booklore.password');
+        $bookloreUrl = config('booklore.url');
+        $bookloreLibraryId = config('booklore.library_id');
+
+        if ($bookloreUsername && $booklorePassword && $bookloreUrl && $bookloreLibraryId) {
+            $settings = app(ApplicationSettings::class);
+            try {
+                app(BookloreApiService::class)->login(
+                    username: $bookloreUsername,
+                    password: $booklorePassword,
+                    url: $bookloreUrl,
+                );
+                $settings->booklore_library_id = config('booklore.library_id');
+                $settings->save();
+            } catch (\Exception $exception) {
+                dd($exception->getMessage());
+            }
+        }
+
     }
 }
