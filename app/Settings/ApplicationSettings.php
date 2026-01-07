@@ -12,6 +12,8 @@ class ApplicationSettings extends Settings
     public ?string $booklore_username;
     public ?string $booklore_password;
 
+    public ?string $booklore_library_id;
+
     public ?string $booklore_access_token;
     public ?string $booklore_refresh_token;
     public ?Carbon $booklore_access_token_expires_at;

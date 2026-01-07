@@ -11,6 +11,8 @@ return new class extends SettingsMigration
         $this->migrator->addEncrypted('application.booklore_password', null);
         $this->migrator->add('application.booklore_username', null);
 
+        $this->migrator->add('application.booklore_library_id', null);
+
         $this->migrator->addEncrypted('application.booklore_access_token', null);
         $this->migrator->addEncrypted('application.booklore_refresh_token', null);
         $this->migrator->add('application.booklore_access_token_expires_at', null);
