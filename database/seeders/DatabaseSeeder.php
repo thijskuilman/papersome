@@ -64,6 +64,7 @@ class DatabaseSeeder extends Seeder
         $settings->booklore_url = config('booklore.url');
         $settings->booklore_username = config('booklore.username');
         $settings->booklore_password = config('booklore.password');
+        $settings->booklore_library_id = config('booklore.library_id');
         $settings->save();
     }
 }
