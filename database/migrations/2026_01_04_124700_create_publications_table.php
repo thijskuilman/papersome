@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('cover_image')->nullable();
             $table->string('booklore_delivery_status')
                 ->default(DeliveryStatus::Pending->value);
+            $table->string('booklore_book_id')->nullable();
             $table->timestamps();
         });
     }
