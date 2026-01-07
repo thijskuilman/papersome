@@ -2,19 +2,18 @@
 
 namespace App\Filament\Pages;
 
-use App\Dto\BookloreConnection;
-use App\Enums\BookloreConnectionStatus;
-use App\Services\BookloreService;
+use App\Services\BookloreApiService;
 use App\Settings\ApplicationSettings;
 use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Pages\SettingsPage;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 
@@ -30,117 +29,115 @@ class ManageSettings extends SettingsPage
 
     protected static ?int $navigationSort = 2;
 
-    /**
-     * @throws \Exception
-     */
-    protected function afterSave(): void
-    {
-        try {
-            app(BookloreService::class)->getAccessToken();
-
-            Notification::make()
-                ->success()
-                ->title('Connected to Booklore')
-                ->body('You can now use Booklore as a delivery channel')
-                ->send();
-        } catch (\Exception $exception) {
-            Notification::make()
-                ->danger()
-                ->title('Connection error to Booklore')
-                ->body($exception->getMessage())
-                ->send();
-        }
-    }
-
-    private function testBookloreConnection(?string $username, ?string $password, ?string $url): ?BookloreConnection
-    {
-
-        if (! $username || ! $password || ! $url) {
-            return null;
-        }
-
-        try {
-            app(BookloreService::class)->getAccessToken(
-                storeToken: false,
-                username: $username,
-                password: $password,
-                url: $url,
-            );
-
-            return new BookloreConnection(
-                status: BookloreConnectionStatus::Success,
-            );
-        } catch (\Exception $exception) {
-            return new BookloreConnection(
-                status: BookloreConnectionStatus::Failed,
-                message: $exception->getMessage(),
-            );
-        }
-    }
-
-    private function updateBookloreConnectionMessage(Get $get, Set $set): void
-    {
-        $connection = $this->testBookloreConnection(
-            username: $get('booklore_username'),
-            password: $get('booklore_password'),
-            url: $get('booklore_url'),
-        );
-
-        if ($connection === null) {
-            return;
-        }
-
-        if ($connection->status === BookloreConnectionStatus::Failed) {
-            $set('booklore_connection_message', $connection->message);
-
-            return;
-        }
-
-        $set('booklore_connection_message', 'Connection successful');
-    }
+    private ApplicationSettings $applicationSettings;
 
     public function form(Schema $schema): Schema
     {
+        $this->applicationSettings = app(ApplicationSettings::class);
+
         return $schema
             ->components([
                 Tabs::make('Tabs')
                     ->tabs([
                         Tab::make('Booklore')
                             ->schema([
-                                TextInput::make('booklore_url')
-                                    ->live(onBlur: true)
-                                    ->afterStateUpdated(function ($state, Get $get, Set $set) {
-                                        $this->updateBookloreConnectionMessage($get, $set);
+                                Action::make('sign_into_booklore')
+                                    ->visible($this->applicationSettings->booklore_username === null)
+                                    ->label('Sign into Booklore')
+                                    ->modal()
+                                    ->color('gray')
+                                    ->icon(Heroicon::OutlinedKey)
+                                    ->fillForm(function () {
+                                        $this->fill([
+                                            'booklore_username' => $this->applicationSettings->booklore_username ?? '',
+                                            'booklore_url' => $this->applicationSettings->booklore_url ?? '',
+                                        ]);
                                     })
-                                    ->requiredWith(['booklore_username', 'booklore_password']),
+                                    ->action(function (array $data, ManageSettings $manageSettings): void {
 
-                                TextInput::make('booklore_username')
-                                    ->live(onBlur: true)
-                                    ->afterStateUpdated(function ($state, Get $get, Set $set) {
-                                        $this->updateBookloreConnectionMessage($get, $set);
-                                    })
-                                    ->requiredWith(['booklore_url', 'booklore_password']),
+                                        try {
+                                            app(BookloreApiService::class)->login(
+                                                $data['booklore_username'],
+                                                $data['booklore_password'],
+                                                $data['booklore_url'],
+                                            );
 
-                                TextInput::make('booklore_password')
-                                    ->live(onBlur: true)
-                                    ->afterStateUpdated(function ($state, Get $get, Set $set) {
-                                        $this->updateBookloreConnectionMessage($get, $set);
-                                    })
-                                    ->requiredWith(['booklore_url', 'booklore_username'])
-                                    ->password(),
+                                            Notification::make()
+                                                ->success()
+                                                ->title('Connected to Booklore')
+                                                ->body('You can now use Booklore as a delivery channel')
+                                                ->send();
 
-                                TextEntry::make('booklore_connection_message')
-                                    ->hiddenLabel()
-                                    ->state('')
-                                    ->color(function (Get $get): ?string {
-                                        $message = $get('booklore_connection_message');
-
-                                        if (! $message) {
-                                            return null;
+                                            // TODO: Graceful alternative to refreshing the page
+                                            $this->js('window.location.reload()');
+                                        } catch (\Exception $exception) {
+                                            Notification::make()
+                                                ->danger()
+                                                ->title('Connection error to Booklore')
+                                                ->body($exception->getMessage())
+                                                ->send();
+                                            $this->halt();
                                         }
+                                    })
+                                    ->schema([
+                                        Grid::make(3)->schema([
+                                            TextInput::make('booklore_url')
+                                                ->label('Booklore URL')
+                                                ->default($this->applicationSettings->booklore_url)
+                                                ->placeholder('https://localhost:6060')
+                                                ->requiredWith(['booklore_username', 'booklore_password']),
 
-                                        return $message === 'Connection successful' ? 'success' : 'danger';
+                                            TextInput::make('booklore_username')
+                                                ->label('Username')
+                                                ->placeholder('Booklore username')
+                                                ->requiredWith(['booklore_url', 'booklore_password']),
+
+                                            TextInput::make('booklore_password')
+                                                ->label('Password')
+                                                ->placeholder('Booklore password')
+                                                ->requiredWith(['booklore_url', 'booklore_username'])
+                                                ->password(),
+                                        ])
+                                    ]),
+
+
+                                TextEntry::make('booklore_connected_message')
+                                    ->color('success')
+                                    ->icon(Heroicon::OutlinedCheckCircle)
+                                    ->iconColor('success')
+                                    ->hiddenLabel()
+                                    ->visible($this->applicationSettings->booklore_username !== null)
+                                    ->html()
+                                    ->state("The user {$this->applicationSettings->booklore_username} is connected to Booklore at <a target='_blank' href='{$this->applicationSettings->booklore_url}'>{$this->applicationSettings->booklore_url}</a>."),
+
+
+                                Select::make('booklore_library_id')
+                                    ->label('Booklore library')
+                                    ->required()
+                                    ->helperText('At which library should the articles be added?')
+                                    ->visible($this->applicationSettings->booklore_username !== null)
+                                    ->options(function () {
+                                        try {
+                                            return collect(app(BookloreApiService::class)->getLibraries())
+                                                ->mapWithKeys(fn($library) => [$library['id'] => $library['name']])
+                                                ->toArray();
+                                        } catch (\Exception $exception) {
+                                            //
+                                        }
                                     }),
+
+
+                                Action::make('disconnect_booklore')
+                                    ->visible($this->applicationSettings->booklore_username !== null)
+                                    ->label('Disconnect Booklore')
+                                    ->requiresConfirmation()
+                                    ->color('danger')
+                                    ->action(function() {
+                                        app(BookloreApiService::class)->disconnect();
+                                        $this->js('window.location.reload()');
+                                    }),
+
+
                             ]),
                         Tab::make('Instapaper')
                             ->schema([
