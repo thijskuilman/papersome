@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Publication;
 use App\Settings\ApplicationSettings;
 use Carbon\Carbon;
 use Exception;
@@ -10,13 +11,14 @@ use Illuminate\Support\Facades\Http;
 
 class BookloreApiService
 {
-    public function __construct(private readonly ApplicationSettings $settings) {}
+    public function __construct(
+        private readonly ApplicationSettings $settings
+    ) {}
 
-    /**
-     * Get a valid access token (reuse, refresh, or login)
-     *
-     * @throws Exception
-     */
+    /* -----------------------------------------------------------------
+     | Authentication
+     |-----------------------------------------------------------------*/
+
     public function login(string $username, string $password, ?string $url = null): string
     {
         if (
@@ -30,13 +32,13 @@ class BookloreApiService
         if ($this->settings->booklore_refresh_token) {
             try {
                 return $this->refreshToken($url);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $this->clearTokens();
             }
         }
 
         if (! $username || ! $password) {
-            throw new Exception('Booklore credentials not set in settings.');
+            throw new Exception('Booklore credentials not set.');
         }
 
         $response = Http::post($url . '/api/v1/auth/login', [
@@ -59,11 +61,6 @@ class BookloreApiService
         return $data['accessToken'];
     }
 
-    /**
-     * Refresh JWT token using refresh token
-     *
-     * @throws Exception
-     */
     public function refreshToken(?string $url = null): string
     {
         $refreshToken = $this->settings->booklore_refresh_token;
@@ -88,9 +85,6 @@ class BookloreApiService
         return $data['accessToken'];
     }
 
-    /**
-     * Store access & refresh tokens and compute expiry from JWT
-     */
     private function storeTokens(array $data): void
     {
         $this->settings->booklore_access_token = $data['accessToken'];
@@ -99,9 +93,6 @@ class BookloreApiService
         $this->settings->save();
     }
 
-    /**
-     * Clear all tokens
-     */
     private function clearTokens(): void
     {
         $this->settings->booklore_access_token = null;
@@ -110,9 +101,6 @@ class BookloreApiService
         $this->settings->save();
     }
 
-    /**
-     * Decode JWT and return expiry as Carbon
-     */
     private function getJwtExpiry(string $jwt): ?Carbon
     {
         $parts = explode('.', $jwt);
@@ -121,37 +109,153 @@ class BookloreApiService
             return null;
         }
 
-        $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
+        $payload = json_decode(
+            base64_decode(strtr($parts[1], '-_', '+/')),
+            true
+        );
 
-        return isset($payload['exp']) ? Carbon::createFromTimestamp($payload['exp']) : null;
+        return isset($payload['exp'])
+            ? Carbon::createFromTimestamp($payload['exp'])
+            : null;
+    }
+
+    /* -----------------------------------------------------------------
+     | HTTP helpers
+     |-----------------------------------------------------------------*/
+
+    private function client()
+    {
+        return Http::withToken($this->settings->booklore_access_token)
+            ->acceptJson();
+    }
+
+    private function retryWithRefresh(callable $callback): Response
+    {
+        $response = $callback();
+
+        if ($response->status() !== 401) {
+            return $response;
+        }
+
+        $this->refreshToken($this->settings->booklore_url);
+
+        return $callback();
+    }
+
+    private function request(string $method, string $url, array $options = []): Response
+    {
+        return $this->retryWithRefresh(function () use ($method, $url, $options) {
+            return $this->client()->send($method, $url, $options);
+        });
+    }
+
+    /* -----------------------------------------------------------------
+     | Public API methods
+     |-----------------------------------------------------------------*/
+
+    public function getLibraries(): array
+    {
+        $response = $this->request(
+            'GET',
+            $this->settings->booklore_url . '/api/v1/libraries'
+        );
+
+        if (! $response->successful()) {
+            throw new Exception('Failed to fetch libraries: ' . $response->body());
+        }
+
+        return $response->json();
     }
 
     /**
-     * Send a request with auto-refresh on 401
+     * Upload a file to a specific library path (fire-and-forget)
      *
      * @throws Exception
      */
-    private function request(string $method, string $url, array $options = []): Response
+    public function uploadFile(int $libraryId, int $pathId, string $filePath): void
     {
-        $accessToken = $this->settings->booklore_access_token;
-        $client = Http::withToken($accessToken)->acceptJson();
-
-        $response = $client->send($method, $url, $options);
-
-        // Auto-refresh if 401
-        if ($response->status() === 401) {
-            try {
-                $newToken = $this->refreshToken($this->settings->booklore_url);
-
-                $client = Http::withToken($newToken)->acceptJson();
-                $response = $client->send($method, $url, $options);
-            } catch (Exception $e) {
-                return $response;
-            }
+        if (! file_exists($filePath)) {
+            throw new Exception("File not found: {$filePath}");
         }
 
-        return $response;
+        $url = $this->settings->booklore_url . '/api/v1/files/upload';
+
+        $response = $this->retryWithRefresh(function () use ($url, $libraryId, $pathId, $filePath) {
+            return $this->client()
+                ->attach(
+                    'file',
+                    fopen($filePath, 'r'),
+                    basename($filePath)
+                )
+                ->post($url, [
+                    'libraryId' => $libraryId,
+                    'pathId'    => $pathId,
+                ]);
+        });
+
+        if (! $response->successful()) {
+            throw new Exception(
+                'File upload failed: ' . $response->status() . ' ' . $response->body()
+            );
+        }
     }
+
+    public function getLibraryBooks(int $libraryId): array
+    {
+        $url = $this->settings->booklore_url . "/api/v1/libraries/{$libraryId}/book";
+
+        $response = $this->retryWithRefresh(function () use ($url) {
+            return $this->client()->get($url);
+        });
+
+        if (! $response->successful()) {
+            throw new Exception(
+                'Failed to fetch books: ' . $response->status() . ' ' . $response->body()
+            );
+        }
+
+        return $response->json() ?: [];
+    }
+
+    public function uploadFileAndWaitForBook(
+        int $libraryId,
+        int $pathId,
+        string $filePath,
+        string $expectedTitle,
+        int $timeoutSeconds = 15,
+        int $pollIntervalMs = 500
+    ): array {
+        if (!file_exists($filePath)) {
+            throw new Exception("File not found: {$filePath}");
+        }
+
+        $this->uploadFile($libraryId, $pathId, $filePath);
+
+        $startTime = time();
+        $matchedBook = null;
+
+        while ((time() - $startTime) < $timeoutSeconds) {
+            $books = $this->getLibraryBooks($libraryId);
+
+            foreach ($books as $book) {
+                if (isset($book['metadata']['title']) && $book['metadata']['title'] === $expectedTitle) {
+                    $matchedBook = $book;
+                    break 2;
+                }
+            }
+
+            usleep($pollIntervalMs * 1000);
+        }
+
+        if ($matchedBook === null) {
+            throw new Exception(
+                "Timeout waiting for book with title '{$expectedTitle}' to appear in library {$libraryId}"
+            );
+        }
+
+        return $matchedBook;
+    }
+
 
     public function disconnect(): void
     {
@@ -161,19 +265,49 @@ class BookloreApiService
         $this->settings->save();
     }
 
-    /**
-     * Fetch libraries from Booklore
-     *
-     * @throws Exception
-     */
-    public function getLibraries(): array
+    public function deleteBooks(array $bookIds): array
     {
-        $response = $this->request('GET', $this->settings->booklore_url . '/api/v1/libraries');
-
-        if (! $response->successful()) {
-            throw new Exception('Failed to fetch libraries: ' . $response->body());
+        if (empty($bookIds)) {
+            return [
+                'deleted' => [],
+                'skipped' => [],
+            ];
         }
 
-        return $response->json();
+        $bookIds = array_values(array_unique(array_map('intval', $bookIds)));
+
+        $ownedIds = Publication::query()
+            ->whereIn('booklore_book_id', $bookIds)
+            ->pluck('booklore_book_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        $skippedIds = array_values(array_diff($bookIds, $ownedIds));
+
+        if (empty($ownedIds)) {
+            return [
+                'deleted' => [],
+                'skipped' => $skippedIds,
+            ];
+        }
+
+        $url = $this->settings->booklore_url . '/api/v1/books';
+
+        $response = $this->request('DELETE', $url, [
+            'query' => [
+                'ids' => implode(',', $ownedIds),
+            ],
+        ]);
+
+        if (! $response->successful()) {
+            throw new Exception(
+                'Failed to delete books: ' . $response->status() . ' ' . $response->body()
+            );
+        }
+
+        return [
+            'deleted' => $ownedIds,
+            'skipped' => $skippedIds,
+        ];
     }
 }

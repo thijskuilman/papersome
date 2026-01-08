@@ -2,19 +2,31 @@
 
 namespace App\Services;
 
+use App\Models\Publication;
 use App\Settings\ApplicationSettings;
 use Exception;
-use Illuminate\Support\Facades\Http;
 
-class BookloreService
+readonly class BookloreService
 {
-    public function __construct(private readonly ApplicationSettings $settings) {}
+    public function __construct(private BookloreApiService $bookloreApiService, private ApplicationSettings $settings) {}
 
     /**
      * @throws Exception
      */
-    public function syncToBooklore(): void
+    public function uploadPublication(Publication $publication): void
     {
-        dd($this->getAccessToken());
+        $book = $this->bookloreApiService->uploadFileAndWaitForBook(
+            libraryId: $this->settings->booklore_library_id,
+            pathId: 1,
+            filePath: \Storage::disk('public')->path($publication->epub_file_path),
+            expectedTitle: $publication->title
+        );
+
+        $publication->booklore_book_id = $book['id'];
+        $publication->save();
+    }
+
+    public function deletePublication(Publication $publication): void {
+        $this->bookloreApiService->deleteBooks([$publication->booklore_book_id]);
     }
 }
