@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Publication;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Facades\Storage;
@@ -32,7 +33,7 @@ class CoverImageService
 
             return $relativePath;
         } catch (\Exception $e) {
-            // TODO: Error logging
+            Log::error('Error while generating cover image with Browsershot: '.$e->getMessage());
             return null;
         }
     }
