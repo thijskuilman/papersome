@@ -30,7 +30,7 @@ class PublicationsRelationManager extends RelationManager
                     ImageColumn::make('cover_image')
                         ->disk('public')
                         ->extraImgAttributes([
-                            'style' => 'width: 100%; height: 310px; object-fit: cover; margin-bottom: 15px;'
+                            'style' => 'width: 100%; height: 310px; object-fit: cover; margin-bottom: 15px;',
                         ]),
 
                     TextColumn::make('collection.name')
@@ -40,12 +40,7 @@ class PublicationsRelationManager extends RelationManager
                     TextColumn::make('created_at')
                         ->date()
                         ->extraAttributes(['style' => 'margin-bottom: 10px;']),
-
-                    TextColumn::make('booklore_delivery_status')
-                        ->prefix('Booklore: ')
-                        ->label('Booklore')
-                        ->badge(),
-                ])
+                ]),
             ])
             ->defaultSort('created_at', 'desc')
             ->contentGrid([
@@ -62,18 +57,11 @@ class PublicationsRelationManager extends RelationManager
             ])
             ->emptyStateHeading('No publications yet')
             ->headerActions([
-                Action::make('sync-to-booklore')
-                    ->label('Sync to Booklore')
-                    ->color('gray')
-                    ->icon(Heroicon::CloudArrowUp)
-                    ->action(function (Collection $collection) {
-                        app(BookloreService::class)->syncToBooklore();
-                    }),
-
                 Action::make('create-publication')
                     ->label('Create publication')
                     ->action(function () {
                         $publication = app(PublicationService::class)->createPublication(collection: $this->ownerRecord);
+
                         return $publication->download();
                     }),
             ])

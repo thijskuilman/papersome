@@ -10,7 +10,7 @@ class FeedService
 {
     public function storeArticlesFromSource(Source $source, int $articleLimit = 5): void
     {
-        $items =  $this->fetchRssItems($source->url);
+        $items = $this->fetchRssItems($source->url);
 
         foreach ($items->take(limit: $articleLimit) as $item) {
             Article::firstOrCreate(
@@ -25,7 +25,8 @@ class FeedService
         }
     }
 
-    private function fetchRssItems(string $feedUrl): Collection {
+    private function fetchRssItems(string $feedUrl): Collection
+    {
         $feed = \Feeds::make(feedUrl: $feedUrl, limit: 5);
 
         return collect($feed->get_items())->map(function ($item) {
