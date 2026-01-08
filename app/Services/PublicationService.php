@@ -22,6 +22,7 @@ readonly class PublicationService
 
         $publication = Publication::create([
             'collection_id' => $collection->id,
+            'title' => $collection->name . ' - ' . now()->toDateString()
         ]);
 
         $articles = $this->retrieveArticles($collection);

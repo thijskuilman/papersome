@@ -19,14 +19,13 @@ class EpubService
     {
         $epub = new EpubBuilder;
 
-        $name = $publication->collection->name . ' - ' . now()->toDateString();
 
-        $epub->setTitle($name)
+        $epub->setTitle($publication->title)
             ->setAuthor('Various authors')
             ->setLanguage('en')
             ->setDescription('');
 
-        $epub->getMetadata()->setIdentifier(Str::slug($name));
+        $epub->getMetadata()->setIdentifier(Str::slug($publication->title));
 
         $epub->addAccessMode('textual')
             ->addAccessMode('visual')
@@ -57,7 +56,7 @@ class EpubService
         }
 
         // Save EPUB on public disk
-        $filename = Str::slug($name) . '.epub';
+        $filename = Str::slug($publication->title) . '.epub';
         $relativePath = 'epubs/' . $filename;
         $fullPath = Storage::disk('public')->path($relativePath);
 
