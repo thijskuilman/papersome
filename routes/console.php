@@ -3,5 +3,5 @@
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('publications:generate')
-    ->twiceDaily(7, 22)
+    ->cron('0 7,12,19 * * *')
     ->runInBackground();
