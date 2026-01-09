@@ -302,37 +302,16 @@ class BookloreApiService
         $this->settings->save();
     }
 
-    public function deleteBooks(array $bookIds): array
+    /**
+     * @throws Exception
+     */
+    public function deleteBooks(array $bookIds): void
     {
-        if (empty($bookIds)) {
-            return [
-                'deleted' => [],
-                'skipped' => [],
-            ];
-        }
-
-        $bookIds = array_values(array_unique(array_map('intval', $bookIds)));
-
-        $ownedIds = Publication::query()
-            ->whereIn('booklore_book_id', $bookIds)
-            ->pluck('booklore_book_id')
-            ->map(fn ($id) => (int) $id)
-            ->all();
-
-        $skippedIds = array_values(array_diff($bookIds, $ownedIds));
-
-        if (empty($ownedIds)) {
-            return [
-                'deleted' => [],
-                'skipped' => $skippedIds,
-            ];
-        }
-
         $url = $this->settings->booklore_url . '/api/v1/books';
 
         $response = $this->request('DELETE', $url, [
             'query' => [
-                'ids' => implode(',', $ownedIds),
+                'ids' => implode(',', $bookIds),
             ],
         ]);
 
@@ -341,10 +320,5 @@ class BookloreApiService
                 'Failed to delete books: ' . $response->status() . ' ' . $response->body()
             );
         }
-
-        return [
-            'deleted' => $ownedIds,
-            'skipped' => $skippedIds,
-        ];
     }
 }

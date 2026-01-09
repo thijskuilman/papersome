@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Publication;
 use App\Settings\ApplicationSettings;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 readonly class BookloreService
 {
@@ -26,12 +27,24 @@ readonly class BookloreService
         $publication->save();
     }
 
-    public function deletePublication(Publication $publication): void {
-        $this->unassignFromKoboShelves($publication);
-        $this->bookloreApiService->deleteBooks([$publication->booklore_book_id]);
+    public function scheduleBookDeletion(int $bookId, int $dayCount): void {
+        $existing = DB::table('scheduled_booklore_deletions')
+            ->where('book_id', $bookId)
+            ->first();
+
+        if ($existing) {
+            return;
+        }
+
+        DB::table('scheduled_booklore_deletions')->insert([
+            'book_id' => $bookId,
+            'delete_at' => now()->addDays($dayCount),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
-    private function unassignFromKoboShelves(Publication $publication): void
+    public function unassignFromKoboShelves(int $bookId): void
     {
         $shelves = $this->bookloreApiService->getShelves();
 
@@ -41,7 +54,7 @@ readonly class BookloreService
             ->all();
 
         $this->bookloreApiService->assignBooksToShelves(
-            bookIds: [$publication->booklore_book_id],
+            bookIds: [$bookId],
             shelvesToUnassign: $koboShelfIds
         );
     }

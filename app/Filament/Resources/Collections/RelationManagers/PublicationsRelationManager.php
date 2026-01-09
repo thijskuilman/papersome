@@ -56,7 +56,9 @@ class PublicationsRelationManager extends RelationManager
 
                 DeleteAction::make()
                     ->before(function (Publication $record) {
-                        app(BookloreService::class)->deletePublication($record);
+                        $bookloreService = app(BookloreService::class);
+                        $bookloreService->unassignFromKoboShelves($record->booklore_book_id);
+                        $bookloreService->scheduleBookDeletion($record->booklore_book_id, 7);
                     }),
             ])
             ->emptyStateHeading('No publications yet')
