@@ -38,8 +38,7 @@ class CollectionForm
                         ->helperText('For how many hours should a publication be retained?')
                         ->integer()
                         ->step(1)
-                        ->minValue(0)
-                        ->required(),
+                        ->minValue(0),
 
                     Radio::make('cover_template')
                         ->label('Cover style')
