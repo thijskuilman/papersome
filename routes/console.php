@@ -9,3 +9,7 @@ Schedule::command('publications:generate')
 Schedule::command('booklore:process-scheduled-deletions')
     ->twiceDaily()
     ->runInBackground();
+
+Schedule::command('publications:prune-retention')
+    ->hourly()
+    ->runInBackground();

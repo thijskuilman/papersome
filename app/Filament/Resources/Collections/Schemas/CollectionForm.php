@@ -17,32 +17,34 @@ class CollectionForm
     {
         return $schema
             ->components([
-               Section::make()->components([
+                Section::make()->components([
 
-                   Toggle::make('enabled')
-                       ->label('Enabled')
-                       ->default(true),
+                    Toggle::make('enabled')
+                        ->label('Enabled')
+                        ->default(true),
 
-                   TextInput::make('name')
-                       ->label('Name')
-                       ->required()
-                       ->maxLength(255),
+                    TextInput::make('name')
+                        ->label('Name')
+                        ->required()
+                        ->maxLength(255),
 
-                   Select::make('delivery_channel')
-                       ->label('Delivery Channel')
-                       ->options(DeliveryChannel::class)
-                       ->required(),
+                    Select::make('sources')
+                        ->multiple()
+                        ->preload()
+                        ->relationship('sources', 'name'),
 
-                   Select::make('sources')
-                       ->multiple()
-                       ->preload()
-                       ->relationship('sources', 'name'),
+                    TextInput::make('publication_retention_hours')
+                        ->label('Publication Retention Hours')
+                        ->helperText('For how many hours should a publication be retained?')
+                        ->integer()
+                        ->step(1)
+                        ->minValue(0)
+                        ->required(),
 
-                   Radio::make('cover_template')
-                       ->label('Cover style')
-                       ->options(CoverTemplate::class)
-
-               ])->columnSpanFull()
+                    Radio::make('cover_template')
+                        ->label('Cover style')
+                        ->options(CoverTemplate::class),
+                ])->columnSpanFull()
             ]);
     }
 }

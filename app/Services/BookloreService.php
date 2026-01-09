@@ -7,7 +7,7 @@ use App\Settings\ApplicationSettings;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-readonly class BookloreService
+class BookloreService
 {
     public function __construct(private BookloreApiService $bookloreApiService, private ApplicationSettings $settings) {}
 
