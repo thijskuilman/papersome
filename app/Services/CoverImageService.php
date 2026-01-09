@@ -26,14 +26,23 @@ class CoverImageService
         ]);
 
         try {
-            Browsershot::url($url)
+            $browsershot = Browsershot::url($url)
+                ->addChromiumArguments([
+                    'no-sandbox',
+                    'disable-setuid-sandbox',
+                ])
                 ->windowSize(600, 800)
-                ->waitUntilNetworkIdle()
-                ->save($fullPath);
+                ->waitUntilNetworkIdle();
+
+            if ($chromePath = config('browsershot.chrome_path')) {
+                $browsershot->setChromePath($chromePath);
+            }
+
+            $browsershot->save($fullPath);
 
             return $relativePath;
         } catch (\Exception $e) {
-            Log::error('Error while generating cover image with Browsershot: '.$e->getMessage());
+            Log::error('Error while generating cover image with Browsershot: ' . $e->getMessage());
             return null;
         }
     }
