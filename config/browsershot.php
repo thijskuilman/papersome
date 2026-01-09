@@ -2,6 +2,6 @@
 
 return [
 
-    'CHROME_PATH' => env('BROWSERSHOT_CHROME_PATH'),
+    'chrome_path' => env('BROWSERSHOT_CHROME_PATH'),
 
 ];
