@@ -53,7 +53,11 @@ class PublicationsRelationManager extends RelationManager
                     ->icon(Heroicon::ArrowDownTray)
                     ->action(fn (Publication $record): ?BinaryFileResponse => $record->download()),
 
-                DeleteAction::make(),
+
+                DeleteAction::make()
+                    ->before(function (Publication $record) {
+                        app(BookloreService::class)->deletePublication($record);
+                    }),
             ])
             ->emptyStateHeading('No publications yet')
             ->headerActions([

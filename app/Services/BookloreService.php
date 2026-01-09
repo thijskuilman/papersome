@@ -27,6 +27,22 @@ readonly class BookloreService
     }
 
     public function deletePublication(Publication $publication): void {
+        $this->unassignFromKoboShelves($publication);
         $this->bookloreApiService->deleteBooks([$publication->booklore_book_id]);
+    }
+
+    private function unassignFromKoboShelves(Publication $publication): void
+    {
+        $shelves = $this->bookloreApiService->getShelves();
+
+        $koboShelfIds = collect($shelves)
+            ->where('name', 'Kobo')
+            ->pluck('id')
+            ->all();
+
+        $this->bookloreApiService->assignBooksToShelves(
+            bookIds: [$publication->booklore_book_id],
+            shelvesToUnassign: $koboShelfIds
+        );
     }
 }

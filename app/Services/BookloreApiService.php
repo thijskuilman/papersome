@@ -167,6 +167,43 @@ class BookloreApiService
         return $response->json();
     }
 
+    public function getShelves(): array
+    {
+        $response = $this->request(
+            'GET',
+            $this->settings->booklore_url . '/api/v1/shelves'
+        );
+
+        if (! $response->successful()) {
+            throw new Exception('Failed to fetch libraries: ' . $response->body());
+        }
+
+        return $response->json();
+    }
+
+    public function assignBooksToShelves(array $bookIds, array $shelvesToAssign = [], array $shelvesToUnassign = []): array
+    {
+        $url = $this->settings->booklore_url . '/api/v1/books/shelves';
+
+        $payload = [
+            'bookIds' => array_values(array_map('intval', $bookIds)),
+            'shelvesToAssign' => array_values(array_map('intval', $shelvesToAssign)),
+            'shelvesToUnassign' => array_values(array_map('intval', $shelvesToUnassign)),
+        ];
+
+        $response = $this->request('POST', $url, [
+            'json' => $payload,
+        ]);
+
+        if (! $response->successful()) {
+            throw new Exception(
+                'Failed to assign/unassign books to shelves: ' . $response->status() . ' ' . $response->body()
+            );
+        }
+
+        return $response->json();
+    }
+
     /**
      * Upload a file to a specific library path (fire-and-forget)
      *
