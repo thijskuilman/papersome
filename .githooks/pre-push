@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo "[pre-push] Running Rector…"
+
+# Run Rector over configured paths (from rector.php). This may modify files.
+./vendor/bin/rector || {
+  echo "[pre-push] Rector encountered an error." >&2
+  exit 1
+}
+
 echo "[pre-push] Running Laravel Pint…"
 
 # Format only files with local changes for speed. Remove --dirty to format the whole repo.
@@ -9,10 +17,10 @@ echo "[pre-push] Running Laravel Pint…"
   exit 1
 }
 
-# If Pint changed files, stop the push so you can review & commit them.
+# If Rector or Pint changed files, stop the push so you can review & commit them.
 if ! git diff --quiet; then
   echo
-  echo "[pre-push] Pint formatted files. Please review and commit these changes, then push again:"
+  echo "[pre-push] Code was modified by Rector and/or Pint. Please review and commit these changes, then push again:"
   git status --short
   exit 1
 fi
