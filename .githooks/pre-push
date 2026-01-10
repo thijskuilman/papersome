@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[pre-push] Running Laravel Pint…"
+
+# Format only files with local changes for speed. Remove --dirty to format the whole repo.
+./vendor/bin/pint --dirty || {
+  echo "[pre-push] Pint encountered an error." >&2
+  exit 1
+}
+
+# If Pint changed files, stop the push so you can review & commit them.
+if ! git diff --quiet; then
+  echo
+  echo "[pre-push] Pint formatted files. Please review and commit these changes, then push again:"
+  git status --short
+  exit 1
+fi
+
+exit 0
