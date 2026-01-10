@@ -32,8 +32,7 @@ class SourceForm
                                         ->url()
                                         ->required()
                                         ->maxLength(255),
-                                ])
-
+                                ]),
 
                             ]),
                         Tab::make('Parsing settings')
@@ -48,7 +47,7 @@ class SourceForm
                             ->schema([
                                 // ...
                             ]),
-                    ])->columnSpanFull()
+                    ])->columnSpanFull(),
             ]);
     }
 }

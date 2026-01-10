@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Collections\RelationManagers;
 
-use App\Models\Collection;
 use App\Models\Publication;
 use App\Services\BookloreService;
 use App\Services\PublicationService;
@@ -52,7 +51,6 @@ class PublicationsRelationManager extends RelationManager
                     ->label('Download')
                     ->icon(Heroicon::ArrowDownTray)
                     ->action(fn (Publication $record): ?BinaryFileResponse => $record->download()),
-
 
                 DeleteAction::make()
                     ->before(function (Publication $record) {

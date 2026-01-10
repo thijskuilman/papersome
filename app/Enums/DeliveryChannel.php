@@ -8,7 +8,7 @@ use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 
-enum DeliveryChannel: string implements HasLabel, HasIcon
+enum DeliveryChannel: string implements HasIcon, HasLabel
 {
     case Booklore = 'booklore';
     case Instapaper = 'instapaper';
@@ -21,7 +21,7 @@ enum DeliveryChannel: string implements HasLabel, HasIcon
         };
     }
 
-    public function getIcon(): string | BackedEnum | Htmlable | null
+    public function getIcon(): string|BackedEnum|Htmlable|null
     {
         return match ($this) {
             self::Booklore => Heroicon::BookOpen,

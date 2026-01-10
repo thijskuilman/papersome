@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Notifications\Notifiable;
-use Filament\Panel;
 
 class User extends Authenticatable implements FilamentUser
 {

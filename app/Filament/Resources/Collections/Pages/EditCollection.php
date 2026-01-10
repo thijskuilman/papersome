@@ -17,7 +17,7 @@ class EditCollection extends EditRecord
 
             $this->getSaveFormAction()
                 ->submit(null)
-                ->action(fn() => $this->save()),
+                ->action(fn () => $this->save()),
         ];
     }
 

@@ -31,7 +31,6 @@ class ArticlesRelationManager extends RelationManager
             ]);
     }
 
-
     public function infolist(Schema $schema): Schema
     {
         return $schema
@@ -86,24 +85,25 @@ class ArticlesRelationManager extends RelationManager
                     ->color('gray')
                     ->icon(Heroicon::ArrowPath)
                     ->label('Refresh feed')
-                    ->action(fn() => app(FeedService::class)->storeArticlesFromSource($this->ownerRecord)),
+                    ->action(fn () => app(FeedService::class)->storeArticlesFromSource($this->ownerRecord)),
 
             ])
             ->recordActions([
                 ViewAction::make()
                     ->slideOver()
-                    ->modalHeading(fn(Article $article) => $article->title),
+                    ->modalHeading(fn (Article $article) => $article->title),
 
                 Action::make('open')
                     ->icon(Heroicon::ArrowTopRightOnSquare)
                     ->url(function (Article $article) {
                         $urlPrefix = $article->source->prefix_parse_url;
-                        return ($urlPrefix ?? '') . $article->url;
+
+                        return ($urlPrefix ?? '').$article->url;
                     })
                     ->openUrlInNewTab(),
 
                 Action::make('parse')
-                    ->action(fn(Article $article) => app(ReadabilityService::class)->parseArticleContent($article)),
+                    ->action(fn (Article $article) => app(ReadabilityService::class)->parseArticleContent($article)),
             ]);
     }
 }

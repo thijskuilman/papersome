@@ -10,7 +10,6 @@ enum CoverTemplate: string implements HasLabel
     case ClassicNewspaper = 'classic_newspaper';
     case GamingMagazine = 'gaming_magazine';
 
-
     public function getView(): string
     {
         return match ($this) {
@@ -26,5 +25,4 @@ enum CoverTemplate: string implements HasLabel
             self::GamingMagazine => 'Gaming magazine',
         };
     }
-
 }

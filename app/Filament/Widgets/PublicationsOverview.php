@@ -18,12 +18,12 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PublicationsOverview extends TableWidget
 {
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn(): Builder => Publication::query())
+            ->query(fn (): Builder => Publication::query())
             ->heading('Latest Publications')
             ->columns([
                 Stack::make([
@@ -36,7 +36,7 @@ class PublicationsOverview extends TableWidget
                         ->weight(FontWeight::Bold),
 
                     TextColumn::make('created_at')->date(),
-                ])
+                ]),
             ])
             ->defaultSort('created_at', 'desc')
             ->paginated(false)

@@ -9,16 +9,15 @@ use App\Models\Publication;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use PHPEpub\EpubBuilder;
-use Illuminate\Support\Facades\Storage;
 
 class EpubService
 {
     public function createEpubFor(Publication $publication, Collection $articles): ?string
     {
         $epub = new EpubBuilder;
-
 
         $epub->setTitle($publication->title)
             ->setAuthor('Various authors')
@@ -56,11 +55,11 @@ class EpubService
         }
 
         // Save EPUB on public disk
-        $filename = Str::slug($publication->title) . '.epub';
-        $relativePath = 'epubs/' . $filename;
+        $filename = Str::slug($publication->title).'.epub';
+        $relativePath = 'epubs/'.$filename;
         $fullPath = Storage::disk('public')->path($relativePath);
 
-        if (!is_dir(dirname($fullPath))) {
+        if (! is_dir(dirname($fullPath))) {
             mkdir(dirname($fullPath), 0755, true);
         }
 
@@ -120,7 +119,7 @@ class EpubService
 
         return new ArticleChapter(
             title: $article->title,
-            fileName: 'chapter-' . $article->id . '.xhtml',
+            fileName: 'chapter-'.$article->id.'.xhtml',
             content: $html
         );
     }
@@ -132,11 +131,15 @@ class EpubService
     {
         try {
             $response = Http::get($imageUrl);
-            if (! $response->ok()) return null;
+            if (! $response->ok()) {
+                return null;
+            }
 
             $pathInfo = pathinfo(parse_url($imageUrl, PHP_URL_PATH));
             $extension = strtolower($pathInfo['extension'] ?? 'jpg');
-            if (!in_array($extension, ['jpg','jpeg','png','gif','webp'])) $extension = 'jpg';
+            if (! in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                $extension = 'jpg';
+            }
 
             $fileName = "$fileNamePrefix.$extension";
             $tempPath = "temp/epub-images/$fileName";
@@ -165,10 +168,14 @@ class EpubService
 
         foreach ($imgNodes as $index => $img) {
             $src = $img->getAttribute('src');
-            if (! $src || str_starts_with($src, '../Images/')) continue;
+            if (! $src || str_starts_with($src, '../Images/')) {
+                continue;
+            }
 
             $image = $this->storeTempImage($src, "article-{$article->id}-img-{$index}");
-            if (! $image) continue;
+            if (! $image) {
+                continue;
+            }
 
             $epub->addImage($image->tempPath);
             $img->setAttribute('src', '../Images/'.$image->fileName);

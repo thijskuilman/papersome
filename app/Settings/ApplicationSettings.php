@@ -2,18 +2,21 @@
 
 namespace App\Settings;
 
-use Spatie\LaravelSettings\Settings;
 use Carbon\Carbon;
+use Spatie\LaravelSettings\Settings;
 
 class ApplicationSettings extends Settings
 {
     public ?string $booklore_url;
 
     public ?string $booklore_username;
+
     public ?string $booklore_library_id;
 
     public ?string $booklore_access_token;
+
     public ?string $booklore_refresh_token;
+
     public ?Carbon $booklore_access_token_expires_at;
 
     public static function group(): string
@@ -29,4 +32,3 @@ class ApplicationSettings extends Settings
         ];
     }
 }
-

@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Collections\Schemas;
 
 use App\Enums\CoverTemplate;
-use App\Enums\DeliveryChannel;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -43,7 +42,7 @@ class CollectionForm
                     Radio::make('cover_template')
                         ->label('Cover style')
                         ->options(CoverTemplate::class),
-                ])->columnSpanFull()
+                ])->columnSpanFull(),
             ]);
     }
 }

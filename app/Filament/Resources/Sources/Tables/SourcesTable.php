@@ -33,7 +33,7 @@ class SourcesTable
                 EditAction::make(),
 
                 Action::make('feed')
-                    ->action(fn (Source $source) => app(FeedService::class)->storeArticlesFromSource($source))
+                    ->action(fn (Source $source) => app(FeedService::class)->storeArticlesFromSource($source)),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

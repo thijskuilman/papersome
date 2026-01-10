@@ -9,7 +9,7 @@ use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 
-enum DeliveryStatus: string implements HasIcon, HasLabel, HasColor
+enum DeliveryStatus: string implements HasColor, HasIcon, HasLabel
 {
     case Pending = 'pending';
     case Failed = 'failed';
@@ -33,7 +33,7 @@ enum DeliveryStatus: string implements HasIcon, HasLabel, HasColor
         };
     }
 
-    public function getColor(): string | array | null
+    public function getColor(): string|array|null
     {
         return match ($this) {
             self::Pending => 'gray',

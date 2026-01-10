@@ -18,7 +18,7 @@ class EditSource extends EditRecord
 
             $this->getSaveFormAction()
                 ->submit(null)
-                ->action(fn() => $this->save()),
+                ->action(fn () => $this->save()),
 
         ];
     }
@@ -32,9 +32,10 @@ class EditSource extends EditRecord
     {
         $url = $data['url'];
         $scheme = parse_url($url, PHP_URL_SCHEME);
-        $host   = parse_url($url, PHP_URL_HOST);
+        $host = parse_url($url, PHP_URL_HOST);
         $base = $scheme && $host ? "$scheme://$host" : null;
         $data['icon'] = Favicon::fetch($base ?? $data['url'])?->getFaviconUrl();
+
         return $data;
     }
 }

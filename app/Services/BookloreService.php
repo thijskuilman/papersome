@@ -27,7 +27,8 @@ class BookloreService
         $publication->save();
     }
 
-    public function scheduleBookDeletion(int $bookId, int $dayCount): void {
+    public function scheduleBookDeletion(int $bookId, int $dayCount): void
+    {
         $existing = DB::table('scheduled_booklore_deletions')
             ->where('book_id', $bookId)
             ->first();

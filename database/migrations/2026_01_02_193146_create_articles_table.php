@@ -1,7 +1,6 @@
 <?php
 
 use App\Enums\ArticleStatus;
-use App\Models\Collection;
 use App\Models\Source;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

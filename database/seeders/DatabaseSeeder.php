@@ -61,7 +61,6 @@ class DatabaseSeeder extends Seeder
             'enabled' => true,
         ]);
 
-
         $bookloreUsername = config('booklore.username');
         $booklorePassword = config('booklore.password');
         $bookloreUrl = config('booklore.url');

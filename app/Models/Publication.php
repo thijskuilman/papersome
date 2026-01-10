@@ -33,13 +33,13 @@ class Publication extends Model
 
     public function download(): ?BinaryFileResponse
     {
-        if (!is_string($this->epub_file_path)) {
+        if (! is_string($this->epub_file_path)) {
             return null;
         }
 
         $path = Storage::disk('public')->path($this->epub_file_path);
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             return null;
         }
 

@@ -9,12 +9,9 @@ use Illuminate\Support\Collection as SupportCollection;
 
 readonly class PublicationService
 {
-
     private ?Publication $previousPublication;
 
-    public function __construct(private EpubService $epubService)
-    {
-    }
+    public function __construct(private EpubService $epubService) {}
 
     public function createPublication(Collection $collection): ?Publication
     {
@@ -22,7 +19,7 @@ readonly class PublicationService
 
         $publication = Publication::create([
             'collection_id' => $collection->id,
-            'title' => $collection->name . ' - ' . now()->toDateTimeString()
+            'title' => $collection->name.' - '.now()->toDateTimeString(),
         ]);
 
         $articles = $this->retrieveArticles($collection);

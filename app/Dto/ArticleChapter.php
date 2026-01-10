@@ -8,7 +8,5 @@ class ArticleChapter
         public string $title,
         public string $fileName,
         public string $content,
-    )
-    {
-    }
+    ) {}
 }

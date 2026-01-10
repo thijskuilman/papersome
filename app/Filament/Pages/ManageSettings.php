@@ -97,9 +97,8 @@ class ManageSettings extends SettingsPage
                                                 ->placeholder('Booklore password')
                                                 ->requiredWith(['booklore_url', 'booklore_username'])
                                                 ->password(),
-                                        ])
+                                        ]),
                                     ]),
-
 
                                 TextEntry::make('booklore_connected_message')
                                     ->color('success')
@@ -110,7 +109,6 @@ class ManageSettings extends SettingsPage
                                     ->html()
                                     ->state("The user {$this->applicationSettings->booklore_username} is connected to Booklore at <a target='_blank' href='{$this->applicationSettings->booklore_url}'>{$this->applicationSettings->booklore_url}</a>."),
 
-
                                 Select::make('booklore_library_id')
                                     ->label('Booklore library')
                                     ->required()
@@ -119,24 +117,22 @@ class ManageSettings extends SettingsPage
                                     ->options(function () {
                                         try {
                                             return collect(app(BookloreApiService::class)->getLibraries())
-                                                ->mapWithKeys(fn($library) => [$library['id'] => $library['name']])
+                                                ->mapWithKeys(fn ($library) => [$library['id'] => $library['name']])
                                                 ->toArray();
                                         } catch (\Exception $exception) {
                                             //
                                         }
                                     }),
 
-
                                 Action::make('disconnect_booklore')
                                     ->visible($this->applicationSettings->booklore_username !== null)
                                     ->label('Disconnect Booklore')
                                     ->requiresConfirmation()
                                     ->color('danger')
-                                    ->action(function() {
+                                    ->action(function () {
                                         app(BookloreApiService::class)->disconnect();
                                         $this->js('window.location.reload()');
                                     }),
-
 
                             ]),
                         Tab::make('Instapaper')

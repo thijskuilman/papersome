@@ -22,11 +22,9 @@ class ProcessScheduledBookloreDeletions extends Command
      */
     protected $description = 'Process all scheduled Booklore deletions';
 
-
     public function __construct(
         public BookloreApiService $bookloreApiService,
-    )
-    {
+    ) {
         parent::__construct();
     }
 
@@ -42,13 +40,14 @@ class ProcessScheduledBookloreDeletions extends Command
             ->pluck('book_id')
             ->toArray();
 
-        if (!$bookIdsToDelete) {
+        if (! $bookIdsToDelete) {
             $this->info('No scheduled deletions at this time.');
+
             return;
         }
 
         $this->bookloreApiService->deleteBooks($bookIdsToDelete);
 
-        $this->info("Deleted " . count($bookIdsToDelete) . " books from Booklore.");
+        $this->info('Deleted '.count($bookIdsToDelete).' books from Booklore.');
     }
 }

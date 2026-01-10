@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Publication;
 use App\Settings\ApplicationSettings;
 use Carbon\Carbon;
 use Exception;
@@ -41,13 +40,13 @@ class BookloreApiService
             throw new Exception('Booklore credentials not set.');
         }
 
-        $response = Http::post($url . '/api/v1/auth/login', [
+        $response = Http::post($url.'/api/v1/auth/login', [
             'username' => $username,
             'password' => $password,
         ]);
 
         if (! $response->successful()) {
-            throw new Exception('Failed to log in to Booklore: ' . $response->body());
+            throw new Exception('Failed to log in to Booklore: '.$response->body());
         }
 
         $this->settings->booklore_username = $username;
@@ -69,13 +68,13 @@ class BookloreApiService
             throw new Exception('No refresh token available.');
         }
 
-        $response = Http::post($url . '/api/v1/auth/refresh', [
+        $response = Http::post($url.'/api/v1/auth/refresh', [
             'refreshToken' => $refreshToken,
         ]);
 
         if (! $response->successful()) {
             $this->clearTokens();
-            throw new Exception('Failed to refresh Booklore token: ' . $response->body());
+            throw new Exception('Failed to refresh Booklore token: '.$response->body());
         }
 
         $data = $response->json();
@@ -157,11 +156,11 @@ class BookloreApiService
     {
         $response = $this->request(
             'GET',
-            $this->settings->booklore_url . '/api/v1/libraries'
+            $this->settings->booklore_url.'/api/v1/libraries'
         );
 
         if (! $response->successful()) {
-            throw new Exception('Failed to fetch libraries: ' . $response->body());
+            throw new Exception('Failed to fetch libraries: '.$response->body());
         }
 
         return $response->json();
@@ -171,11 +170,11 @@ class BookloreApiService
     {
         $response = $this->request(
             'GET',
-            $this->settings->booklore_url . '/api/v1/shelves'
+            $this->settings->booklore_url.'/api/v1/shelves'
         );
 
         if (! $response->successful()) {
-            throw new Exception('Failed to fetch libraries: ' . $response->body());
+            throw new Exception('Failed to fetch libraries: '.$response->body());
         }
 
         return $response->json();
@@ -183,7 +182,7 @@ class BookloreApiService
 
     public function assignBooksToShelves(array $bookIds, array $shelvesToAssign = [], array $shelvesToUnassign = []): array
     {
-        $url = $this->settings->booklore_url . '/api/v1/books/shelves';
+        $url = $this->settings->booklore_url.'/api/v1/books/shelves';
 
         $payload = [
             'bookIds' => array_values(array_map('intval', $bookIds)),
@@ -197,7 +196,7 @@ class BookloreApiService
 
         if (! $response->successful()) {
             throw new Exception(
-                'Failed to assign/unassign books to shelves: ' . $response->status() . ' ' . $response->body()
+                'Failed to assign/unassign books to shelves: '.$response->status().' '.$response->body()
             );
         }
 
@@ -215,7 +214,7 @@ class BookloreApiService
             throw new Exception("File not found: {$filePath}");
         }
 
-        $url = $this->settings->booklore_url . '/api/v1/files/upload';
+        $url = $this->settings->booklore_url.'/api/v1/files/upload';
 
         $response = $this->retryWithRefresh(function () use ($url, $libraryId, $pathId, $filePath) {
             return $this->client()
@@ -226,20 +225,20 @@ class BookloreApiService
                 )
                 ->post($url, [
                     'libraryId' => $libraryId,
-                    'pathId'    => $pathId,
+                    'pathId' => $pathId,
                 ]);
         });
 
         if (! $response->successful()) {
             throw new Exception(
-                'File upload failed: ' . $response->status() . ' ' . $response->body()
+                'File upload failed: '.$response->status().' '.$response->body()
             );
         }
     }
 
     public function getLibraryBooks(int $libraryId): array
     {
-        $url = $this->settings->booklore_url . "/api/v1/libraries/{$libraryId}/book";
+        $url = $this->settings->booklore_url."/api/v1/libraries/{$libraryId}/book";
 
         $response = $this->retryWithRefresh(function () use ($url) {
             return $this->client()->get($url);
@@ -247,7 +246,7 @@ class BookloreApiService
 
         if (! $response->successful()) {
             throw new Exception(
-                'Failed to fetch books: ' . $response->status() . ' ' . $response->body()
+                'Failed to fetch books: '.$response->status().' '.$response->body()
             );
         }
 
@@ -262,7 +261,7 @@ class BookloreApiService
         int $timeoutSeconds = 15,
         int $pollIntervalMs = 500
     ): array {
-        if (!file_exists($filePath)) {
+        if (! file_exists($filePath)) {
             throw new Exception("File not found: {$filePath}");
         }
 
@@ -293,7 +292,6 @@ class BookloreApiService
         return $matchedBook;
     }
 
-
     public function disconnect(): void
     {
         $this->clearTokens();
@@ -307,7 +305,7 @@ class BookloreApiService
      */
     public function deleteBooks(array $bookIds): void
     {
-        $url = $this->settings->booklore_url . '/api/v1/books';
+        $url = $this->settings->booklore_url.'/api/v1/books';
 
         $response = $this->request('DELETE', $url, [
             'query' => [
@@ -317,7 +315,7 @@ class BookloreApiService
 
         if (! $response->successful()) {
             throw new Exception(
-                'Failed to delete books: ' . $response->status() . ' ' . $response->body()
+                'Failed to delete books: '.$response->status().' '.$response->body()
             );
         }
     }

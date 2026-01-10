@@ -10,5 +10,5 @@ class Dashboard extends BaseDashboard
 {
     protected static ?string $title = 'Shelf';
 
-    protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedBookOpen;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookOpen;
 }

@@ -2,14 +2,14 @@
 
 namespace App\Enums;
 
+use BackedEnum;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
-use BackedEnum;
 
-enum ArticleStatus: string implements HasLabel, HasIcon, HasColor
+enum ArticleStatus: string implements HasColor, HasIcon, HasLabel
 {
     case Pending = 'pending';
     case Failed = 'failed';
@@ -24,7 +24,7 @@ enum ArticleStatus: string implements HasLabel, HasIcon, HasColor
         };
     }
 
-    public function getIcon(): string | BackedEnum | Htmlable | null
+    public function getIcon(): string|BackedEnum|Htmlable|null
     {
         return match ($this) {
             self::Pending => Heroicon::OutlinedClock,
@@ -33,7 +33,7 @@ enum ArticleStatus: string implements HasLabel, HasIcon, HasColor
         };
     }
 
-    public function getColor(): string | array | null
+    public function getColor(): string|array|null
     {
         return match ($this) {
             self::Pending => 'gray',

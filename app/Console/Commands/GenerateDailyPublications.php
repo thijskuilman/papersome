@@ -24,20 +24,19 @@ class GenerateDailyPublications extends Command
     protected $description = 'Fetch, parse, publish, and optionally upload publications to Booklore for all enabled collections';
 
     public function __construct(
-        public FeedService         $feedService,
-        public ReadabilityService  $readabilityService,
-        public PublicationService  $publicationService,
-        public BookloreService     $bookloreService,
+        public FeedService $feedService,
+        public ReadabilityService $readabilityService,
+        public PublicationService $publicationService,
+        public BookloreService $bookloreService,
         public ApplicationSettings $settings,
-    )
-    {
+    ) {
         parent::__construct();
     }
 
     public function handle(): int
     {
         $startedAt = Carbon::now();
-        $limit = (int)$this->option('limit');
+        $limit = (int) $this->option('limit');
 
         $collections = $this->loadEnabledCollections();
 
@@ -80,7 +79,7 @@ class GenerateDailyPublications extends Command
 
         $publication = $this->createPublicationForCollection($collection);
 
-        if (!$publication) {
+        if (! $publication) {
             $this->line('No new articles to publish.');
 
             return;
@@ -168,11 +167,11 @@ class GenerateDailyPublications extends Command
      */
     private function syncToBooklore(Publication $publication): void
     {
-        $hasBooklore = !empty($this->settings->booklore_username)
-            && !empty($this->settings->booklore_library_id)
-            && !empty($publication->epub_file_path);
+        $hasBooklore = ! empty($this->settings->booklore_username)
+            && ! empty($this->settings->booklore_library_id)
+            && ! empty($publication->epub_file_path);
 
-        if (!$hasBooklore) {
+        if (! $hasBooklore) {
             $this->line('  Skipping Booklore upload (credentials not configured).');
 
             return;
