@@ -47,7 +47,7 @@ class ManageSettings extends SettingsPage
                                     ->modal()
                                     ->color('gray')
                                     ->icon(Heroicon::OutlinedKey)
-                                    ->fillForm(function () {
+                                    ->fillForm(function (): void {
                                         $this->fill([
                                             'booklore_username' => $this->applicationSettings->booklore_username ?? '',
                                             'booklore_url' => $this->applicationSettings->booklore_url ?? '',
@@ -117,9 +117,9 @@ class ManageSettings extends SettingsPage
                                     ->options(function () {
                                         try {
                                             return collect(app(BookloreApiService::class)->getLibraries())
-                                                ->mapWithKeys(fn ($library) => [$library['id'] => $library['name']])
+                                                ->mapWithKeys(fn ($library): array => [$library['id'] => $library['name']])
                                                 ->toArray();
-                                        } catch (\Exception $exception) {
+                                        } catch (\Exception) {
                                             //
                                         }
                                     }),
@@ -129,7 +129,7 @@ class ManageSettings extends SettingsPage
                                     ->label('Disconnect Booklore')
                                     ->requiresConfirmation()
                                     ->color('danger')
-                                    ->action(function () {
+                                    ->action(function (): void {
                                         app(BookloreApiService::class)->disconnect();
                                         $this->js('window.location.reload()');
                                     }),

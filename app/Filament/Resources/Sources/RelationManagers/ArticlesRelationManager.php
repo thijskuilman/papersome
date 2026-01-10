@@ -73,7 +73,7 @@ class ArticlesRelationManager extends RelationManager
                     ->color('gray')
                     ->icon(Heroicon::DocumentMagnifyingGlass)
                     ->label('Parse all articles')
-                    ->action(function () {
+                    ->action(function (): void {
                         $source = $this->ownerRecord;
 
                         foreach ($source->articles as $article) {
@@ -95,7 +95,7 @@ class ArticlesRelationManager extends RelationManager
 
                 Action::make('open')
                     ->icon(Heroicon::ArrowTopRightOnSquare)
-                    ->url(function (Article $article) {
+                    ->url(function (Article $article): string {
                         $urlPrefix = $article->source->prefix_parse_url;
 
                         return ($urlPrefix ?? '').$article->url;

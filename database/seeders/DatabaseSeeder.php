@@ -76,8 +76,7 @@ class DatabaseSeeder extends Seeder
                 );
                 $settings->booklore_library_id = config('booklore.library_id');
                 $settings->save();
-            } catch (\Exception $exception) {
-                dd($exception->getMessage());
+            } catch (\Exception) {
             }
         }
 

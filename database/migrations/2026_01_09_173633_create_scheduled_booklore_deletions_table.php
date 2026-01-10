@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('scheduled_booklore_deletions', function (Blueprint $table) {
+        Schema::create('scheduled_booklore_deletions', function (Blueprint $table): void {
             $table->id();
             $table->unsignedInteger('book_id');
             $table->timestamp('delete_at');

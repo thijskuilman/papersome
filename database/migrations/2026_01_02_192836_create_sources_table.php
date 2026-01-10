@@ -9,11 +9,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('sources', function (Blueprint $table) {
+        Schema::create('sources', function (Blueprint $table): void {
             $table->id();
             $table->string('icon')->nullable();
             $table->string('name');
-            $table->string('type')->default(SourceType::RSS->value);
+            $table->string('type')->default(SourceType::Rss->value);
             $table->string('url');
             $table->string('prefix_parse_url')->nullable();
             $table->timestamp('last_fetched_at')->nullable();

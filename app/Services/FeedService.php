@@ -29,13 +29,11 @@ class FeedService
     {
         $feed = \Feeds::make(feedUrl: $feedUrl, limit: 5);
 
-        return collect($feed->get_items())->map(function ($item) {
-            return [
-                'permalink' => $item->get_permalink(),
-                'title' => $item->get_title(),
-                'description' => $item->get_description(),
-                'date' => $item->get_date(),
-            ];
-        });
+        return collect($feed->get_items())->map(fn ($item): array => [
+            'permalink' => $item->get_permalink(),
+            'title' => $item->get_title(),
+            'description' => $item->get_description(),
+            'date' => $item->get_date(),
+        ]);
     }
 }

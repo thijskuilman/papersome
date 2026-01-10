@@ -31,8 +31,8 @@ class EditSource extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $url = $data['url'];
-        $scheme = parse_url($url, PHP_URL_SCHEME);
-        $host = parse_url($url, PHP_URL_HOST);
+        $scheme = parse_url((string) $url, PHP_URL_SCHEME);
+        $host = parse_url((string) $url, PHP_URL_HOST);
         $base = $scheme && $host ? "$scheme://$host" : null;
         $data['icon'] = Favicon::fetch($base ?? $data['url'])?->getFaviconUrl();
 

@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('collections', function (Blueprint $table) {
+        Schema::create('collections', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
             $table->string('delivery_channel')->default(DeliveryChannel::Booklore->value);
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('collection_source', function (Blueprint $table) {
+        Schema::create('collection_source', function (Blueprint $table): void {
             $table->id();
             $table->foreignIdFor(Collection::class, 'collection_id')->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Source::class, 'source_id')->constrained()->cascadeOnDelete();

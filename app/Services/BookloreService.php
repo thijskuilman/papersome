@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class BookloreService
 {
-    public function __construct(private BookloreApiService $bookloreApiService, private ApplicationSettings $settings) {}
+    public function __construct(private readonly BookloreApiService $bookloreApiService, private readonly ApplicationSettings $settings) {}
 
     /**
      * @throws Exception

@@ -7,17 +7,17 @@ use Spatie\LaravelSettings\Settings;
 
 class ApplicationSettings extends Settings
 {
-    public ?string $booklore_url;
+    public ?string $booklore_url = null;
 
-    public ?string $booklore_username;
+    public ?string $booklore_username = null;
 
-    public ?string $booklore_library_id;
+    public ?string $booklore_library_id = null;
 
-    public ?string $booklore_access_token;
+    public ?string $booklore_access_token = null;
 
-    public ?string $booklore_refresh_token;
+    public ?string $booklore_refresh_token = null;
 
-    public ?Carbon $booklore_access_token_expires_at;
+    public ?Carbon $booklore_access_token_expires_at = null;
 
     public static function group(): string
     {

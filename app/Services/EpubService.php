@@ -65,7 +65,7 @@ class EpubService
 
         try {
             $epub->save($fullPath);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // TODO: Error logging
             return null;
         }
@@ -80,7 +80,7 @@ class EpubService
             $tocHtml .= sprintf(
                 '<li><a href="%s">%s</a></li>',
                 $chapter->fileName,
-                htmlspecialchars($chapter->title)
+                htmlspecialchars((string) $chapter->title)
             );
         }
         $tocHtml .= '</ul>';
@@ -150,7 +150,7 @@ class EpubService
                 tempPath: Storage::disk('local')->path($tempPath),
                 fileName: $fileName
             );
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             return null;
         }
     }
@@ -168,7 +168,7 @@ class EpubService
 
         foreach ($imgNodes as $index => $img) {
             $src = $img->getAttribute('src');
-            if (! $src || str_starts_with($src, '../Images/')) {
+            if (! $src || str_starts_with((string) $src, '../Images/')) {
                 continue;
             }
 

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('collections', function (Blueprint $table) {
+        Schema::table('collections', function (Blueprint $table): void {
             $table
                 ->unsignedInteger('publication_retention_hours')
                 ->nullable()
@@ -24,7 +24,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('collections', function (Blueprint $table) {
+        Schema::table('collections', function (Blueprint $table): void {
             $table->dropColumn('publication_retention_hours');
         });
     }

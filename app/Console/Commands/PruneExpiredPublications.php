@@ -45,7 +45,7 @@ class PruneExpiredPublications extends Command
                 });
             });
 
-        $expired = $query->get()->filter(function (Publication $pub) use ($now) {
+        $expired = $query->get()->filter(function (Publication $pub) use ($now): bool {
             $hours = (int) ($pub->collection->publication_retention_hours ?? 0);
             if ($hours <= 0) {
                 return false;

@@ -36,9 +36,7 @@ class BookloreApiService
             }
         }
 
-        if (! $username || ! $password) {
-            throw new Exception('Booklore credentials not set.');
-        }
+        throw_if(! $username || ! $password, new Exception('Booklore credentials not set.'));
 
         $response = Http::post($url.'/api/v1/auth/login', [
             'username' => $username,
@@ -64,9 +62,7 @@ class BookloreApiService
     {
         $refreshToken = $this->settings->booklore_refresh_token;
 
-        if (! $refreshToken) {
-            throw new Exception('No refresh token available.');
-        }
+        throw_unless($refreshToken, new Exception('No refresh token available.'));
 
         $response = Http::post($url.'/api/v1/auth/refresh', [
             'refreshToken' => $refreshToken,
@@ -143,9 +139,7 @@ class BookloreApiService
 
     private function request(string $method, string $url, array $options = []): Response
     {
-        return $this->retryWithRefresh(function () use ($method, $url, $options) {
-            return $this->client()->send($method, $url, $options);
-        });
+        return $this->retryWithRefresh(fn () => $this->client()->send($method, $url, $options));
     }
 
     /* -----------------------------------------------------------------
@@ -185,9 +179,9 @@ class BookloreApiService
         $url = $this->settings->booklore_url.'/api/v1/books/shelves';
 
         $payload = [
-            'bookIds' => array_values(array_map('intval', $bookIds)),
-            'shelvesToAssign' => array_values(array_map('intval', $shelvesToAssign)),
-            'shelvesToUnassign' => array_values(array_map('intval', $shelvesToUnassign)),
+            'bookIds' => array_values(array_map(intval(...), $bookIds)),
+            'shelvesToAssign' => array_values(array_map(intval(...), $shelvesToAssign)),
+            'shelvesToUnassign' => array_values(array_map(intval(...), $shelvesToUnassign)),
         ];
 
         $response = $this->request('POST', $url, [
@@ -210,24 +204,20 @@ class BookloreApiService
      */
     public function uploadFile(int $libraryId, int $pathId, string $filePath): void
     {
-        if (! file_exists($filePath)) {
-            throw new Exception("File not found: {$filePath}");
-        }
+        throw_unless(file_exists($filePath), new Exception("File not found: {$filePath}"));
 
         $url = $this->settings->booklore_url.'/api/v1/files/upload';
 
-        $response = $this->retryWithRefresh(function () use ($url, $libraryId, $pathId, $filePath) {
-            return $this->client()
-                ->attach(
-                    'file',
-                    fopen($filePath, 'r'),
-                    basename($filePath)
-                )
-                ->post($url, [
-                    'libraryId' => $libraryId,
-                    'pathId' => $pathId,
-                ]);
-        });
+        $response = $this->retryWithRefresh(fn () => $this->client()
+            ->attach(
+                'file',
+                fopen($filePath, 'r'),
+                basename($filePath)
+            )
+            ->post($url, [
+                'libraryId' => $libraryId,
+                'pathId' => $pathId,
+            ]));
 
         if (! $response->successful()) {
             throw new Exception(
@@ -240,9 +230,7 @@ class BookloreApiService
     {
         $url = $this->settings->booklore_url."/api/v1/libraries/{$libraryId}/book";
 
-        $response = $this->retryWithRefresh(function () use ($url) {
-            return $this->client()->get($url);
-        });
+        $response = $this->retryWithRefresh(fn () => $this->client()->get($url));
 
         if (! $response->successful()) {
             throw new Exception(
@@ -261,16 +249,14 @@ class BookloreApiService
         int $timeoutSeconds = 15,
         int $pollIntervalMs = 500
     ): array {
-        if (! file_exists($filePath)) {
-            throw new Exception("File not found: {$filePath}");
-        }
+        throw_unless(file_exists($filePath), new Exception("File not found: {$filePath}"));
 
         $this->uploadFile($libraryId, $pathId, $filePath);
 
-        $startTime = time();
+        $startTime = \Carbon\Carbon::now()->getTimestamp();
         $matchedBook = null;
 
-        while ((time() - $startTime) < $timeoutSeconds) {
+        while ((\Carbon\Carbon::now()->getTimestamp() - $startTime) < $timeoutSeconds) {
             $books = $this->getLibraryBooks($libraryId);
 
             foreach ($books as $book) {
@@ -283,11 +269,9 @@ class BookloreApiService
             usleep($pollIntervalMs * 1000);
         }
 
-        if ($matchedBook === null) {
-            throw new Exception(
-                "Timeout waiting for book with title '{$expectedTitle}' to appear in library {$libraryId}"
-            );
-        }
+        throw_if($matchedBook === null, new Exception(
+            "Timeout waiting for book with title '{$expectedTitle}' to appear in library {$libraryId}"
+        ));
 
         return $matchedBook;
     }

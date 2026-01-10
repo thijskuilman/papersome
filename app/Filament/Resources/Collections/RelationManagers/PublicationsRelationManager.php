@@ -53,10 +53,13 @@ class PublicationsRelationManager extends RelationManager
                     ->action(fn (Publication $record): ?BinaryFileResponse => $record->download()),
 
                 DeleteAction::make()
-                    ->before(function (Publication $record) {
+                    ->before(function (Publication $record): void {
                         $bookloreService = app(BookloreService::class);
-                        $bookloreService->unassignFromKoboShelves($record->booklore_book_id);
-                        $bookloreService->scheduleBookDeletion($record->booklore_book_id, 7);
+
+                        if($record->booklore_book_id) {
+                            $bookloreService->unassignFromKoboShelves($record->booklore_book_id);
+                            $bookloreService->scheduleBookDeletion($record->booklore_book_id, 7);
+                        }
                     }),
             ])
             ->emptyStateHeading('No publications yet')
