@@ -124,7 +124,7 @@ class ManageSettings extends SettingsPage
                                         }
                                     }),
 
-                                TextInput::make('booklore_deletion_retention_hours')
+                                TextInput::make('booklore_retention_hours')
                                     ->label('Booklore retention hours')
                                     ->numeric()
                                     ->minValue(1)
