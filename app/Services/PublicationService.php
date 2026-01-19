@@ -9,7 +9,7 @@ use Illuminate\Support\Collection as SupportCollection;
 
 class PublicationService
 {
-    private ?Publication $previousPublication;
+    private ?Publication $previousPublication = null;
 
     public function __construct(private readonly EpubService $epubService) {}
 
