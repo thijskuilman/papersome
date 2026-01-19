@@ -19,6 +19,8 @@ class ApplicationSettings extends Settings
 
     public ?Carbon $booklore_access_token_expires_at = null;
 
+    public int $booklore_retention_hours = 8;
+
     public static function group(): string
     {
         return 'application';

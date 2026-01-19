@@ -58,7 +58,7 @@ class PublicationsRelationManager extends RelationManager
 
                         if($record->booklore_book_id) {
                             $bookloreService->unassignFromKoboShelves($record->booklore_book_id);
-                            $bookloreService->scheduleBookDeletion($record->booklore_book_id, 7);
+                            $bookloreService->requestBookDeletion($record->booklore_book_id);
                         }
                     }),
             ])

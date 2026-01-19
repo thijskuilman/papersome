@@ -64,7 +64,7 @@ class PruneExpiredPublications extends Command
         foreach ($expired as $record) {
             if (is_numeric($record->booklore_book_id)) {
                 $this->bookloreService->unassignFromKoboShelves((int) $record->booklore_book_id);
-                $this->bookloreService->scheduleBookDeletion((int) $record->booklore_book_id, 7);
+                $this->bookloreService->requestBookDeletion((int) $record->booklore_book_id);
             }
 
             $record->delete();

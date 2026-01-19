@@ -124,6 +124,13 @@ class ManageSettings extends SettingsPage
                                         }
                                     }),
 
+                                TextInput::make('booklore_deletion_retention_hours')
+                                    ->label('Booklore retention hours')
+                                    ->numeric()
+                                    ->minValue(1)
+                                    ->helperText('How long after requesting deletion should a Booklore book actually be deleted.')
+                                    ->visible($this->applicationSettings->booklore_username !== null),
+
                                 Action::make('disconnect_booklore')
                                     ->visible($this->applicationSettings->booklore_username !== null)
                                     ->label('Disconnect Booklore')

@@ -27,9 +27,9 @@ class BookloreService
         $publication->save();
     }
 
-    public function scheduleBookDeletion(int $bookId, int $dayCount): void
+    public function requestBookDeletion(int $bookId): void
     {
-        $existing = DB::table('scheduled_booklore_deletions')
+        $existing = DB::table('booklore_deletion_requests')
             ->where('book_id', $bookId)
             ->first();
 
@@ -37,9 +37,9 @@ class BookloreService
             return;
         }
 
-        DB::table('scheduled_booklore_deletions')->insert([
+        DB::table('booklore_deletion_requests')->insert([
             'book_id' => $bookId,
-            'delete_at' => now()->addDays($dayCount),
+            'deletion_requested_at' => now(),
             'created_at' => now(),
             'updated_at' => now(),
         ]);

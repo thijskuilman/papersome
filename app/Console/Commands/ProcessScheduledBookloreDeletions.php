@@ -13,17 +13,18 @@ class ProcessScheduledBookloreDeletions extends Command
      *
      * @var string
      */
-    protected $signature = 'booklore:process-scheduled-deletions';
+    protected $signature = 'booklore:process-deletion-requests';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Process all scheduled Booklore deletions';
+    protected $description = 'Process all pending Booklore deletion requests';
 
     public function __construct(
         public BookloreApiService $bookloreApiService,
+        public \App\Settings\ApplicationSettings $settings,
     ) {
         parent::__construct();
     }
@@ -33,15 +34,22 @@ class ProcessScheduledBookloreDeletions extends Command
      */
     public function handle(): void
     {
-        $this->info('Processing scheduled Booklore deletions...');
+        $this->info('Processing Booklore deletion requests...');
 
-        $bookIdsToDelete = DB::table('scheduled_booklore_deletions')
-            ->where('delete_at', '<=', now())
+        $overrideHours = config('newspaparr.booklore_retention_hours');
+        $hours = is_null($overrideHours)
+            ? (int) ($this->settings->booklore_retention_hours ?? 48)
+            : (int) $overrideHours;
+
+        $threshold = now()->subHours($hours);
+
+        $bookIdsToDelete = DB::table('booklore_deletion_requests')
+            ->where('deletion_requested_at', '<=', $threshold)
             ->pluck('book_id')
             ->toArray();
 
         if (! $bookIdsToDelete) {
-            $this->info('No scheduled deletions at this time.');
+            $this->info('No deletion requests are due at this time.');
 
             return;
         }

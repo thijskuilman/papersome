@@ -6,7 +6,7 @@ Schedule::command('publications:generate')
     ->cron('0 7,12,19 * * *')
     ->runInBackground();
 
-Schedule::command('booklore:process-scheduled-deletions')
+Schedule::command('booklore:process-deletion-requests')
     ->twiceDaily()
     ->runInBackground();
 

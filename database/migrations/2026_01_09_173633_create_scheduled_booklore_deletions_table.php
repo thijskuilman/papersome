@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('scheduled_booklore_deletions', function (Blueprint $table): void {
+        Schema::create('booklore_deletion_requests', function (Blueprint $table): void {
             $table->id();
             $table->unsignedInteger('book_id');
-            $table->timestamp('delete_at');
+            $table->timestamp('deletion_requested_at');
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('scheduled_booklore_deletions');
+        Schema::dropIfExists('booklore_deletion_requests');
     }
 };

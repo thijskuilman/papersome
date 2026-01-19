@@ -34,7 +34,7 @@ it('prunes publications older than the collection retention window', function ()
 
     $svc = mock(BookloreService::class);
     $svc->shouldReceive('unassignFromKoboShelves')->once()->with(123);
-    $svc->shouldReceive('scheduleBookDeletion')->once()->with(123, 7);
+    $svc->shouldReceive('requestBookDeletion')->once()->with(123);
 
     artisan(PruneExpiredPublications::class)->assertSuccessful();
 
@@ -69,7 +69,7 @@ it('does not prune when retention is null or zero', function (): void {
 
     $svc = mock(BookloreService::class);
     $svc->shouldNotReceive('unassignFromKoboShelves');
-    $svc->shouldNotReceive('scheduleBookDeletion');
+    $svc->shouldNotReceive('requestBookDeletion');
 
     artisan(PruneExpiredPublications::class)->assertSuccessful();
 

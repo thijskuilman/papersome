@@ -33,7 +33,7 @@ class CollectionForm
                         ->relationship('sources', 'name'),
 
                     TextInput::make('publication_retention_hours')
-                        ->label('Publication Retention Hours')
+                        ->label('Publication retention hours')
                         ->helperText('For how many hours should a publication be retained?')
                         ->integer()
                         ->step(1)
