@@ -7,11 +7,11 @@ use App\Models\Collection;
 use App\Models\Publication;
 use Illuminate\Support\Collection as SupportCollection;
 
-readonly class PublicationService
+class PublicationService
 {
     private ?Publication $previousPublication;
 
-    public function __construct(private EpubService $epubService) {}
+    public function __construct(private readonly EpubService $epubService) {}
 
     public function createPublication(Collection $collection): ?Publication
     {
