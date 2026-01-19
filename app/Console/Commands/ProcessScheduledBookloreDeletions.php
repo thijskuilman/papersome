@@ -38,7 +38,7 @@ class ProcessScheduledBookloreDeletions extends Command
 
         $overrideHours = config('newspaparr.booklore_retention_hours');
         $hours = is_null($overrideHours)
-            ? (int) ($this->settings->booklore_retention_hours ?? 48)
+            ? $this->settings->booklore_retention_hours ?? 8
             : (int) $overrideHours;
 
         $threshold = now()->subHours($hours);
