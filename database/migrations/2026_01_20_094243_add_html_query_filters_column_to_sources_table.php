@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('sources', function (Blueprint $table) {
+        Schema::table('sources', function (Blueprint $table): void {
             $table->json('html_query_filters')->after('url')->nullable();
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('sources', function (Blueprint $table) {
+        Schema::table('sources', function (Blueprint $table): void {
             $table->dropColumn('html_query_filters');
         });
     }
