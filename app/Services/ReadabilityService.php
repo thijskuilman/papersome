@@ -24,6 +24,11 @@ class ReadabilityService
 
         $html = $response->body();
 
+        if($article->source->html_query_filters) {
+            $html = app(HtmlParseService::class)
+                ->removeFilteredElements(html: $html, article: $article);
+        }
+
         try {
             $readability->parse($html);
 

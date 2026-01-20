@@ -26,6 +26,7 @@ class Source extends Model
         return [
             'type' => SourceType::class,
             'last_fetched_at' => 'datetime',
+            'html_query_filters' => 'array',
         ];
     }
 

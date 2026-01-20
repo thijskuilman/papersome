@@ -30,6 +30,20 @@ class DatabaseSeeder extends Seeder
             'url' => 'https://feeds.nos.nl/nosnieuwsalgemeen',
             'type' => 'rss',
             'icon' => 'https://static.nos.nl/img/favicon/favicon-32x32.png',
+            'html_query_filters' => [
+                [
+                    'selector' => 'all',
+                    'query' => 'div[data-sentry-component="HeaderImage"]'
+                ],
+                [
+                    'selector' => 'first',
+                    'query' => 'div[data-sentry-component="RegionMeta"]'
+                ],
+                [
+                    'selector' => 'first',
+                    'query' => 'div[data-sentry-element="ItemContainer"]'
+                ]
+            ]
         ]);
 
         Source::create([

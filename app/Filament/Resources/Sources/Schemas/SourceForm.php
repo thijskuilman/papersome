@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Sources\Schemas;
 
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
@@ -45,7 +47,30 @@ class SourceForm
                         Tab::make('Layout settings')
                             ->icon(Heroicon::RectangleGroup)
                             ->schema([
-                                // ...
+
+                                Repeater::make('html_query_filters')
+                                    ->label('Remove HTML elements')
+                                    ->addActionLabel('Add filter')
+                                    ->reorderable(false)
+                                    ->schema([
+                                        Select::make('selector')
+                                            ->label('Selector')
+                                            ->columnSpan(1)
+                                            ->default('all')
+                                            ->options([
+                                                'all' => 'Select all',
+                                                'first' => 'Select first',
+                                            ])
+                                            ->required(),
+                                        TextInput::make('query')
+                                            ->label('Query')
+                                            ->placeholder('CSS selector, for example .header, #id, div > p:first-child, [data-attribute="value"]')
+                                            ->columnSpan(3)
+                                            ->required(),
+
+                                    ])
+                                    ->columns(4)
+
                             ]),
                     ])->columnSpanFull(),
             ]);
