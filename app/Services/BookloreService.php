@@ -101,7 +101,7 @@ class BookloreService
             ->all();
 
         $this->logService->info(
-            message: "Deleting book #$bookId from Kobo shelves",
+            message: "Unassigning book #$bookId from Kobo shelves",
             channel: ActivityLogChannel::Booklore,
             data: [
                 'kobo_shelf_ids' => $koboShelfIds,
@@ -115,7 +115,7 @@ class BookloreService
             );
 
             $this->logService->success(
-                message: 'Deleted book from Kobo shelves',
+                message: 'Unassigned book from Kobo shelves',
                 channel: ActivityLogChannel::Booklore,
                 data: [
                     'book_id' => $bookId,
@@ -124,7 +124,7 @@ class BookloreService
             );
         } catch (Exception $e) {
             $this->logService->error(
-                message: 'Failed to delete book from Kobo shelves',
+                message: 'Failed to unassign book from Kobo shelves',
                 channel: ActivityLogChannel::Booklore,
                 data: [
                     'book_id' => $bookId,
