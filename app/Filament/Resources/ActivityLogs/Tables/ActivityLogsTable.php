@@ -24,7 +24,7 @@ class ActivityLogsTable
 
                 TextColumn::make('message')
                     ->fontFamily(FontFamily::Mono)
-                    ->color(fn(ActivityLog $record) => match ($record->type) {
+                    ->color(fn (ActivityLog $record): string => match ($record->type) {
                         ActivityLogType::Error => 'danger',
                         ActivityLogType::Warning => 'warning',
                         ActivityLogType::Success => 'success',

@@ -22,11 +22,13 @@ class ActivityLogResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return ActivityLogsTable::configure($table);
     }
 
+    #[\Override]
     public static function getRelations(): array
     {
         return [
