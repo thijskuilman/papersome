@@ -5,13 +5,15 @@ namespace App\Services;
 use andreskrey\Readability\Configuration;
 use andreskrey\Readability\ParseException;
 use andreskrey\Readability\Readability;
+use App\Enums\ActivityLogChannel;
 use App\Enums\ArticleStatus;
 use App\Models\Article;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class ReadabilityService
 {
+    public function __construct(private readonly LogService $logService) {}
+
     public function parseArticleContent(Article $article): void
     {
         $readability = new Readability(new Configuration);
@@ -39,10 +41,24 @@ class ReadabilityService
                 'status' => ArticleStatus::Parsed->value,
                 'image' => $readability->getImage(),
             ]);
-
+            $this->logService->success(
+                message: 'Article parsed successfully',
+                channel: ActivityLogChannel::Readability,
+                data: [
+                    'article_id' => $article->id,
+                    'source_id' => $article->source_id,
+                ],
+            );
         } catch (ParseException $e) {
             $article->update(['status' => ArticleStatus::Failed->value]);
-            Log::error(sprintf('Error parsing article with ID '.$article.': %s', $e->getMessage()));
+            $this->logService->error(
+                message: 'Error parsing article content',
+                channel: ActivityLogChannel::Readability,
+                data: [
+                    'article_id' => $article->id,
+                    'error' => $e->getMessage(),
+                ],
+            );
         }
     }
 }

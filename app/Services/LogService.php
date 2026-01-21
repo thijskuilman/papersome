@@ -48,7 +48,7 @@ class LogService
             $command->error($message);
         }
 
-        Log::error('Error fetching articles', $data);
+        Log::error($message, $data ?? []);
     }
 
     private function log(ActivityLogType $type, string $message, ActivityLogChannel $channel, array $data = []): void

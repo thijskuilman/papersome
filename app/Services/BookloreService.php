@@ -17,15 +17,45 @@ class BookloreService
      */
     public function uploadPublication(Publication $publication): void
     {
-        $book = $this->bookloreApiService->uploadFileAndWaitForBook(
-            libraryId: $this->settings->booklore_library_id,
-            pathId: 1,
-            filePath: \Storage::disk('public')->path($publication->epub_file_path),
-            expectedTitle: $publication->title
+        $this->logService->info(
+            message: 'Uploading publication to Booklore',
+            channel: ActivityLogChannel::Booklore,
+            data: [
+                'publication_id' => $publication->id,
+                'title' => $publication->title,
+            ],
         );
 
-        $publication->booklore_book_id = $book['id'];
-        $publication->save();
+        try {
+            $book = $this->bookloreApiService->uploadFileAndWaitForBook(
+                libraryId: $this->settings->booklore_library_id,
+                pathId: 1,
+                filePath: \Storage::disk('public')->path($publication->epub_file_path),
+                expectedTitle: $publication->title
+            );
+
+            $publication->booklore_book_id = $book['id'];
+            $publication->save();
+
+            $this->logService->success(
+                message: 'Publication uploaded to Booklore',
+                channel: ActivityLogChannel::Booklore,
+                data: [
+                    'publication_id' => $publication->id,
+                    'book_id' => $book['id'] ?? null,
+                ],
+            );
+        } catch (Exception $e) {
+            $this->logService->error(
+                message: 'Failed to upload publication to Booklore',
+                channel: ActivityLogChannel::Booklore,
+                data: [
+                    'publication_id' => $publication->id,
+                    'error' => $e->getMessage(),
+                ],
+            );
+            throw $e;
+        }
     }
 
     public function requestBookDeletion(int $bookId): void
@@ -35,6 +65,13 @@ class BookloreService
             ->first();
 
         if ($existing) {
+            $this->logService->info(
+                message: 'Booklore deletion already requested for book',
+                channel: ActivityLogChannel::Booklore,
+                data: [
+                    'book_id' => $bookId,
+                ],
+            );
             return;
         }
 
@@ -44,6 +81,14 @@ class BookloreService
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        $this->logService->success(
+            message: 'Requested Booklore deletion for book',
+            channel: ActivityLogChannel::Booklore,
+            data: [
+                'book_id' => $bookId,
+            ],
+        );
     }
 
     public function unassignFromKoboShelves(int $bookId): void
@@ -63,9 +108,30 @@ class BookloreService
             ]
         );
 
-        $this->bookloreApiService->assignBooksToShelves(
-            bookIds: [$bookId],
-            shelvesToUnassign: $koboShelfIds
-        );
+        try {
+            $this->bookloreApiService->assignBooksToShelves(
+                bookIds: [$bookId],
+                shelvesToUnassign: $koboShelfIds
+            );
+
+            $this->logService->success(
+                message: 'Deleted book from Kobo shelves',
+                channel: ActivityLogChannel::Booklore,
+                data: [
+                    'book_id' => $bookId,
+                    'kobo_shelf_ids' => $koboShelfIds,
+                ]
+            );
+        } catch (Exception $e) {
+            $this->logService->error(
+                message: 'Failed to delete book from Kobo shelves',
+                channel: ActivityLogChannel::Booklore,
+                data: [
+                    'book_id' => $bookId,
+                    'error' => $e->getMessage(),
+                ]
+            );
+            throw $e;
+        }
     }
 }

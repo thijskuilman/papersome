@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Dto\ArticleChapter;
 use App\Dto\ArticleImage;
+use App\Enums\ActivityLogChannel;
 use App\Models\Article;
 use App\Models\Publication;
 use Illuminate\Support\Collection;
@@ -15,8 +16,19 @@ use PHPEpub\EpubBuilder;
 
 class EpubService
 {
+    public function __construct(private readonly LogService $logService) {}
+
     public function createEpubFor(Publication $publication, Collection $articles): ?string
     {
+        $this->logService->info(
+            message: 'Starting EPUB generation',
+            channel: ActivityLogChannel::Epub,
+            data: [
+                'publication_id' => $publication->id,
+                'articles_count' => $articles->count(),
+            ],
+        );
+
         $epub = new EpubBuilder;
 
         $epub->setTitle($publication->title)
@@ -65,10 +77,27 @@ class EpubService
 
         try {
             $epub->save($fullPath);
-        } catch (\Exception) {
-            // TODO: Error logging
+        } catch (\Exception $e) {
+            $this->logService->error(
+                message: 'Failed to save EPUB file',
+                channel: ActivityLogChannel::Epub,
+                data: [
+                    'publication_id' => $publication->id,
+                    'path' => $fullPath,
+                    'error' => $e->getMessage(),
+                ],
+            );
             return null;
         }
+
+        $this->logService->success(
+            message: 'EPUB generated successfully',
+            channel: ActivityLogChannel::Epub,
+            data: [
+                'publication_id' => $publication->id,
+                'relative_path' => $relativePath,
+            ],
+        );
 
         return $relativePath;
     }

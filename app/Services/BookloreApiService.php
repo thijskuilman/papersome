@@ -27,13 +27,32 @@ class BookloreApiService
             $this->settings->booklore_access_token &&
             $this->settings->booklore_access_token_expires_at?->isFuture()
         ) {
+            $this->logService->info(
+                message: 'Using cached Booklore access token',
+                channel: ActivityLogChannel::Booklore,
+                data: [
+                    'username' => $username,
+                    'expires_at' => (string) $this->settings->booklore_access_token_expires_at,
+                ],
+            );
             return $this->settings->booklore_access_token;
         }
 
         if ($this->settings->booklore_refresh_token) {
             try {
+                $this->logService->info(
+                    message: 'Refreshing Booklore token',
+                    channel: ActivityLogChannel::Booklore,
+                );
                 return $this->refreshToken($url);
-            } catch (Exception) {
+            } catch (Exception $e) {
+                $this->logService->error(
+                    message: 'Failed to refresh Booklore token, clearing tokens',
+                    channel: ActivityLogChannel::Booklore,
+                    data: [
+                        'error' => $e->getMessage(),
+                    ],
+                );
                 $this->clearTokens();
             }
         }
@@ -46,6 +65,14 @@ class BookloreApiService
         ]);
 
         if (! $response->successful()) {
+            $this->logService->error(
+                message: 'Failed to log in to Booklore',
+                channel: ActivityLogChannel::Booklore,
+                data: [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ],
+            );
             throw new Exception('Failed to log in to Booklore: '.$response->body());
         }
 
@@ -56,6 +83,14 @@ class BookloreApiService
         $data = $response->json();
 
         $this->storeTokens($data);
+
+        $this->logService->success(
+            message: 'Logged in to Booklore successfully',
+            channel: ActivityLogChannel::Booklore,
+            data: [
+                'username' => $username,
+            ],
+        );
 
         return $data['accessToken'];
     }
@@ -72,12 +107,25 @@ class BookloreApiService
 
         if (! $response->successful()) {
             $this->clearTokens();
+            $this->logService->error(
+                message: 'Failed to refresh Booklore token',
+                channel: ActivityLogChannel::Booklore,
+                data: [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ],
+            );
             throw new Exception('Failed to refresh Booklore token: '.$response->body());
         }
 
         $data = $response->json();
 
         $this->storeTokens($data);
+
+        $this->logService->success(
+            message: 'Refreshed Booklore token successfully',
+            channel: ActivityLogChannel::Booklore,
+        );
 
         return $data['accessToken'];
     }
@@ -134,6 +182,10 @@ class BookloreApiService
             return $response;
         }
 
+        $this->logService->info(
+            message: 'Access token expired, attempting refresh',
+            channel: ActivityLogChannel::Booklore,
+        );
         $this->refreshToken($this->settings->booklore_url);
 
         return $callback();
@@ -156,6 +208,14 @@ class BookloreApiService
         );
 
         if (! $response->successful()) {
+            $this->logService->error(
+                message: 'Failed to fetch libraries',
+                channel: ActivityLogChannel::Booklore,
+                data: [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ],
+            );
             throw new Exception('Failed to fetch libraries: '.$response->body());
         }
 
@@ -170,6 +230,14 @@ class BookloreApiService
         );
 
         if (! $response->successful()) {
+            $this->logService->error(
+                message: 'Failed to fetch shelves',
+                channel: ActivityLogChannel::Booklore,
+                data: [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ],
+            );
             throw new Exception('Failed to fetch libraries: '.$response->body());
         }
 
@@ -191,7 +259,7 @@ class BookloreApiService
         ]);
 
         if (! $response->successful()) {
-            $this->logService->info(
+            $this->logService->error(
                 message: 'Failed to assign/unassign books to shelves',
                 channel: ActivityLogChannel::Booklore,
                 data: [
@@ -204,6 +272,15 @@ class BookloreApiService
             );
         }
 
+        $this->logService->success(
+            message: 'Assigned/unassigned books to shelves',
+            channel: ActivityLogChannel::Booklore,
+            data: [
+                'book_ids' => $bookIds,
+                'shelves_to_assign' => $shelvesToAssign,
+                'shelves_to_unassign' => $shelvesToUnassign,
+            ],
+        );
         return $response->json();
     }
 
@@ -230,10 +307,31 @@ class BookloreApiService
             ]));
 
         if (! $response->successful()) {
+            $this->logService->error(
+                message: 'File upload to Booklore failed',
+                channel: ActivityLogChannel::Booklore,
+                data: [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'library_id' => $libraryId,
+                    'path_id' => $pathId,
+                    'file' => basename($filePath),
+                ],
+            );
             throw new Exception(
                 'File upload failed: '.$response->status().' '.$response->body()
             );
         }
+
+        $this->logService->success(
+            message: 'File uploaded to Booklore',
+            channel: ActivityLogChannel::Booklore,
+            data: [
+                'library_id' => $libraryId,
+                'path_id' => $pathId,
+                'file' => basename($filePath),
+            ],
+        );
     }
 
     public function getLibraryBooks(int $libraryId): array
@@ -243,6 +341,15 @@ class BookloreApiService
         $response = $this->retryWithRefresh(fn () => $this->client()->get($url));
 
         if (! $response->successful()) {
+            $this->logService->error(
+                message: 'Failed to fetch books from library',
+                channel: ActivityLogChannel::Booklore,
+                data: [
+                    'library_id' => $libraryId,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ],
+            );
             throw new Exception(
                 'Failed to fetch books: '.$response->status().' '.$response->body()
             );
@@ -260,6 +367,17 @@ class BookloreApiService
         int $pollIntervalMs = 500
     ): array {
         throw_unless(file_exists($filePath), new Exception("File not found: {$filePath}"));
+
+        $this->logService->info(
+            message: 'Uploading file and waiting for book to appear',
+            channel: ActivityLogChannel::Booklore,
+            data: [
+                'library_id' => $libraryId,
+                'expected_title' => $expectedTitle,
+                'timeout_seconds' => $timeoutSeconds,
+                'poll_interval_ms' => $pollIntervalMs,
+            ],
+        );
 
         $this->uploadFile($libraryId, $pathId, $filePath);
 
@@ -279,9 +397,30 @@ class BookloreApiService
             usleep($pollIntervalMs * 1000);
         }
 
-        throw_if($matchedBook === null, new Exception(
-            "Timeout waiting for book with title '{$expectedTitle}' to appear in library {$libraryId}"
-        ));
+        if ($matchedBook === null) {
+            $this->logService->error(
+                message: 'Timeout waiting for uploaded book to appear',
+                channel: ActivityLogChannel::Booklore,
+                data: [
+                    'library_id' => $libraryId,
+                    'expected_title' => $expectedTitle,
+                    'timeout_seconds' => $timeoutSeconds,
+                ],
+            );
+            throw new Exception(
+                "Timeout waiting for book with title '{$expectedTitle}' to appear in library {$libraryId}"
+            );
+        }
+
+        $this->logService->success(
+            message: 'Uploaded book appeared in library',
+            channel: ActivityLogChannel::Booklore,
+            data: [
+                'library_id' => $libraryId,
+                'book_id' => $matchedBook['id'] ?? null,
+                'title' => $expectedTitle,
+            ],
+        );
 
         return $matchedBook;
     }
@@ -292,6 +431,10 @@ class BookloreApiService
         $this->settings->booklore_url = null;
         $this->settings->booklore_username = null;
         $this->settings->save();
+        $this->logService->info(
+            message: 'Disconnected from Booklore and cleared credentials',
+            channel: ActivityLogChannel::Booklore,
+        );
     }
 
     /**
@@ -308,9 +451,26 @@ class BookloreApiService
         ]);
 
         if (! $response->successful()) {
+            $this->logService->error(
+                message: 'Failed to delete books from Booklore',
+                channel: ActivityLogChannel::Booklore,
+                data: [
+                    'book_ids' => $bookIds,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ],
+            );
             throw new Exception(
                 'Failed to delete books: '.$response->status().' '.$response->body()
             );
         }
+
+        $this->logService->success(
+            message: 'Deleted books from Booklore',
+            channel: ActivityLogChannel::Booklore,
+            data: [
+                'book_ids' => $bookIds,
+            ],
+        );
     }
 }
