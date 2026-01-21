@@ -57,12 +57,6 @@ class PruneExpiredPublications extends Command
         });
 
         if ($expired->isEmpty()) {
-            $this->logService->info(
-                message: 'No publications to prune.',
-                channel: ActivityLogChannel::PruneExpiredPublications,
-                command: $this,
-            );
-
             return;
         }
 
@@ -83,13 +77,6 @@ class PruneExpiredPublications extends Command
                 channel: ActivityLogChannel::PruneExpiredPublications,
                 command: $this,
             );
-        } else {
-            $this->logService->info(
-                message: "No expired publications to prune.",
-                channel: ActivityLogChannel::PruneExpiredPublications,
-                command: $this,
-            );
         }
-
     }
 }
