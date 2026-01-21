@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\ActivityLogChannel;
 use App\Models\Publication;
 use App\Services\BookloreService;
+use App\Services\LogService;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -23,7 +25,7 @@ class PruneExpiredPublications extends Command
      */
     protected $description = 'Delete publications that exceeded their collection retention window.';
 
-    public function __construct(public BookloreService $bookloreService)
+    public function __construct(public BookloreService $bookloreService, public LogService $logService)
     {
         parent::__construct();
     }
@@ -55,7 +57,11 @@ class PruneExpiredPublications extends Command
         });
 
         if ($expired->isEmpty()) {
-            $this->info('No publications to prune.');
+            $this->logService->info(
+                message: 'No publications to prune.',
+                channel: ActivityLogChannel::PruneExpiredPublications,
+                command: $this,
+            );
 
             return;
         }
@@ -71,6 +77,10 @@ class PruneExpiredPublications extends Command
             $count++;
         }
 
-        $this->info("Pruned {$count} expired publications.");
+        $this->logService->info(
+            message: "Pruned {$count} expired publications.",
+            channel: ActivityLogChannel::PruneExpiredPublications,
+            command: $this,
+        );
     }
 }

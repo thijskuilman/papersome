@@ -7,7 +7,7 @@ Schedule::command('publications:generate')
     ->runInBackground();
 
 Schedule::command('booklore:process-deletion-requests')
-    ->twiceDaily()
+    ->at('02:30')
     ->runInBackground();
 
 Schedule::command('publications:prune-retention')

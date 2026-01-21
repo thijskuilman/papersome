@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\ActivityLogChannel;
 use App\Enums\ArticleStatus;
 use App\Models\Article;
 use App\Models\Collection;
@@ -9,13 +10,13 @@ use App\Models\Publication;
 use App\Models\Source;
 use App\Services\BookloreService;
 use App\Services\FeedService;
+use App\Services\LogService;
 use App\Services\PublicationService;
 use App\Services\ReadabilityService;
 use App\Settings\ApplicationSettings;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 
 class GenerateDailyPublications extends Command
 {
@@ -29,6 +30,7 @@ class GenerateDailyPublications extends Command
         public PublicationService $publicationService,
         public BookloreService $bookloreService,
         public ApplicationSettings $settings,
+        public LogService $logService,
     ) {
         parent::__construct();
     }
@@ -36,12 +38,24 @@ class GenerateDailyPublications extends Command
     public function handle(): int
     {
         $startedAt = Carbon::now();
+
         $limit = (int) $this->option('limit');
+
+        $this->logService->info(
+            message: 'Starting job for generating publications...',
+            channel: ActivityLogChannel::GeneratePublications,
+            command: $this,
+        );
 
         $collections = $this->loadEnabledCollections();
 
         if ($collections->isEmpty()) {
-            $this->info('No enabled collections found.');
+
+            $this->logService->info(
+                message: 'No enabled collections found.',
+                channel: ActivityLogChannel::GeneratePublications,
+                command: $this,
+            );
 
             return self::SUCCESS;
         }
@@ -50,7 +64,11 @@ class GenerateDailyPublications extends Command
             $this->processCollection($collection, $limit);
         }
 
-        $this->info(sprintf('Done. (took %ss)', Carbon::now()->diffInSeconds($startedAt)));
+        $this->logService->success(
+            message: sprintf('Successfully generated publications. (took %ss)', Carbon::now()->diffInSeconds($startedAt)),
+            channel: ActivityLogChannel::GeneratePublications,
+            command: $this,
+        );
 
         return self::SUCCESS;
     }
@@ -71,7 +89,11 @@ class GenerateDailyPublications extends Command
      */
     private function processCollection(Collection $collection, int $limit): void
     {
-        $this->info("Processing collection: {$collection->name}");
+        $this->logService->info(
+            message: "Processing collection: {$collection->name}",
+            channel: ActivityLogChannel::GeneratePublications,
+            command: $this,
+        );
 
         $this->fetchAndStoreArticlesForSources($collection, $limit);
 
@@ -80,7 +102,11 @@ class GenerateDailyPublications extends Command
         $publication = $this->createPublicationForCollection($collection);
 
         if (! $publication) {
-            $this->line('No new articles to publish.');
+            $this->logService->info(
+                message: "No new articles to publish for {$collection->name}.",
+                channel: ActivityLogChannel::GeneratePublications,
+                command: $this,
+            );
 
             return;
         }
@@ -97,18 +123,32 @@ class GenerateDailyPublications extends Command
         /** @var Source $source */
         foreach ($collection->sources as $source) {
             try {
-                $this->line("Fetching articles for source #{$source->id} - {$source->name}");
+                $this->logService->info(
+                    message: "Fetching articles for source #{$source->id} - {$source->name}",
+                    channel: ActivityLogChannel::GeneratePublications,
+                    command: $this,
+                );
                 $this->feedService->storeArticlesFromSource($source, $limit);
                 $count++;
             } catch (\Throwable $e) {
-                Log::error('Error fetching articles', [
-                    'collection_id' => $collection->id,
-                    'source_id' => $source->id,
-                    'error' => $e->getMessage(),
-                ]);
+                $this->logService->error(
+                    message: "Fetching articles for source #{$source->id} - {$source->name}",
+                    channel: ActivityLogChannel::GeneratePublications,
+                    command: $this,
+                    data: [
+                        'collection_id' => $collection->id,
+                        'source_id' => $source->id,
+                        'error' => $e->getMessage(),
+                    ]
+                );
             }
         }
-        $this->line("Fetched for {$count} sources.");
+
+        $this->logService->info(
+            message: "Fetched for {$count} sources.",
+            channel: ActivityLogChannel::GeneratePublications,
+            command: $this,
+        );
     }
 
     /**
@@ -126,17 +166,31 @@ class GenerateDailyPublications extends Command
         $parsed = 0;
         foreach ($pendingArticles as $article) {
             try {
-                $this->line("Parsing article #{$article->id} - {$article->title}");
+                $this->logService->info(
+                    message: "Parsing article #{$article->id} - {$article->title}",
+                    channel: ActivityLogChannel::GeneratePublications,
+                    command: $this,
+                );
+
                 $this->readabilityService->parseArticleContent($article);
                 $parsed++;
             } catch (\Throwable $e) {
-                Log::error('Error parsing article', [
-                    'article_id' => $article->id,
-                    'error' => $e->getMessage(),
-                ]);
+                $this->logService->error(
+                    message: 'Error parsing article',
+                    channel: ActivityLogChannel::GeneratePublications,
+                    command: $this,
+                    data: [
+                        'article_id' => $article->id,
+                        'error' => $e->getMessage(),
+                    ]
+                );
             }
         }
-        $this->line("Parsed {$parsed} articles.");
+        $this->logService->info(
+            message: "Parsed {$parsed} articles.",
+            channel: ActivityLogChannel::GeneratePublications,
+            command: $this,
+        );
     }
 
     /**
@@ -147,16 +201,25 @@ class GenerateDailyPublications extends Command
         try {
             $publication = $this->publicationService->createPublication($collection);
         } catch (\Throwable $e) {
-            Log::error('Error creating publication', [
-                'collection_id' => $collection->id,
-                'error' => $e->getMessage(),
-            ]);
+            $this->logService->error(
+                message: "Error creating publication for collection $collection->name.",
+                channel: ActivityLogChannel::GeneratePublications,
+                command: $this,
+                data: [
+                    'collection_id' => $collection->id,
+                    'error' => $e->getMessage(),
+                ]
+            );
 
             return null;
         }
 
         if ($publication) {
-            $this->info("  Created publication #{$publication->id}: {$publication->title}");
+            $this->logService->info(
+                message: "  Created publication #{$publication->id}: {$publication->title}",
+                channel: ActivityLogChannel::GeneratePublications,
+                command: $this,
+            );
         }
 
         return $publication;
@@ -172,20 +235,40 @@ class GenerateDailyPublications extends Command
             && ! empty($publication->epub_file_path);
 
         if (! $hasBooklore) {
-            $this->line('  Skipping Booklore upload (credentials not configured).');
+            $this->logService->info(
+                message: "Skipping Booklore upload (credentials not configured).",
+                channel: ActivityLogChannel::GeneratePublications,
+                command: $this,
+            );
 
             return;
         }
 
         try {
-            $this->line('  Uploading publication to Booklore...');
+            $this->logService->info(
+                message: "Uploading publication to Booklore...",
+                channel: ActivityLogChannel::GeneratePublications,
+                command: $this,
+            );
+
             $this->bookloreService->uploadPublication($publication);
-            $this->info('  Uploaded to Booklore successfully.');
+
+            $this->logService->info(
+                message: "Uploaded to Booklore successfully.",
+                channel: ActivityLogChannel::GeneratePublications,
+                command: $this,
+            );
+
         } catch (\Throwable $e) {
-            Log::error('Error uploading publication to Booklore', [
-                'publication_id' => $publication->id,
-                'error' => $e->getMessage(),
-            ]);
+            $this->logService->error(
+                message: "Error uploading publication with id {$publication->id} to Booklore: " . $e->getMessage(),
+                channel: ActivityLogChannel::GeneratePublications,
+                command: $this,
+                data: [
+                    'publication_id' => $publication->id,
+                    'error' => $e->getMessage(),
+                ]
+            );
         }
     }
 }

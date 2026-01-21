@@ -2,7 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\ActivityLogChannel;
 use App\Services\BookloreApiService;
+use App\Services\LogService;
+use App\Settings\ApplicationSettings;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -23,9 +26,11 @@ class ProcessScheduledBookloreDeletions extends Command
     protected $description = 'Process all pending Booklore deletion requests';
 
     public function __construct(
-        public BookloreApiService $bookloreApiService,
-        public \App\Settings\ApplicationSettings $settings,
-    ) {
+        public BookloreApiService  $bookloreApiService,
+        public ApplicationSettings $settings,
+        public LogService          $logService,
+    )
+    {
         parent::__construct();
     }
 
@@ -34,12 +39,16 @@ class ProcessScheduledBookloreDeletions extends Command
      */
     public function handle(): void
     {
-        $this->info('Processing Booklore deletion requests...');
+        $this->logService->info(
+            message: 'Processing Booklore deletion requests...',
+            channel: ActivityLogChannel::ProcessScheduledBookloreDeletions,
+            command: $this,
+        );
 
         $overrideHours = config('newspaparr.booklore_retention_hours');
         $hours = is_null($overrideHours)
             ? $this->settings->booklore_retention_hours ?? 8
-            : (int) $overrideHours;
+            : (int)$overrideHours;
 
         $threshold = now()->subHours($hours);
 
@@ -48,14 +57,32 @@ class ProcessScheduledBookloreDeletions extends Command
             ->pluck('book_id')
             ->toArray();
 
-        if (! $bookIdsToDelete) {
-            $this->info('No deletion requests are due at this time.');
-
+        if (!$bookIdsToDelete) {
+            $this->logService->info(
+                message: 'No deletion requests are due at this time.',
+                channel: ActivityLogChannel::ProcessScheduledBookloreDeletions,
+                command: $this,
+            );
             return;
         }
 
-        $this->bookloreApiService->deleteBooks($bookIdsToDelete);
+        try {
+            $this->bookloreApiService->deleteBooks($bookIdsToDelete);
+        } catch (\Exception $e) {
+            $this->logService->error(
+                message: 'Something went wrong while deleting books from Booklore: ' . $e->getMessage() . '',
+                channel: ActivityLogChannel::ProcessScheduledBookloreDeletions,
+                command: $this,
+                data: [
+                    'book_ids_to_delete' => $bookIdsToDelete,
+                ]
+            );
+        }
 
-        $this->info('Deleted '.count($bookIdsToDelete).' books from Booklore.');
+        $this->logService->info(
+            message: 'Deleted ' . count($bookIdsToDelete) . ' books from Booklore.',
+            channel: ActivityLogChannel::ProcessScheduledBookloreDeletions,
+            command: $this,
+        );
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\ActivityLogChannel;
 use App\Settings\ApplicationSettings;
 use Carbon\Carbon;
 use Exception;
@@ -11,7 +12,8 @@ use Illuminate\Support\Facades\Http;
 class BookloreApiService
 {
     public function __construct(
-        private readonly ApplicationSettings $settings
+        private readonly ApplicationSettings $settings,
+        private readonly LogService $logService,
     ) {}
 
     /* -----------------------------------------------------------------
@@ -189,6 +191,14 @@ class BookloreApiService
         ]);
 
         if (! $response->successful()) {
+            $this->logService->info(
+                message: 'Failed to assign/unassign books to shelves',
+                channel: ActivityLogChannel::Booklore,
+                data: [
+                    'response_status' => $response->status(),
+                    'response_body' => $response->body(),
+                ]
+            );
             throw new Exception(
                 'Failed to assign/unassign books to shelves: '.$response->status().' '.$response->body()
             );

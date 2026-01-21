@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\ActivityLogChannel;
 use App\Models\Publication;
 use App\Settings\ApplicationSettings;
 use Exception;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class BookloreService
 {
-    public function __construct(private readonly BookloreApiService $bookloreApiService, private readonly ApplicationSettings $settings) {}
+    public function __construct(private readonly BookloreApiService $bookloreApiService, private readonly ApplicationSettings $settings, private readonly LogService $logService) {}
 
     /**
      * @throws Exception
@@ -53,6 +54,14 @@ class BookloreService
             ->where('name', 'Kobo')
             ->pluck('id')
             ->all();
+
+        $this->logService->info(
+            message: "Deleting book #$bookId from Kobo shelves",
+            channel: ActivityLogChannel::Booklore,
+            data: [
+                'kobo_shelf_ids' => $koboShelfIds,
+            ]
+        );
 
         $this->bookloreApiService->assignBooksToShelves(
             bookIds: [$bookId],
