@@ -27,7 +27,7 @@ class Collection extends Model
         return [
             'delivery_channel' => DeliveryChannel::class,
             'cover_template' => CoverTemplate::class,
-            'cron' => 'datetime:H:i:s',
+            'schedule' => 'array',
             'enabled' => 'boolean',
         ];
     }
