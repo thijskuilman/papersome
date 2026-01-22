@@ -13,6 +13,7 @@
         "filament/filament": "^4.0",
         "filament/spatie-laravel-settings-plugin": "^4.0",
         "fivefilters/readability.php": ">=3.0",
+        "icetalker/filament-table-repeater": "*",
         "laravel/framework": "^12.0",
         "laravel/horizon": "^5.42",
         "laravel/tinker": "^2.10.1",
