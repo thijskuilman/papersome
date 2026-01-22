@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Sources\Schemas;
 
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
@@ -10,6 +9,7 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
 
 class SourceForm
 {
@@ -48,7 +48,7 @@ class SourceForm
                             ->icon(Heroicon::RectangleGroup)
                             ->schema([
 
-                                Repeater::make('html_query_filters')
+                                TableRepeater::make('html_query_filters')
                                     ->label('Remove HTML elements')
                                     ->addActionLabel('Add filter')
                                     ->reorderable(false)
@@ -69,7 +69,7 @@ class SourceForm
                                             ->required(),
 
                                     ])
-                                    ->columns(4)
+                                    ->columns(4),
 
                             ]),
                     ])->columnSpanFull(),
