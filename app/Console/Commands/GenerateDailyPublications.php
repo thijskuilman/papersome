@@ -236,7 +236,7 @@ class GenerateDailyPublications extends Command
 
         if (! $hasBooklore) {
             $this->logService->info(
-                message: "Skipping Booklore upload (credentials not configured).",
+                message: 'Skipping Booklore upload (credentials not configured).',
                 channel: ActivityLogChannel::GeneratePublications,
                 command: $this,
             );
@@ -246,7 +246,7 @@ class GenerateDailyPublications extends Command
 
         try {
             $this->logService->info(
-                message: "Uploading publication to Booklore...",
+                message: 'Uploading publication to Booklore...',
                 channel: ActivityLogChannel::GeneratePublications,
                 command: $this,
             );
@@ -254,14 +254,14 @@ class GenerateDailyPublications extends Command
             $this->bookloreService->uploadPublication($publication);
 
             $this->logService->info(
-                message: "Uploaded to Booklore successfully.",
+                message: 'Uploaded to Booklore successfully.',
                 channel: ActivityLogChannel::GeneratePublications,
                 command: $this,
             );
 
         } catch (\Throwable $e) {
             $this->logService->error(
-                message: "Error uploading publication with id {$publication->id} to Booklore: " . $e->getMessage(),
+                message: "Error uploading publication with id {$publication->id} to Booklore: ".$e->getMessage(),
                 channel: ActivityLogChannel::GeneratePublications,
                 command: $this,
                 data: [

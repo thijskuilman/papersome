@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Log;
 
 class LogService
 {
-    public function info(string $message, ActivityLogChannel $channel, ?Command $command = null, ?array $data = []): void {
+    public function info(string $message, ActivityLogChannel $channel, ?Command $command = null, ?array $data = []): void
+    {
         $this->log(
             type: ActivityLogType::Info,
             message: $message,
@@ -18,12 +19,13 @@ class LogService
             data: $data,
         );
 
-        if($command) {
+        if ($command) {
             $command->info($message);
         }
     }
 
-    public function success(string $message, ActivityLogChannel $channel, ?Command $command = null, ?array $data = []): void {
+    public function success(string $message, ActivityLogChannel $channel, ?Command $command = null, ?array $data = []): void
+    {
         $this->log(
             type: ActivityLogType::Success,
             message: $message,
@@ -31,12 +33,13 @@ class LogService
             data: $data,
         );
 
-        if($command) {
+        if ($command) {
             $command->info($message);
         }
     }
 
-    public function error(string $message, ActivityLogChannel $channel, ?Command $command = null, ?array $data = []): void {
+    public function error(string $message, ActivityLogChannel $channel, ?Command $command = null, ?array $data = []): void
+    {
         $this->log(
             type: ActivityLogType::Error,
             message: $message,
@@ -44,7 +47,7 @@ class LogService
             data: $data,
         );
 
-        if($command) {
+        if ($command) {
             $command->error($message);
         }
 

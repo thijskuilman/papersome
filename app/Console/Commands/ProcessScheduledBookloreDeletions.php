@@ -26,11 +26,10 @@ class ProcessScheduledBookloreDeletions extends Command
     protected $description = 'Process all pending Booklore deletion requests';
 
     public function __construct(
-        public BookloreApiService  $bookloreApiService,
+        public BookloreApiService $bookloreApiService,
         public ApplicationSettings $settings,
-        public LogService          $logService,
-    )
-    {
+        public LogService $logService,
+    ) {
         parent::__construct();
     }
 
@@ -48,7 +47,7 @@ class ProcessScheduledBookloreDeletions extends Command
         $overrideHours = config('newspaparr.booklore_retention_hours');
         $hours = is_null($overrideHours)
             ? $this->settings->booklore_retention_hours ?? 8
-            : (int)$overrideHours;
+            : (int) $overrideHours;
 
         $threshold = now()->subHours($hours);
 
@@ -57,12 +56,13 @@ class ProcessScheduledBookloreDeletions extends Command
             ->pluck('book_id')
             ->toArray();
 
-        if (!$bookIdsToDelete) {
+        if (! $bookIdsToDelete) {
             $this->logService->info(
                 message: 'No deletion requests are due at this time.',
                 channel: ActivityLogChannel::ProcessScheduledBookloreDeletions,
                 command: $this,
             );
+
             return;
         }
 
@@ -70,7 +70,7 @@ class ProcessScheduledBookloreDeletions extends Command
             $this->bookloreApiService->deleteBooks($bookIdsToDelete);
         } catch (\Exception $e) {
             $this->logService->error(
-                message: 'Something went wrong while deleting books from Booklore: ' . $e->getMessage() . '',
+                message: 'Something went wrong while deleting books from Booklore: '.$e->getMessage().'',
                 channel: ActivityLogChannel::ProcessScheduledBookloreDeletions,
                 command: $this,
                 data: [
@@ -80,7 +80,7 @@ class ProcessScheduledBookloreDeletions extends Command
         }
 
         $this->logService->info(
-            message: 'Deleted ' . count($bookIdsToDelete) . ' books from Booklore.',
+            message: 'Deleted '.count($bookIdsToDelete).' books from Booklore.',
             channel: ActivityLogChannel::ProcessScheduledBookloreDeletions,
             command: $this,
         );

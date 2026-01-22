@@ -72,6 +72,7 @@ class BookloreService
                     'book_id' => $bookId,
                 ],
             );
+
             return;
         }
 

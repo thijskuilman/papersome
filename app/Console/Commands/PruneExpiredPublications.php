@@ -71,7 +71,7 @@ class PruneExpiredPublications extends Command
             $count++;
         }
 
-        if($count > 0) {
+        if ($count > 0) {
             $this->logService->info(
                 message: "Pruned {$count} expired publications.",
                 channel: ActivityLogChannel::PruneExpiredPublications,

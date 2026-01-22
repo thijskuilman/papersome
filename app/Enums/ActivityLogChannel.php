@@ -4,7 +4,7 @@ namespace App\Enums;
 
 use Filament\Support\Contracts\HasLabel;
 
-enum ActivityLogChannel: string implements  HasLabel
+enum ActivityLogChannel: string implements HasLabel
 {
     case GeneratePublications = 'generate_publications';
     case ProcessScheduledBookloreDeletions = 'process_scheduled_booklore_deletions';
@@ -15,7 +15,7 @@ enum ActivityLogChannel: string implements  HasLabel
     case CoverImage = 'cover_image';
     case Readability = 'readability';
 
-    public function getLabel(): string|null
+    public function getLabel(): ?string
     {
         return match ($this) {
             self::GeneratePublications => 'Generate Publications',

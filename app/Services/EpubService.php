@@ -87,6 +87,7 @@ class EpubService
                     'error' => $e->getMessage(),
                 ],
             );
+
             return null;
         }
 

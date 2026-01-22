@@ -38,6 +38,7 @@ class PublicationService
                     'publication_id' => $publication->id,
                 ],
             );
+
             return null;
         }
         $publication->articles()->sync($articles->pluck('id'));

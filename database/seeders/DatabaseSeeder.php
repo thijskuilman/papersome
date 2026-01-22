@@ -33,17 +33,17 @@ class DatabaseSeeder extends Seeder
             'html_query_filters' => [
                 [
                     'selector' => 'all',
-                    'query' => 'div[data-sentry-component="HeaderImage"]'
+                    'query' => 'div[data-sentry-component="HeaderImage"]',
                 ],
                 [
                     'selector' => 'first',
-                    'query' => 'div[data-sentry-component="RegionMeta"]'
+                    'query' => 'div[data-sentry-component="RegionMeta"]',
                 ],
                 [
                     'selector' => 'first',
-                    'query' => 'div[data-sentry-element="ItemContainer"]'
-                ]
-            ]
+                    'query' => 'div[data-sentry-element="ItemContainer"]',
+                ],
+            ],
         ]);
 
         Source::create([

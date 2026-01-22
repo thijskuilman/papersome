@@ -5,9 +5,7 @@ namespace App\Filament\Resources\ActivityLogs\Tables;
 use App\Enums\ActivityLogType;
 use App\Models\ActivityLog;
 use Filament\Support\Enums\FontFamily;
-use Filament\Tables\Columns\Layout\Panel;
 use Filament\Tables\Columns\Layout\Split;
-use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\Layout\View;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Grouping\Group;
@@ -44,7 +42,7 @@ class ActivityLogsTable
                 ]),
 
                 View::make('filament.activity-logs.table.data')
-                    ->visible(fn(ActivityLog $record) => $record->data)
+                    ->visible(fn (ActivityLog $record) => $record->data)
                     ->collapsible(),
             ])
             ->defaultGroup('created_at')

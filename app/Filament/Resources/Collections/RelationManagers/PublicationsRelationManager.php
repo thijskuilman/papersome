@@ -56,7 +56,7 @@ class PublicationsRelationManager extends RelationManager
                     ->before(function (Publication $record): void {
                         $bookloreService = app(BookloreService::class);
 
-                        if($record->booklore_book_id) {
+                        if ($record->booklore_book_id) {
                             $bookloreService->unassignFromKoboShelves($record->booklore_book_id);
                             $bookloreService->requestBookDeletion($record->booklore_book_id);
                         }

@@ -35,6 +35,7 @@ class BookloreApiService
                     'expires_at' => (string) $this->settings->booklore_access_token_expires_at,
                 ],
             );
+
             return $this->settings->booklore_access_token;
         }
 
@@ -44,6 +45,7 @@ class BookloreApiService
                     message: 'Refreshing Booklore token',
                     channel: ActivityLogChannel::Booklore,
                 );
+
                 return $this->refreshToken($url);
             } catch (Exception $e) {
                 $this->logService->error(
@@ -281,6 +283,7 @@ class BookloreApiService
                 'shelves_to_unassign' => $shelvesToUnassign,
             ],
         );
+
         return $response->json();
     }
 
