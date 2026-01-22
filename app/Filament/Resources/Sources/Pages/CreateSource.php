@@ -13,6 +13,7 @@ class CreateSource extends CreateRecord
 
     protected static bool $canCreateAnother = false;
 
+    #[\Override]
     public function form(Schema $schema): Schema
     {
         return $schema

@@ -21,6 +21,7 @@ class EditCollection extends EditRecord
         ];
     }
 
+    #[\Override]
     protected function getFormActions(): array
     {
         return [];

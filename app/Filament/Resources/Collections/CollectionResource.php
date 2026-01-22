@@ -25,16 +25,19 @@ class CollectionResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    #[\Override]
     public static function form(Schema $schema): Schema
     {
         return CollectionForm::configure($schema);
     }
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return CollectionsTable::configure($table);
     }
 
+    #[\Override]
     public static function getRelations(): array
     {
         return [

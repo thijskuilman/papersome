@@ -23,16 +23,19 @@ class SourceResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    #[\Override]
     public static function form(Schema $schema): Schema
     {
         return SourceForm::configure($schema);
     }
 
+    #[\Override]
     public static function table(Table $table): Table
     {
         return SourcesTable::configure($table);
     }
 
+    #[\Override]
     public static function getRelations(): array
     {
         return [

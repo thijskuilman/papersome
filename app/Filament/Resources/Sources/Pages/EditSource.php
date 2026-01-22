@@ -23,11 +23,13 @@ class EditSource extends EditRecord
         ];
     }
 
+    #[\Override]
     protected function getFormActions(): array
     {
         return [];
     }
 
+    #[\Override]
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $url = $data['url'];

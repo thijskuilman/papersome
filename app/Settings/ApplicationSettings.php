@@ -26,6 +26,7 @@ class ApplicationSettings extends Settings
         return 'application';
     }
 
+    #[\Override]
     public static function encrypted(): array
     {
         return [

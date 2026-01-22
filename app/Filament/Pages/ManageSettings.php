@@ -31,6 +31,7 @@ class ManageSettings extends SettingsPage
 
     private ApplicationSettings $applicationSettings;
 
+    #[\Override]
     public function form(Schema $schema): Schema
     {
         $this->applicationSettings = app(ApplicationSettings::class);
