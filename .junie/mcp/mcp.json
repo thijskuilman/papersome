@@ -3,7 +3,7 @@
         "laravel-boost": {
             "command": "/Users/thijs/Library/Application Support/Herd/bin/php84",
             "args": [
-                "/Users/thijs/Projects/newspaparr/artisan",
+                "/Users/thijs/Projects/papersome/artisan",
                 "boost:mcp"
             ]
         },
@@ -13,7 +13,7 @@
                 "/Applications/Herd.app/Contents/Resources/herd-mcp.phar"
             ],
             "env": {
-                "SITE_PATH": "/Users/thijs/Projects/newspaparr"
+                "SITE_PATH": "/Users/thijs/Projects/papersome"
             }
         }
     }

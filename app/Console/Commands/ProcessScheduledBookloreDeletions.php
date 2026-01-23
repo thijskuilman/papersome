@@ -44,7 +44,7 @@ class ProcessScheduledBookloreDeletions extends Command
             command: $this,
         );
 
-        $overrideHours = config('newspaparr.booklore_retention_hours');
+        $overrideHours = config('papersome.booklore_retention_hours');
         $hours = is_null($overrideHours)
             ? $this->settings->booklore_retention_hours ?? 8
             : (int) $overrideHours;

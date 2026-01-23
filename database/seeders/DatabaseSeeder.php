@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ScheduledDay;
+use App\Enums\ScheduleRepeatType;
 use App\Models\Collection;
 use App\Models\Source;
 use App\Models\User;
@@ -21,7 +23,7 @@ class DatabaseSeeder extends Seeder
     {
         User::factory()->create([
             'name' => 'Admin',
-            'email' => 'admin@newspaparr.com',
+            'email' => 'admin@papersome.com',
             'password' => bcrypt('password'),
         ]);
 
@@ -73,6 +75,21 @@ class DatabaseSeeder extends Seeder
             'name' => 'Daily News',
             'delivery_channel' => 'booklore',
             'enabled' => true,
+            'schedule' => [
+                [
+                    "repeat_type" => ScheduleRepeatType::Specific->value,
+                    "scheduled_days" => [ScheduledDay::Mon->value, ScheduledDay::Thu->value],
+                    "time" => "07:00"
+                ],
+                [
+                    "repeat_type" => ScheduleRepeatType::Daily->value,
+                    "time" => "12:00"
+                ],
+                [
+                    "repeat_type" => ScheduleRepeatType::Daily->value,
+                    "time" => "21:00"
+                ]
+            ]
         ]);
 
         $bookloreUsername = config('booklore.username');
