@@ -431,7 +431,7 @@ enum Timezone: string implements HasLabel
     case PacificTongatapu = 'Pacific/Tongatapu';
     case PacificWake = 'Pacific/Wake';
     case PacificWallis = 'Pacific/Wallis';
-    case UTC = 'UTC';
+    case Utc = 'UTC';
 
     public function getLabel(): string|Htmlable|null
     {
