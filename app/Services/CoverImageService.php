@@ -23,10 +23,13 @@ class CoverImageService
             mkdir(dirname($fullPath), 0755, true);
         }
 
-        $url = URL::route('cover.generate', [
-            'publication' => $publication->id,
-        ]);
+        // TODO: Re-enable
+//        $url = URL::route('cover.generate', [
+//            'publication' => $publication->id,
+//        ]);
+//
 
+        $url =  'http://web/publication/' . $publication->id .  '/cover/generate';
         try {
             $this->logService->info(
                 message: 'Generating cover image',
@@ -39,16 +42,21 @@ class CoverImageService
             );
 
             $browsershot = Browsershot::url($url)
-                ->addChromiumArguments([
-                    'no-sandbox',
-                    'disable-setuid-sandbox',
-                ])
+                ->setRemoteInstance(gethostbyname('chromium'))
                 ->windowSize(600, 800)
                 ->waitUntilNetworkIdle();
-
-            if ($chromePath = config('browsershot.chrome_path')) {
-                $browsershot->setChromePath($chromePath);
-            }
+            // TODO: Re-enable
+//                ->addChromiumArguments([
+//                    'no-sandbox',
+//                    'disable-setuid-sandbox',
+//                ])
+//                ->windowSize(600, 800)
+//                ->waitUntilNetworkIdle();
+//
+            // TODO: Re-enable
+//            if ($chromePath = config('browsershot.chrome_path')) {
+//                $browsershot->setChromePath($chromePath);
+//            }
 
             $browsershot->save($fullPath);
 
