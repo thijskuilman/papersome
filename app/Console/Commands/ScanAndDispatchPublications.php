@@ -28,7 +28,7 @@ class ScanAndDispatchPublications extends Command
         Collection::query()
             ->where('enabled', true)
             ->orderBy('id')
-            ->chunkById(200, function ($collections) use ($now) {
+            ->chunkById(200, function ($collections) use ($now): void {
                 foreach ($collections as $collection) {
                     if (! $collection->isDueAt($now)) {
                         continue;

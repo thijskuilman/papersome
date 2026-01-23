@@ -29,12 +29,12 @@ it('processes only the specified collection when using --collection', function (
     $feed = mock(FeedService::class);
     $feed->shouldReceive('storeArticlesFromSource')
         ->once()
-        ->withArgs(fn (Source $source, int $limit) => $source->id === $sourceA->id && $limit === 5);
+        ->withArgs(fn (Source $source, int $limit): bool => $source->id === $sourceA->id && $limit === 5);
 
     $pub = mock(PublicationService::class);
     $pub->shouldReceive('createPublication')
         ->once()
-        ->withArgs(fn (Collection $c) => $c->id === $collectionA->id)
+        ->withArgs(fn (Collection $c): bool => $c->id === $collectionA->id)
         ->andReturnNull();
 
     // Other services are not important for this branch; ignore missing methods.

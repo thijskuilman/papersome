@@ -52,7 +52,7 @@ class Collection extends Model
     {
         $schedule = $this->schedule ?? [];
 
-        if (!$schedule) {
+        if (! $schedule) {
             return false;
         }
 
@@ -65,7 +65,7 @@ class Collection extends Model
                 ScheduleRepeatType::Daily->value => true,
                 ScheduleRepeatType::Specific->value => in_array(
                     strtolower($now->format('D')),
-                    array_map('strtolower', $entry['scheduled_days'] ?? []),
+                    array_map(strtolower(...), $entry['scheduled_days'] ?? []),
                     true
                 ),
             };
