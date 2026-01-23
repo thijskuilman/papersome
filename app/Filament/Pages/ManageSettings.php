@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Enums\Timezone;
 use App\Services\BookloreApiService;
 use App\Settings\ApplicationSettings;
 use BackedEnum;
@@ -40,6 +41,19 @@ class ManageSettings extends SettingsPage
             ->components([
                 Tabs::make('Tabs')
                     ->tabs([
+                        Tab::make('General')
+                            ->schema([
+                                Select::make('timezone')
+                                    ->label('Timezone')
+                                    ->required()
+                                    ->searchable()
+                                    ->options(
+                                        collect(Timezone::cases())
+                                            ->mapWithKeys(fn (Timezone $tz): array => [$tz->value => $tz->value])
+                                            ->toArray()
+                                    )
+                                    ->default(config('app.timezone')),
+                            ]),
                         Tab::make('Booklore')
                             ->schema([
                                 Action::make('sign_into_booklore')

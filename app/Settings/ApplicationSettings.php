@@ -7,6 +7,8 @@ use Spatie\LaravelSettings\Settings;
 
 class ApplicationSettings extends Settings
 {
+    public string $timezone;
+
     public ?string $booklore_url = null;
 
     public ?string $booklore_username = null;
