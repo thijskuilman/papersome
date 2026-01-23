@@ -24,12 +24,10 @@ class CoverImageService
         }
 
         // TODO: Re-enable
-//        $url = URL::route('cover.generate', [
-//            'publication' => $publication->id,
-//        ]);
-//
+        $url = URL::route('cover.generate', [
+            'publication' => $publication->id,
+        ]);
 
-        $url =  'http://web/publication/' . $publication->id .  '/cover/generate';
         try {
             $this->logService->info(
                 message: 'Generating cover image',
