@@ -21,7 +21,7 @@ class CollectionFactory extends Factory
                 DeliveryChannel::Booklore,
                 DeliveryChannel::Instapaper,
             ]),
-            'cron' => $this->faker->optional()->time('H:i:s'),
+            'schedule' => null,
             'enabled' => $this->faker->boolean(85),
         ];
     }

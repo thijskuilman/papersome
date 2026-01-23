@@ -20,7 +20,7 @@ use Illuminate\Support\Carbon;
 
 class GenerateDailyPublications extends Command
 {
-    protected $signature = 'publications:generate {--limit=5 : Max articles to fetch per source run}';
+    protected $signature = 'publications:generate {--limit=5 : Max articles to fetch per source run} {--collection= : Only process the specified collection ID}';
 
     protected $description = 'Fetch, parse, publish, and optionally upload publications to Booklore for all enabled collections';
 
@@ -47,10 +47,15 @@ class GenerateDailyPublications extends Command
             command: $this,
         );
 
-        $collections = $this->loadEnabledCollections();
+        $collections = $this->option('collection') ?
+            collect([Collection::query()
+                ->whereKey((int) $this->option('collection'))
+                ->where('enabled', true)
+                ->with(['sources'])
+                ->first()])
+            : $this->loadEnabledCollections();
 
         if ($collections->isEmpty()) {
-
             $this->logService->info(
                 message: 'No enabled collections found.',
                 channel: ActivityLogChannel::GeneratePublications,
