@@ -23,7 +23,9 @@ class CoverImageService
             mkdir(dirname($fullPath), 0755, true);
         }
 
-        // TODO: Re-enable
+        // TODO: Any nicer way to do this?
+        URL::useOrigin('http://php:8080');
+
         $url = URL::route('cover.generate', [
             'publication' => $publication->id,
         ]);

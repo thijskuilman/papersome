@@ -1,132 +1,99 @@
+version: "3.9"
+
 services:
-  app:
+  php:
     build:
       context: .
-      dockerfile: docker/Dockerfile
-      target: app
-    image: papersome-app:latest
-    env_file:
-      - .env
+      dockerfile: Dockerfile
+    container_name: papersome-php
+    ports:
+      - "8080:8080"   # HTTP
+      - "8443:8443"   # HTTPS
+    volumes:
+      - ./:/var/www/html
     environment:
       APP_ENV: production
-      APP_DEBUG: "false"
-      LOG_CHANNEL: stderr
-      LOG_LEVEL: info
-      DB_CONNECTION: mysql
-      DB_HOST: db
-      DB_PORT: 3306
-      REDIS_HOST: redis
-      QUEUE_CONNECTION: redis
-      SESSION_DRIVER: redis
-      CACHE_STORE: redis
-      BROWSERSHOT_NO_SANDBOX: "true"
-      BROWSERSHOT_BASE_URL: http://web
-    volumes:
-      - storage:/var/www/html/storage
-    healthcheck:
-      test: ["CMD", "php", "-v"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
-    networks:
-      - appnet
+      APP_DEBUG: false
+      APP_URL: http://localhost:8080
+      PHP_UPLOAD_MAX_FILE_SIZE: "500M"
+      PHP_OPCACHE_ENABLE: "1"
+      HEALTHCHECK_PATH: /up
+      SSL_MODE: mixed
 
-  web:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-      target: web
-    image: papersome-web:latest
+      # --- Enable Laravel Automations ---
+      AUTORUN_ENABLED: "true"
+      AUTORUN_DEBUG: "true"               # turn on only for troubleshooting
+      AUTORUN_LARAVEL_MIGRATION: "true"
+      AUTORUN_LARAVEL_MIGRATION_FORCE: "true"
+      AUTORUN_LARAVEL_MIGRATION_MODE: "default"
+      AUTORUN_LARAVEL_MIGRATION_SEED: "false"
+      AUTORUN_LARAVEL_CONFIG_CACHE: "true"
+      AUTORUN_LARAVEL_ROUTE_CACHE: "true"
+      AUTORUN_LARAVEL_VIEW_CACHE: "true"
+      AUTORUN_LARAVEL_EVENT_CACHE: "true"
+      AUTORUN_LARAVEL_STORAGE_LINK: "true"
     depends_on:
-      - app
-    ports:
-      - "8080:80"
-    volumes:
-      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
-      - storage:/var/www/html/storage:ro
-    networks:
-      - appnet
+      - db
+      - redis
 
   db:
     image: mariadb:11
+    container_name: papersome-db
+    restart: always
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-papersome}
-      MYSQL_USER: ${DB_USERNAME:-papersome}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MYSQL_ROOT_PASSWORD: rootsecret
+      MYSQL_DATABASE: papersome
+      MYSQL_USER: papersome
+      MYSQL_PASSWORD: secret
+    ports:
+      - "3307:3306"
     volumes:
-      - dbdata:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    networks:
-      - appnet
+      - db_data:/var/lib/mysql
 
   redis:
     image: redis:7-alpine
-    command: ["redis-server", "--save", "", "--appendonly", "no"]
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-    networks:
-      - appnet
+    container_name: papersome-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: papersome-scheduler
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - php
+    entrypoint: ["php", "artisan", "schedule:work"]
+    environment:
+      APP_ENV: production
+      APP_DEBUG: false
+      DB_HOST: db
+      DB_DATABASE: papersome
+      DB_USERNAME: papersome
+      DB_PASSWORD: secret
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
 
   chromium:
     image: zenika/alpine-chrome
-    command: [ "--headless", "--disable-gpu", "--remote-debugging-address=0.0.0.0", "--remote-debugging-port=9222" ]
+    command: [
+      "--headless",
+      "--disable-gpu",
+      "--remote-debugging-address=0.0.0.0",
+      "--remote-debugging-port=9222"
+    ]
     cap_add:
       - SYS_ADMIN
-    networks:
-      - appnet
-
-  worker:
-    image: papersome-app:latest
-    depends_on:
-      - app
-      - redis
-      - db
-    env_file:
-      - .env
-    environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
-      QUEUE_CONNECTION: redis
-      REDIS_HOST: redis
-      BROWSERSHOT_BASE_URL: http://web
-    command: ["php", "artisan", "queue:work", "--sleep=1", "--tries=3", "--max-time=3600"]
-    restart: unless-stopped
-    volumes:
-      - storage:/var/www/html/storage
-    networks:
-      - appnet
-
-  scheduler:
-    image: papersome-app:latest
-    depends_on:
-      - app
-      - db
-      - redis
-    env_file:
-      - .env
-    environment:
-      APP_ENV: production
-      BROWSERSHOT_BASE_URL: http://web
-    command: ["php", "artisan", "schedule:work"]
-    restart: unless-stopped
-    volumes:
-      - storage:/var/www/html/storage
-    networks:
-      - appnet
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9222" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
 volumes:
-  dbdata:
-  storage:
-
-networks:
-  appnet:
-    driver: bridge
+  db_data:
+  redis_data:
