@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
-use andreskrey\Readability\Configuration;
-use andreskrey\Readability\ParseException;
-use andreskrey\Readability\Readability;
 use App\Enums\ActivityLogChannel;
 use App\Enums\ArticleStatus;
 use App\Models\Article;
+use fivefilters\Readability\Configuration;
+use fivefilters\Readability\ParseException;
+use fivefilters\Readability\Readability;
 use Illuminate\Support\Facades\Http;
 
 class ReadabilityService
