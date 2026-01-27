@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Collections\Schemas;
 use App\Enums\CoverTemplate;
 use App\Enums\ScheduledDay;
 use App\Enums\ScheduleRepeatType;
-use App\Enums\Timezone;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -29,7 +28,7 @@ class CollectionForm
                     Tabs::make('Tabs')
                         ->columnSpan(5)
                         ->tabs([
-                            Tab::make('Setup')
+                            Tab::make('General')
                                 ->schema([
                                     TextInput::make('name')
                                         ->label('Name')
@@ -64,7 +63,7 @@ class CollectionForm
 
                                             Select::make('scheduled_days')
                                                 ->multiple()
-                                                ->placeholder(fn ($get): string => $get('repeat_type') === ScheduleRepeatType::Specific ? 'Pick days' : 'Not relevant')
+                                                ->placeholder(fn ($get): string => $get('repeat_type') === ScheduleRepeatType::Specific ? 'Pick days' : 'Daily')
                                                 ->label('Days')
                                                 ->requiredIf('repeat_type', ScheduleRepeatType::Specific)
                                                 ->options(ScheduledDay::class)

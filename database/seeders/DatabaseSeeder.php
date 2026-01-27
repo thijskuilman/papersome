@@ -76,20 +76,20 @@ class DatabaseSeeder extends Seeder
             'booklore_retention_hours' => 8,
             'enabled' => true,
             'schedule' => [
+                //                [
+                //                    "repeat_type" => ScheduleRepeatType::Specific->value,
+                //                    "scheduled_days" => [ScheduledDay::Mon->value, ScheduledDay::Thu->value],
+                //                    "time" => "07:00"
+                //                ],
                 [
-                    "repeat_type" => ScheduleRepeatType::Specific->value,
-                    "scheduled_days" => [ScheduledDay::Mon->value, ScheduledDay::Thu->value],
-                    "time" => "07:00"
+                    'repeat_type' => ScheduleRepeatType::Daily->value,
+                    'time' => '12:00',
                 ],
                 [
-                    "repeat_type" => ScheduleRepeatType::Daily->value,
-                    "time" => "12:00"
+                    'repeat_type' => ScheduleRepeatType::Daily->value,
+                    'time' => '21:00',
                 ],
-                [
-                    "repeat_type" => ScheduleRepeatType::Daily->value,
-                    "time" => "21:00"
-                ]
-            ]
+            ],
         ]);
 
         $collection->sources()->attach($nos);
