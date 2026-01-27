@@ -19,10 +19,6 @@ class CollectionsTable
                     ->label('Name')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('delivery_channel')
-                    ->label('Channel')
-                    ->badge()
-                    ->sortable(),
                 TextColumn::make('sources.name')
                     ->badge()
                     ->sortable(),

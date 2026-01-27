@@ -27,7 +27,6 @@ class Collection extends Model
     protected function casts(): array
     {
         return [
-            'delivery_channel' => DeliveryChannel::class,
             'cover_template' => CoverTemplate::class,
             'schedule' => 'array',
             'enabled' => 'boolean',

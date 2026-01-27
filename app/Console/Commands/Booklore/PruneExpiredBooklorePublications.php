@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Booklore;
 
 use App\Enums\ActivityLogChannel;
 use App\Models\Publication;
@@ -9,7 +9,7 @@ use App\Services\LogService;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
 
-class PruneExpiredPublications extends Command
+class PruneExpiredBooklorePublications extends Command
 {
     /**
      * The name and signature of the console command.
@@ -34,21 +34,20 @@ class PruneExpiredPublications extends Command
     {
         $now = now();
 
-        /** @var Builder $query */
         $query = Publication::query()
             ->with('collection')
             ->whereHas('collection', function ($q): void {
-                $q->whereNotNull('publication_retention_hours')
-                    ->where('publication_retention_hours', '>', 0);
+                $q->whereNotNull('booklore_retention_hours')
+                    ->where('booklore_retention_hours', '>', 0);
             })
             ->where(function (Builder $q): void {
                 $q->whereHas('collection', function (Builder $sub): void {
-                    $sub->whereNotNull('publication_retention_hours');
+                    $sub->whereNotNull('booklore_retention_hours');
                 });
             });
 
         $expired = $query->get()->filter(function (Publication $pub) use ($now): bool {
-            $hours = (int) ($pub->collection->publication_retention_hours ?? 0);
+            $hours = (int) ($pub->collection->booklore_retention_hours ?? 0);
             if ($hours <= 0) {
                 return false;
             }
@@ -66,14 +65,12 @@ class PruneExpiredPublications extends Command
                 $this->bookloreService->unassignFromKoboShelves((int) $record->booklore_book_id);
                 $this->bookloreService->requestBookDeletion((int) $record->booklore_book_id);
             }
-
-            $record->delete();
             $count++;
         }
 
         if ($count > 0) {
             $this->logService->info(
-                message: "Pruned {$count} expired publications.",
+                message: "Pruned {$count} expired publications on Booklore.",
                 channel: ActivityLogChannel::PruneExpiredPublications,
                 command: $this,
             );

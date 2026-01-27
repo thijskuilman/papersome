@@ -17,10 +17,6 @@ class CollectionFactory extends Factory
     {
         return [
             'name' => $this->faker->unique()->words(asText: true),
-            'delivery_channel' => $this->faker->randomElement([
-                DeliveryChannel::Booklore,
-                DeliveryChannel::Instapaper,
-            ]),
             'schedule' => null,
             'enabled' => $this->faker->boolean(85),
         ];

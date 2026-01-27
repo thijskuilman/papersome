@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
 
-        Source::create([
+        $nos = Source::create([
             'name' => 'NOS Algemeen',
             'url' => 'https://feeds.nos.nl/nosnieuwsalgemeen',
             'type' => 'rss',
@@ -71,9 +71,9 @@ class DatabaseSeeder extends Seeder
             'icon' => 'https://www.volkskrant.nl/favicon.ico',
         ]);
 
-        Collection::create([
+        $collection = Collection::create([
             'name' => 'Daily News',
-            'delivery_channel' => 'booklore',
+            'booklore_retention_hours' => 8,
             'enabled' => true,
             'schedule' => [
                 [
@@ -91,6 +91,8 @@ class DatabaseSeeder extends Seeder
                 ]
             ]
         ]);
+
+        $collection->sources()->attach($nos);
 
         $bookloreUsername = config('booklore.username');
         $booklorePassword = config('booklore.password');

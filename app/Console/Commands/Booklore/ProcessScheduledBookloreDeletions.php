@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Booklore;
 
 use App\Enums\ActivityLogChannel;
 use App\Services\BookloreApiService;
