@@ -24,7 +24,7 @@ class CoverImageService
         }
 
         // TODO: Any nicer way to do this?
-        URL::useOrigin('http://php:8080');
+//        URL::useOrigin('http://php:8080');
 
         $url = URL::route('cover.generate', [
             'publication' => $publication->id,
@@ -42,16 +42,14 @@ class CoverImageService
             );
 
             $browsershot = Browsershot::url($url)
-                ->setRemoteInstance(gethostbyname('chromium'))
+                // TODO: Remote
+//                ->setRemoteInstance(gethostbyname('chromium'))
+                ->addChromiumArguments([
+                    'no-sandbox',
+                    'disable-setuid-sandbox',
+                ])
                 ->windowSize(600, 800)
                 ->waitUntilNetworkIdle();
-            // TODO: Re-enable
-//                ->addChromiumArguments([
-//                    'no-sandbox',
-//                    'disable-setuid-sandbox',
-//                ])
-//                ->windowSize(600, 800)
-//                ->waitUntilNetworkIdle();
 //
             // TODO: Re-enable
 //            if ($chromePath = config('browsershot.chrome_path')) {
