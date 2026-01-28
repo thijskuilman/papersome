@@ -17,6 +17,7 @@ class CreateCollection extends CreateRecord
 {
     protected static string $resource = CollectionResource::class;
 
+    #[\Override]
     protected function getFormActions(): array
     {
         return [];
@@ -49,7 +50,7 @@ class CreateCollection extends CreateRecord
                                     ->size(TextSize::Small),
 
                             ])
-                            ->grid(3)
+                            ->grid(3),
                     ]),
 
                     Wizard\Step::make('Content')->schema([
@@ -59,7 +60,7 @@ class CreateCollection extends CreateRecord
                     Wizard\Step::make('Scheduling')->schema([
 
                     ]),
-                ])
+                ]),
             ]);
     }
 }
