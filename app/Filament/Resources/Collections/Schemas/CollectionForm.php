@@ -42,6 +42,7 @@ class CollectionForm
                                         ->relationship('sources', 'name'),
 
                                     Repeater::make('schedule')
+                                        ->compact()
                                         ->minItems(1)
                                         ->defaultItems(1)
                                         ->label('Schedule')
@@ -69,7 +70,7 @@ class CollectionForm
 
                                             Select::make('scheduled_days')
                                                 ->multiple()
-                                                ->placeholder(fn ($get): string => $get('repeat_type') === ScheduleRepeatType::Specific ? 'Pick days' : 'Daily')
+                                                ->placeholder(fn ($get): string => $get('repeat_type') === ScheduleRepeatType::Specific ? 'Pick days' : 'Not relevant')
                                                 ->label('Days')
                                                 ->requiredIf('repeat_type', ScheduleRepeatType::Specific)
                                                 ->options(ScheduledDay::class)

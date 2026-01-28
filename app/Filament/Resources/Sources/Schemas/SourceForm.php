@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Sources\Schemas;
 
+use Filament\Forms\Components\CodeEditor;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
@@ -50,6 +51,7 @@ class SourceForm
                             ->schema([
 
                                 Repeater::make('html_query_filters')
+                                    ->compact()
                                     ->label('Remove HTML elements')
                                     ->addActionLabel('Add filter')
                                     ->reorderable(false)
@@ -67,7 +69,7 @@ class SourceForm
                                                 'first' => 'Select first',
                                             ])
                                             ->required(),
-                                        TextInput::make('query')
+                                        CodeEditor::make('query')
                                             ->label('Query')
                                             ->placeholder('CSS selector, for example .header, #id, div > p:first-child, [data-attribute="value"]')
                                             ->columnSpan(3)
