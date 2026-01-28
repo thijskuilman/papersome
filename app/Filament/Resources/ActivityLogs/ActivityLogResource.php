@@ -18,9 +18,7 @@ class ActivityLogResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'message';
 
-    protected static ?string $navigationLabel = 'Logs';
-
-    protected static ?int $navigationSort = 2;
+    protected static bool $shouldRegisterNavigation = false;
 
     #[\Override]
     public static function table(Table $table): Table
