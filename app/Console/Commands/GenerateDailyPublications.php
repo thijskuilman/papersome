@@ -177,7 +177,7 @@ class GenerateDailyPublications extends Command
                     command: $this,
                 );
 
-                $this->readabilityService->parseArticleContent($article);
+                $this->readabilityService->setHtmlContentForArticle($article);
                 $parsed++;
             } catch (\Throwable $e) {
                 $this->logService->error(
