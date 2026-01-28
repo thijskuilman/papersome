@@ -52,7 +52,10 @@ class CollectionForm
                                             Select::make('source_id')
                                                 ->label('Source')
                                                 ->relationship('source', 'name')
+                                                ->getOptionLabelFromRecordUsing(fn(Source $record) =>
+                                                $record->icon ? "<div class='flex gap-x-2 items-center'><img class='size-4' src='{$record->icon}'> {$record->name}</div>" : $record->name)
                                                 ->preload()
+                                                ->allowHtml()
                                                 ->searchable()
                                                 ->required(),
 
