@@ -40,4 +40,9 @@ class Source extends Model
         return $this->belongsToMany(Collection::class, 'collection_source')
             ->withTimestamps();
     }
+
+    public function collectionSources(): HasMany
+    {
+        return $this->hasMany(CollectionSource::class);
+    }
 }

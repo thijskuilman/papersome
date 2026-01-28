@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\CoverTemplate;
-use App\Enums\DeliveryChannel;
 use App\Enums\ScheduleRepeatType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,7 +35,13 @@ class Collection extends Model
     public function sources(): BelongsToMany
     {
         return $this->belongsToMany(Source::class, 'collection_source')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->withPivot('max_article_count');
+    }
+
+    public function collectionSources(): HasMany
+    {
+        return $this->hasMany(CollectionSource::class);
     }
 
     public function publications(): HasMany

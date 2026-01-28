@@ -20,7 +20,7 @@ use Illuminate\Support\Carbon;
 
 class GenerateDailyPublications extends Command
 {
-    protected $signature = 'publications:generate {--limit=5 : Max articles to fetch per source run} {--collection= : Only process the specified collection ID}';
+    protected $signature = 'publications:generate {--collection= : Only process the specified collection ID}';
 
     protected $description = 'Fetch, parse, publish, and optionally upload publications to Booklore for all enabled collections';
 
@@ -38,8 +38,6 @@ class GenerateDailyPublications extends Command
     public function handle(): int
     {
         $startedAt = Carbon::now();
-
-        $limit = (int) $this->option('limit');
 
         $this->logService->info(
             message: 'Starting job for generating publications...',
@@ -66,7 +64,7 @@ class GenerateDailyPublications extends Command
         }
 
         foreach ($collections as $collection) {
-            $this->processCollection($collection, $limit);
+            $this->processCollection($collection);
         }
 
         $this->logService->success(
@@ -92,7 +90,7 @@ class GenerateDailyPublications extends Command
     /**
      * Orchestrates the processing for a single collection.
      */
-    private function processCollection(Collection $collection, int $limit): void
+    private function processCollection(Collection $collection): void
     {
         $this->logService->info(
             message: "Processing collection: {$collection->name}",
@@ -100,7 +98,7 @@ class GenerateDailyPublications extends Command
             command: $this,
         );
 
-        $this->fetchAndStoreArticlesForSources($collection, $limit);
+        $this->fetchAndStoreArticlesForSources($collection);
 
         $this->parsePendingArticlesForSources($collection);
 
@@ -122,7 +120,7 @@ class GenerateDailyPublications extends Command
     /**
      * Fetch & store latest articles for each source in the collection.
      */
-    private function fetchAndStoreArticlesForSources(Collection $collection, int $limit): void
+    private function fetchAndStoreArticlesForSources(Collection $collection): void
     {
         $count = 0;
         /** @var Source $source */
@@ -133,7 +131,10 @@ class GenerateDailyPublications extends Command
                     channel: ActivityLogChannel::GeneratePublications,
                     command: $this,
                 );
-                $this->feedService->storeArticlesFromSource($source, $limit);
+                $this->feedService->storeArticlesFromSource(
+                    source: $source,
+                    articleLimit: $source->pivot->max_article_count
+                );
                 $count++;
             } catch (\Throwable $e) {
                 $this->logService->error(

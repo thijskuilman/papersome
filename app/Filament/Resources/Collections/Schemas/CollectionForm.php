@@ -36,10 +36,37 @@ class CollectionForm
                                         ->required()
                                         ->maxLength(255),
 
-                                    Select::make('sources')
-                                        ->multiple()
-                                        ->preload()
-                                        ->relationship('sources', 'name'),
+                                    Repeater::make('collectionSources')
+                                        ->label('Sources')
+                                        ->relationship()
+                                        ->compact()
+                                        ->minItems(1)
+                                        ->defaultItems(1)
+                                        ->columns(3)
+                                        ->reorderable()
+                                        ->table([
+                                            TableColumn::make('Source'),
+                                            TableColumn::make('Article count'),
+                                        ])
+                                        ->schema([
+                                            Select::make('source_id')
+                                                ->label('Source')
+                                                ->relationship('source', 'name')
+                                                ->preload()
+                                                ->searchable()
+                                                ->required(),
+
+                                            TextInput::make('max_article_count')
+                                                ->label('Article count')
+                                                ->integer()
+                                                ->default(5)
+                                                ->minValue(1)
+                                                ->maxValue(10)
+                                                ->required(),
+
+                                        ])
+                                        ->addActionLabel('Add source')
+                                        ->columnSpanFull(),
 
                                     Repeater::make('schedule')
                                         ->compact()

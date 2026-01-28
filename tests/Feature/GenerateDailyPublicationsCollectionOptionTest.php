@@ -29,7 +29,7 @@ it('processes only the specified collection when using --collection', function (
     $feed = mock(FeedService::class);
     $feed->shouldReceive('storeArticlesFromSource')
         ->once()
-        ->withArgs(fn (Source $source, int $limit): bool => $source->id === $sourceA->id && $limit === 5);
+        ->withArgs(fn (Source $source): bool => $source->id === $sourceA->id);
 
     $pub = mock(PublicationService::class);
     $pub->shouldReceive('createPublication')
