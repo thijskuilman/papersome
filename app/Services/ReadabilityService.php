@@ -8,39 +8,30 @@ use App\Models\Article;
 use fivefilters\Readability\Configuration;
 use fivefilters\Readability\ParseException;
 use fivefilters\Readability\Readability;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 
 class ReadabilityService
 {
     public function __construct(private readonly LogService $logService) {}
 
-    public function parseArticleContent(Article $article): void
+    public function setHtmlContentForArticle(Article $article): void
     {
-        $readability = new Readability(new Configuration);
-
         $urlPrefix = $article->source->prefix_parse_url;
-
         $url = ($urlPrefix ?? '').$article->url;
 
-        $response = Http::get($url);
-
-        $html = $response->body();
-
-        if ($article->source->html_query_filters) {
-            $html = app(HtmlParseService::class)
-                ->removeFilteredElements(html: $html, article: $article);
-        }
-
         try {
-            $readability->parse($html);
-
-            $content = $readability->getContent();
+            $readability = $this->parseWithReadability(
+                url: $url,
+                queryFilters: $article->source->html_query_filters ?? []
+            );
 
             $article->update([
-                'html_content' => $content,
-                'status' => ArticleStatus::Parsed->value,
+                'html_content' => $readability->getContent(),
                 'image' => $readability->getImage(),
+                'status' => ArticleStatus::Parsed->value,
             ]);
+
             $this->logService->success(
                 message: 'Article parsed successfully',
                 channel: ActivityLogChannel::Readability,
@@ -49,16 +40,42 @@ class ReadabilityService
                     'source_id' => $article->source_id,
                 ],
             );
-        } catch (ParseException $e) {
+        } catch (\Throwable $e) {
             $article->update(['status' => ArticleStatus::Failed->value]);
+
             $this->logService->error(
                 message: 'Error parsing article content',
                 channel: ActivityLogChannel::Readability,
                 data: [
                     'article_id' => $article->id,
+                    'source_id' => $article->source_id,
                     'error' => $e->getMessage(),
                 ],
             );
         }
+    }
+
+    /**
+     * @throws ParseException|RequestException|\Throwable
+     */
+    public function parseWithReadability(string $url, array $queryFilters = []): ?Readability
+    {
+        $response = Http::get($url)->throw();
+
+        $html = $response->body();
+
+        if (! empty($queryFilters)) {
+            $html = app(HtmlParseService::class)
+                ->removeFilteredElements(
+                    html: $html,
+                    htmlQueryFilters: $queryFilters
+                );
+        }
+
+        $readability = new Readability(new Configuration);
+
+        $readability->parse($html);
+
+        return $readability;
     }
 }

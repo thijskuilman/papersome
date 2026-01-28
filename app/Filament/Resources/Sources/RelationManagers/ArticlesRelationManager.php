@@ -77,7 +77,7 @@ class ArticlesRelationManager extends RelationManager
                         $source = $this->ownerRecord;
 
                         foreach ($source->articles as $article) {
-                            app(ReadabilityService::class)->parseArticleContent($article);
+                            app(ReadabilityService::class)->setHtmlContentForArticle($article);
                         }
                     }),
 
@@ -103,7 +103,7 @@ class ArticlesRelationManager extends RelationManager
                     ->openUrlInNewTab(),
 
                 Action::make('parse')
-                    ->action(fn (Article $article) => app(ReadabilityService::class)->parseArticleContent($article)),
+                    ->action(fn (Article $article) => app(ReadabilityService::class)->setHtmlContentForArticle($article)),
             ]);
     }
 }
