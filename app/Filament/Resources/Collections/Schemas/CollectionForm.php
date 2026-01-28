@@ -6,6 +6,8 @@ use App\Enums\CoverTemplate;
 use App\Enums\ScheduledDay;
 use App\Enums\ScheduleRepeatType;
 use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
@@ -15,7 +17,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
-use Icetalker\FilamentTableRepeater\Forms\Components\TableRepeater;
 
 class CollectionForm
 {
@@ -40,13 +41,18 @@ class CollectionForm
                                         ->preload()
                                         ->relationship('sources', 'name'),
 
-                                    TableRepeater::make('schedule')
+                                    Repeater::make('schedule')
                                         ->minItems(1)
                                         ->defaultItems(1)
                                         ->label('Schedule')
                                         ->columns(3)
                                         ->reorderable(false)
                                         ->helperText('Add one or more publish times. Leave days empty to run daily.')
+                                        ->table([
+                                            TableColumn::make('Repeat'),
+                                            TableColumn::make('Days'),
+                                            TableColumn::make('Time'),
+                                        ])
                                         ->schema([
                                             Select::make('repeat_type')
                                                 ->label('Repeat')
@@ -76,7 +82,7 @@ class CollectionForm
                                                 ->required(),
 
                                         ])
-                                        ->addActionLabel('Add time slot')
+                                        ->addActionLabel('Add schedule')
                                         ->columnSpanFull(),
                                 ]),
 

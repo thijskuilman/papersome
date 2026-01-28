@@ -8,21 +8,21 @@ use Illuminate\Contracts\Support\Htmlable;
 enum CoverTemplate: string implements HasLabel
 {
     case ClassicNewspaper = 'classic_newspaper';
-    case GamingMagazine = 'gaming_magazine';
+    case Magazine = 'magazine';
 
     public function getView(): string
     {
         return match ($this) {
             self::ClassicNewspaper => 'newspaper.classic-newspaper',
-            self::GamingMagazine => 'magazine.gaming',
+            self::Magazine => 'magazine.basic',
         };
     }
 
     public function getLabel(): string|Htmlable|null
     {
         return match ($this) {
-            self::ClassicNewspaper => 'Classic newspaper',
-            self::GamingMagazine => 'Gaming magazine',
+            self::ClassicNewspaper => 'Newspaper',
+            self::Magazine => 'Magazine',
         };
     }
 }
