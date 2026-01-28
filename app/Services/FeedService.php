@@ -25,7 +25,7 @@ class FeedService
         }
     }
 
-    private function fetchRssItems(string $feedUrl): Collection
+    public function fetchRssItems(string $feedUrl): Collection
     {
         $feed = \Feeds::make(feedUrl: $feedUrl, limit: 5);
 
