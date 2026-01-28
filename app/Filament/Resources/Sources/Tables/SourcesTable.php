@@ -3,11 +3,10 @@
 namespace App\Filament\Resources\Sources\Tables;
 
 use App\Models\Source;
-use App\Services\FeedService;
-use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
+use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\View\View;
@@ -17,23 +16,32 @@ class SourcesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
+            ])
             ->columns([
-                TextColumn::make('name')
-                    ->formatStateUsing(fn (string $state, Source $record): View => view(
-                        'source-column',
-                        ['state' => $state, 'source' => $record],
-                    )),
-
-                TextColumn::make('articles_count')->counts('articles'),
+                Stack::make([
+                    TextColumn::make('name')
+                        ->formatStateUsing(fn(string $state, Source $record): View => view(
+                            'source-column',
+                            ['state' => $state, 'source' => $record],
+                        ))->searchable(),
+                ]),
             ])
             ->filters([
                 //
             ])
             ->recordActions([
-                EditAction::make(),
-
-                Action::make('feed')
-                    ->action(fn (Source $source) => app(FeedService::class)->storeArticlesFromSource($source)),
+                //
+            ])
+            ->emptyStateHeading('No sources yet')
+            ->emptyStateDescription('Create your first source to start fetching feeds.')
+            ->emptyStateIcon('heroicon-o-rss')
+            ->emptyStateActions([
+                CreateAction::make()
+                    ->label('Create first source')
+                    ->icon('heroicon-o-plus'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
