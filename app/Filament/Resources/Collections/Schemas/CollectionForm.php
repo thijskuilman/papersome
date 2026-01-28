@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Collections\Schemas;
 use App\Enums\CoverTemplate;
 use App\Enums\ScheduledDay;
 use App\Enums\ScheduleRepeatType;
+use App\Models\Source;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Repeater\TableColumn;
@@ -44,6 +45,7 @@ class CollectionForm
                                         ->defaultItems(1)
                                         ->columns(3)
                                         ->reorderable()
+                                        ->orderColumn()
                                         ->table([
                                             TableColumn::make('Source'),
                                             TableColumn::make('Article count'),
@@ -51,6 +53,7 @@ class CollectionForm
                                         ->schema([
                                             Select::make('source_id')
                                                 ->label('Source')
+                                                ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                                                 ->relationship('source', 'name')
                                                 ->getOptionLabelFromRecordUsing(fn(Source $record) =>
                                                 $record->icon ? "<div class='flex gap-x-2 items-center'><img class='size-4' src='{$record->icon}'> {$record->name}</div>" : $record->name)
@@ -78,7 +81,6 @@ class CollectionForm
                                         ->label('Schedule')
                                         ->columns(3)
                                         ->reorderable(false)
-                                        ->helperText('Add one or more publish times. Leave days empty to run daily.')
                                         ->table([
                                             TableColumn::make('Repeat'),
                                             TableColumn::make('Days'),

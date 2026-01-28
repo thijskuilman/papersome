@@ -36,7 +36,7 @@ class Collection extends Model
     {
         return $this->belongsToMany(Source::class, 'collection_source')
             ->withTimestamps()
-            ->withPivot('max_article_count');
+            ->withPivot('max_article_count', 'sort');
     }
 
     public function collectionSources(): HasMany
