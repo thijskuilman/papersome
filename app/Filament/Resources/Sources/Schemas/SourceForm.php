@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Sources\Schemas;
 
-use Filament\Forms\Components\CodeEditor;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
@@ -69,7 +68,7 @@ class SourceForm
                                                 'first' => 'Select first',
                                             ])
                                             ->required(),
-                                        CodeEditor::make('query')
+                                        TextInput::make('query')
                                             ->label('Query')
                                             ->placeholder('CSS selector, for example .header, #id, div > p:first-child, [data-attribute="value"]')
                                             ->columnSpan(3)
