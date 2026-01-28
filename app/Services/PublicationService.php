@@ -22,11 +22,6 @@ class PublicationService
     {
         $this->previousPublication = $collection->publications()->latest()->first();
 
-        $publication = Publication::create([
-            'collection_id' => $collection->id,
-            'title' => $collection->name.' - '.now()->toDateTimeString(),
-        ]);
-
         $articles = $this->retrieveArticles($collection);
 
         if ($articles->isEmpty()) {
@@ -35,12 +30,17 @@ class PublicationService
                 channel: ActivityLogChannel::Publication,
                 data: [
                     'collection_id' => $collection->id,
-                    'publication_id' => $publication->id,
                 ],
             );
 
             return null;
         }
+
+        $publication = Publication::create([
+            'collection_id' => $collection->id,
+            'title' => $collection->name.' - '.now()->toDateTimeString(),
+        ]);
+
         $publication->articles()->sync($articles->pluck('id'));
 
         // Generate cover
@@ -85,16 +85,25 @@ class PublicationService
 
     private function retrieveArticles(Collection $collection): SupportCollection
     {
-        $articlesQuery = Article::query()
-            ->whereIn('source_id', $collection->sources->pluck('id'));
+        $lastPublicationTimestamp = $this->previousPublication?->created_at;
 
-        if ($this->previousPublication) {
-            $lastArticle = $this->previousPublication->articles()->latest()->first();
-            if ($lastArticle) {
-                $articlesQuery->where('created_at', '>', $lastArticle->created_at);
+        $articles = collect();
+
+        foreach ($collection->sources()->orderByPivot('sort')->get() as $source) {
+            $articlesForSource = Article::query()
+                ->where('source_id', $source->id)
+                ->when($lastPublicationTimestamp, fn ($query) =>
+                    $query->where('created_at', '>', $lastPublicationTimestamp)
+                )
+                ->latest()
+                ->take($source->pivot->max_article_count)
+                ->get();
+
+            if ($articlesForSource->isNotEmpty()) {
+                $articles = $articles->concat($articlesForSource);
             }
         }
 
-        return $articlesQuery->latest()->take(10)->get();
+        return $articles->unique('id')->values();
     }
 }
