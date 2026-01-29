@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
 
-//        $this->seedSourcesAndCollections();
+        $this->seedSourcesAndCollections();
 
         $bookloreUsername = config('booklore.username');
         $booklorePassword = config('booklore.password');

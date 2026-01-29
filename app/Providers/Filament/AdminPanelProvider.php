@@ -68,28 +68,18 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 OnboardingPlugin::make()
-                    ->configure(function ($onboarding) {
+                    ->configure(function ($onboarding): void {
                         $onboarding
                             ->welcomeTitle('Welcome to Papersome!')
                             ->welcomeDescription('Complete these steps to get started.')
                             ->steps([
-//                                OnboardingStep::make('create-profile')
-//                                    ->title('Complete Your Profile')
-//                                    ->description('Add your information to personalize your experience.')
-//                                    ->icon('heroicon-o-user')
-//                                    ->iconColor('primary')
-//                                    ->linkToPage(ManageSettings::class)
-//                                    ->completedWhen(fn () => 0 > 45)
-//                                    ->buttonLabel('Edit Profile')
-//                                    ->order(1),
-
                                 OnboardingStep::make('create-first-source')
                                     ->title('Step 1: create your first source')
                                     ->description('The first step is to add an RSS feed to pull content from.')
                                     ->icon('heroicon-o-rss')
                                     ->iconColor('primary')
                                     ->linkToResourceCreate(SourceResource::class)
-                                    ->completedWhen(fn () => Source::count() > 0)
+                                    ->completedWhen(fn (): bool => Source::count() > 0)
                                     ->buttonLabel('Create source')
                                     ->order(1),
 
@@ -99,7 +89,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-newspaper')
                                     ->iconColor('warning')
                                     ->linkToResource(CollectionResource::class)
-                                    ->completedWhen(fn () => Collection::count() > 0)
+                                    ->completedWhen(fn (): bool => Collection::count() > 0)
                                     ->buttonLabel('Create collection')
                                     ->order(2),
 
@@ -109,7 +99,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-truck')
                                     ->iconColor('info')
                                     ->linkToPage(ManageSettings::class)
-                                    ->completedWhen(fn () => app(ApplicationSettings::class)->booklore_refresh_token !== null)
+                                    ->completedWhen(fn (): bool => app(ApplicationSettings::class)->booklore_refresh_token !== null)
                                     ->buttonLabel('Open settings')
                                     ->order(3),
                             ]);
