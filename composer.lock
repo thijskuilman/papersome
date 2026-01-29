@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "50e7664751eec0a302d834389b92dbfb",
+    "content-hash": "0fd5d6f0b9d1de6bf5dd6e4b4659e680",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -3764,6 +3764,101 @@
                 }
             ],
             "time": "2026-01-02T08:56:05+00:00"
+        },
+        {
+            "name": "mwguerra/onboarding",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mwguerra/onboarding.git",
+                "reference": "24a5734c5710dbddc6acf770f4f4945c3f6125bf"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mwguerra/onboarding/zipball/24a5734c5710dbddc6acf770f4f4945c3f6125bf",
+                "reference": "24a5734c5710dbddc6acf770f4f4945c3f6125bf",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^5.0",
+                "illuminate/contracts": "^12.0",
+                "php": "^8.2",
+                "spatie/laravel-package-tools": "^1.16"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.14",
+                "nunomaduro/collision": "^8.1",
+                "orchestra/testbench": "^10.0",
+                "pestphp/pest": "^3.0",
+                "pestphp/pest-plugin-arch": "^3.0",
+                "pestphp/pest-plugin-laravel": "^3.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "MWGuerra\\Onboarding\\OnboardingServiceProvider"
+                    ],
+                    "aliases": {
+                        "Onboarding": "MWGuerra\\Onboarding\\Facades\\Onboarding"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MWGuerra\\Onboarding\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "MWGuerra\\Onboarding\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "post-autoload-dump": [
+                    "@composer run prepare"
+                ],
+                "prepare": [
+                    "echo 'Ready'"
+                ],
+                "analyse": [
+                    "vendor/bin/phpstan analyse"
+                ],
+                "test": [
+                    "vendor/bin/pest"
+                ],
+                "test-coverage": [
+                    "vendor/bin/pest --coverage"
+                ],
+                "format": [
+                    "vendor/bin/pint"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "MWGuerra",
+                    "email": "mwguerra@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A beautiful onboarding widget for Filament 5 to guide new users through their first steps",
+            "homepage": "https://github.com/mwguerra/onboarding",
+            "keywords": [
+                "dashboard",
+                "filament",
+                "laravel",
+                "onboarding",
+                "widget"
+            ],
+            "support": {
+                "source": "https://github.com/mwguerra/onboarding/tree/v0.1.0",
+                "issues": "https://github.com/mwguerra/onboarding/issues"
+            },
+            "time": "2026-01-27T07:46:30+00:00"
         },
         {
             "name": "nesbot/carbon",
@@ -12649,6 +12744,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "mwguerra/onboarding": 20,
         "sebastiansantillan/phpepub": 20
     },
     "prefer-stable": true,

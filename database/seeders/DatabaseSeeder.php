@@ -27,6 +27,30 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
 
+//        $this->seedSourcesAndCollections();
+
+        $bookloreUsername = config('booklore.username');
+        $booklorePassword = config('booklore.password');
+        $bookloreUrl = config('booklore.url');
+        $bookloreLibraryId = config('booklore.library_id');
+
+        if ($bookloreUsername && $booklorePassword && $bookloreUrl && $bookloreLibraryId) {
+            $settings = app(ApplicationSettings::class);
+            try {
+                app(BookloreApiService::class)->login(
+                    username: $bookloreUsername,
+                    password: $booklorePassword,
+                    url: $bookloreUrl,
+                );
+                $settings->booklore_library_id = config('booklore.library_id');
+                $settings->save();
+            } catch (\Exception) {
+            }
+        }
+
+    }
+
+    private function seedSourcesAndCollections(): void {
         $nos = Source::create([
             'name' => 'NOS Algemeen',
             'url' => 'https://feeds.nos.nl/nosnieuwsalgemeen',
@@ -93,25 +117,5 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $collection->sources()->attach($nos);
-
-        $bookloreUsername = config('booklore.username');
-        $booklorePassword = config('booklore.password');
-        $bookloreUrl = config('booklore.url');
-        $bookloreLibraryId = config('booklore.library_id');
-
-        if ($bookloreUsername && $booklorePassword && $bookloreUrl && $bookloreLibraryId) {
-            $settings = app(ApplicationSettings::class);
-            try {
-                app(BookloreApiService::class)->login(
-                    username: $bookloreUsername,
-                    password: $booklorePassword,
-                    url: $bookloreUrl,
-                );
-                $settings->booklore_library_id = config('booklore.library_id');
-                $settings->save();
-            } catch (\Exception) {
-            }
-        }
-
     }
 }

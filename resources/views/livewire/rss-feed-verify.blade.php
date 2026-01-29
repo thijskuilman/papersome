@@ -59,7 +59,7 @@
     @endif
 
     <x-filament::modal id="view-article" width="5xl" slide-over>
-        <flux:callout>
+        <flux:callout icon="exclamation-triangle" color="amber">
             <flux:callout.text>
                 We tested the following article:
 
@@ -69,7 +69,7 @@
             </flux:callout.text>
 
             <flux:callout.text>
-                You will be able to finetune the parsing of articles after creating the source.
+                You will be able to finetune the parsing of articles after creating the source - for example by removing noisy HTML elements.
             </flux:callout.text>
         </flux:callout>
         <div class="fi-prose">

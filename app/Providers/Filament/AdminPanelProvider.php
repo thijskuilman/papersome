@@ -2,7 +2,13 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\ManageSettings;
 use App\Filament\Resources\ActivityLogs\ActivityLogResource;
+use App\Filament\Resources\Collections\CollectionResource;
+use App\Filament\Resources\Sources\SourceResource;
+use App\Models\Collection;
+use App\Models\Source;
+use App\Settings\ApplicationSettings;
 use Filament\Actions\Action;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -18,6 +24,9 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use MWGuerra\Onboarding\Filament\OnboardingPlugin;
+use MWGuerra\Onboarding\Filament\Widgets\OnboardingWidget;
+use MWGuerra\Onboarding\OnboardingStep;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -36,7 +45,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                //
+                OnboardingWidget::class,
             ])
             ->userMenuItems([
                 Action::make('logs')
@@ -56,6 +65,55 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->plugins([
+                OnboardingPlugin::make()
+                    ->configure(function ($onboarding) {
+                        $onboarding
+                            ->welcomeTitle('Welcome to Papersome!')
+                            ->welcomeDescription('Complete these steps to get started.')
+                            ->steps([
+//                                OnboardingStep::make('create-profile')
+//                                    ->title('Complete Your Profile')
+//                                    ->description('Add your information to personalize your experience.')
+//                                    ->icon('heroicon-o-user')
+//                                    ->iconColor('primary')
+//                                    ->linkToPage(ManageSettings::class)
+//                                    ->completedWhen(fn () => 0 > 45)
+//                                    ->buttonLabel('Edit Profile')
+//                                    ->order(1),
+
+                                OnboardingStep::make('create-first-source')
+                                    ->title('Step 1: create your first source')
+                                    ->description('The first step is to add an RSS feed to pull content from.')
+                                    ->icon('heroicon-o-rss')
+                                    ->iconColor('primary')
+                                    ->linkToResourceCreate(SourceResource::class)
+                                    ->completedWhen(fn () => Source::count() > 0)
+                                    ->buttonLabel('Create source')
+                                    ->order(1),
+
+                                OnboardingStep::make('create-collection')
+                                    ->title('Step 2: create a collection')
+                                    ->description('Bundle sources to read in a newspaper or magazine format.')
+                                    ->icon('heroicon-o-newspaper')
+                                    ->iconColor('warning')
+                                    ->linkToResource(CollectionResource::class)
+                                    ->completedWhen(fn () => Collection::count() > 0)
+                                    ->buttonLabel('Create collection')
+                                    ->order(2),
+
+                                OnboardingStep::make('set-up-delivery-channel')
+                                    ->title('Step 3: automate delivery')
+                                    ->description('Automate delivery to Booklore.')
+                                    ->icon('heroicon-o-truck')
+                                    ->iconColor('info')
+                                    ->linkToPage(ManageSettings::class)
+                                    ->completedWhen(fn () => app(ApplicationSettings::class)->booklore_refresh_token !== null)
+                                    ->buttonLabel('Open settings')
+                                    ->order(3),
+                            ]);
+                    }),
             ]);
     }
 }

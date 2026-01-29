@@ -41,19 +41,6 @@ class ManageSettings extends SettingsPage
             ->components([
                 Tabs::make('Tabs')
                     ->tabs([
-                        Tab::make('General')
-                            ->schema([
-                                Select::make('timezone')
-                                    ->label('Timezone')
-                                    ->required()
-                                    ->searchable()
-                                    ->options(
-                                        collect(Timezone::cases())
-                                            ->mapWithKeys(fn (Timezone $tz): array => [$tz->value => $tz->value])
-                                            ->toArray()
-                                    )
-                                    ->default(config('app.timezone')),
-                            ]),
                         Tab::make('Booklore')
                             ->schema([
                                 Action::make('sign_into_booklore')
@@ -157,9 +144,18 @@ class ManageSettings extends SettingsPage
                                     }),
 
                             ]),
-                        Tab::make('Instapaper')
+                        Tab::make('Date & Time')
                             ->schema([
-                                // ...
+                                Select::make('timezone')
+                                    ->label('Timezone')
+                                    ->required()
+                                    ->searchable()
+                                    ->options(
+                                        collect(Timezone::cases())
+                                            ->mapWithKeys(fn (Timezone $tz): array => [$tz->value => $tz->value])
+                                            ->toArray()
+                                    )
+                                    ->default(config('app.timezone')),
                             ]),
                     ])->columnSpanFull(),
             ]);
