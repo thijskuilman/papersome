@@ -62,7 +62,6 @@ class PublicationsRelationManager extends RelationManager
                         }
                     }),
             ])
-            ->emptyStateHeading('No publications yet')
             ->headerActions([
                 Action::make('create-publication')
                     ->label('Create publication')
@@ -72,6 +71,9 @@ class PublicationsRelationManager extends RelationManager
                         return $publication->download();
                     }),
             ])
-            ->emptyStateDescription('Generate an EPUB for this collection to see publications here.');
+            ->emptyStateIcon(Heroicon::OutlinedClock)
+            ->emptyStateHeading('First publication coming soon')
+            ->emptyStateDescription('The first publication will appear after the next scheduled generation run.');
+
     }
 }
