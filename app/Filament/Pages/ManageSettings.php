@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Enums\Timezone;
 use App\Filament\Infolists\Components\FluxCalloutEntry;
 use App\Services\BookloreApiService;
+use App\Services\BookloreService;
 use App\Settings\ApplicationSettings;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -15,9 +16,11 @@ use Filament\Pages\SettingsPage;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\HtmlString;
+use Ramsey\Collection\Set;
 
 class ManageSettings extends SettingsPage
 {
@@ -58,7 +61,7 @@ class ManageSettings extends SettingsPage
                                     })
                                     ->action(function (array $data, ManageSettings $manageSettings): void {
 
-                                        $bookloreUrl = rtrim((string) $data['booklore_url'], '/');
+                                        $bookloreUrl = rtrim((string)$data['booklore_url'], '/');
 
                                         try {
                                             app(BookloreApiService::class)->login(
@@ -107,8 +110,7 @@ class ManageSettings extends SettingsPage
 
                                 FluxCalloutEntry::make('booklore_connected_message')
                                     ->color('emerald')
-//                                    ->icon('heroicon-o-check-circle')
-//                                    ->iconColor('success')
+                                    ->icon('check-circle')
                                     ->hiddenLabel()
                                     ->visible($this->applicationSettings->booklore_username !== null)
                                     ->state(
@@ -121,17 +123,26 @@ class ManageSettings extends SettingsPage
                                 Select::make('booklore_library_id')
                                     ->label('Booklore library')
                                     ->required()
+                                    ->live()
                                     ->helperText('Which library should be used for storing publications?')
                                     ->visible($this->applicationSettings->booklore_username !== null)
                                     ->options(function () {
                                         try {
                                             return collect(app(BookloreApiService::class)->getLibraries())
-                                                ->mapWithKeys(fn ($library): array => [$library['id'] => $library['name']])
+                                                ->mapWithKeys(fn($library): array => [$library['id'] => $library['name']])
                                                 ->toArray();
                                         } catch (\Exception) {
                                             //
                                         }
                                     }),
+
+                                Select::make('booklore_path_id')
+                                    ->label('Library path')
+                                    ->required()
+                                    ->visible(fn(Get $get): bool => $get('booklore_library_id') !== null)
+                                    ->options(fn (Get $get) => $this->getLibraryPathOptions(
+                                        $get('booklore_library_id')
+                                    )),
 
                                 TextInput::make('booklore_retention_hours')
                                     ->label('Booklore retention hours')
@@ -160,12 +171,22 @@ class ManageSettings extends SettingsPage
                                     ->searchable()
                                     ->options(
                                         collect(Timezone::cases())
-                                            ->mapWithKeys(fn (Timezone $tz): array => [$tz->value => $tz->value])
+                                            ->mapWithKeys(fn(Timezone $tz): array => [$tz->value => $tz->value])
                                             ->toArray()
                                     )
                                     ->default(config('app.timezone')),
                             ]),
                     ])->columnSpanFull(),
             ]);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function getLibraryPathOptions(int $libraryId): array
+    {
+        return collect(app(BookloreService::class)->getLibraryPaths(libraryId: $libraryId))
+            ->mapWithKeys(fn($library): array => [$library['id'] => $library['path']])
+            ->toArray();
     }
 }

@@ -43,6 +43,7 @@ class DatabaseSeeder extends Seeder
                     url: $bookloreUrl,
                 );
                 $settings->booklore_library_id = config('booklore.library_id');
+                $settings->booklore_path_id = config('booklore.path_id');
                 $settings->save();
             } catch (\Exception) {
             }

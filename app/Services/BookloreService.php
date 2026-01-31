@@ -135,4 +135,14 @@ class BookloreService
             throw $e;
         }
     }
+
+    /**
+     * @throws Exception
+     */
+    public function getLibraryPaths(int $libraryId): array
+    {
+        $library = $this->bookloreApiService->getLibrary($libraryId);
+
+        return $library['paths'] ?? [];
+    }
 }

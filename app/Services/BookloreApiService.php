@@ -476,4 +476,29 @@ class BookloreApiService
             ],
         );
     }
+
+    public function getLibrary(int $libraryId): array
+    {
+        $url = $this->settings->booklore_url."/api/v1/libraries/{$libraryId}";
+
+        $response = $this->request('GET', $url);
+
+        if (! $response->successful()) {
+            $this->logService->error(
+                message: 'Failed to fetch library details',
+                channel: ActivityLogChannel::Booklore,
+                data: [
+                    'library_id' => $libraryId,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ],
+            );
+
+            throw new Exception(
+                'Failed to fetch library: '.$response->status().' '.$response->body()
+            );
+        }
+
+        return $response->json();
+    }
 }

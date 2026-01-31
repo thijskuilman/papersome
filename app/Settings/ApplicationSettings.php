@@ -15,6 +15,8 @@ class ApplicationSettings extends Settings
 
     public ?string $booklore_library_id = null;
 
+    public ?string $booklore_path_id = null;
+
     public ?string $booklore_access_token = null;
 
     public ?string $booklore_refresh_token = null;

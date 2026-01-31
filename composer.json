@@ -23,6 +23,7 @@
         "willvincent/feeds": "^2.7"
     },
     "require-dev": {
+        "beyondcode/laravel-dump-server": "^2.1",
         "driftingly/rector-laravel": "^2.1",
         "fakerphp/faker": "^1.23",
         "filament/upgrade": "^5.0",
