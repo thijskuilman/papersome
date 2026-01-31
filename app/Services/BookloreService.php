@@ -29,7 +29,7 @@ class BookloreService
         try {
             $book = $this->bookloreApiService->uploadFileAndWaitForBook(
                 libraryId: $this->settings->booklore_library_id,
-                pathId: 1,
+                pathId: $this->settings->booklore_path_id,
                 filePath: \Storage::disk('public')->path($publication->epub_file_path),
                 expectedTitle: $publication->title
             );

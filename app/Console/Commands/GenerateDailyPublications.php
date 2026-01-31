@@ -238,6 +238,7 @@ class GenerateDailyPublications extends Command
     {
         $hasBooklore = ! empty($this->settings->booklore_username)
             && ! empty($this->settings->booklore_library_id)
+            && ! empty($this->settings->booklore_path_id)
             && ! empty($publication->epub_file_path);
 
         if (! $hasBooklore) {
