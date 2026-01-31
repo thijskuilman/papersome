@@ -10,7 +10,6 @@ use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Pages\SettingsPage;
 use Filament\Schemas\Components\Grid;
@@ -59,7 +58,7 @@ class ManageSettings extends SettingsPage
                                     })
                                     ->action(function (array $data, ManageSettings $manageSettings): void {
 
-                                        $bookloreUrl = rtrim($data['booklore_url'], '/');
+                                        $bookloreUrl = rtrim((string) $data['booklore_url'], '/');
 
                                         try {
                                             app(BookloreApiService::class)->login(
@@ -127,7 +126,7 @@ class ManageSettings extends SettingsPage
                                     ->options(function () {
                                         try {
                                             return collect(app(BookloreApiService::class)->getLibraries())
-                                                ->mapWithKeys(fn($library): array => [$library['id'] => $library['name']])
+                                                ->mapWithKeys(fn ($library): array => [$library['id'] => $library['name']])
                                                 ->toArray();
                                         } catch (\Exception) {
                                             //
@@ -161,7 +160,7 @@ class ManageSettings extends SettingsPage
                                     ->searchable()
                                     ->options(
                                         collect(Timezone::cases())
-                                            ->mapWithKeys(fn(Timezone $tz): array => [$tz->value => $tz->value])
+                                            ->mapWithKeys(fn (Timezone $tz): array => [$tz->value => $tz->value])
                                             ->toArray()
                                     )
                                     ->default(config('app.timezone')),
