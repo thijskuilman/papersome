@@ -20,7 +20,6 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\HtmlString;
-use Ramsey\Collection\Set;
 
 class ManageSettings extends SettingsPage
 {
@@ -61,7 +60,7 @@ class ManageSettings extends SettingsPage
                                     })
                                     ->action(function (array $data, ManageSettings $manageSettings): void {
 
-                                        $bookloreUrl = rtrim((string)$data['booklore_url'], '/');
+                                        $bookloreUrl = rtrim((string) $data['booklore_url'], '/');
 
                                         try {
                                             app(BookloreApiService::class)->login(
@@ -129,7 +128,7 @@ class ManageSettings extends SettingsPage
                                     ->options(function () {
                                         try {
                                             return collect(app(BookloreApiService::class)->getLibraries())
-                                                ->mapWithKeys(fn($library): array => [$library['id'] => $library['name']])
+                                                ->mapWithKeys(fn ($library): array => [$library['id'] => $library['name']])
                                                 ->toArray();
                                         } catch (\Exception) {
                                             //
@@ -139,8 +138,8 @@ class ManageSettings extends SettingsPage
                                 Select::make('booklore_path_id')
                                     ->label('Library path')
                                     ->required()
-                                    ->visible(fn(Get $get): bool => $get('booklore_library_id') !== null)
-                                    ->options(fn (Get $get) => $this->getLibraryPathOptions(
+                                    ->visible(fn (Get $get): bool => $get('booklore_library_id') !== null)
+                                    ->options(fn (Get $get): array => $this->getLibraryPathOptions(
                                         $get('booklore_library_id')
                                     )),
 
@@ -171,7 +170,7 @@ class ManageSettings extends SettingsPage
                                     ->searchable()
                                     ->options(
                                         collect(Timezone::cases())
-                                            ->mapWithKeys(fn(Timezone $tz): array => [$tz->value => $tz->value])
+                                            ->mapWithKeys(fn (Timezone $tz): array => [$tz->value => $tz->value])
                                             ->toArray()
                                     )
                                     ->default(config('app.timezone')),
@@ -186,7 +185,7 @@ class ManageSettings extends SettingsPage
     private function getLibraryPathOptions(int $libraryId): array
     {
         return collect(app(BookloreService::class)->getLibraryPaths(libraryId: $libraryId))
-            ->mapWithKeys(fn($library): array => [$library['id'] => $library['path']])
+            ->mapWithKeys(fn ($library): array => [$library['id'] => $library['path']])
             ->toArray();
     }
 }
