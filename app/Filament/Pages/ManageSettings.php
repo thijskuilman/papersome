@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Enums\Timezone;
+use App\Filament\Infolists\Components\FluxCalloutEntry;
 use App\Services\BookloreApiService;
 use App\Settings\ApplicationSettings;
 use BackedEnum;
@@ -17,6 +18,7 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\HtmlString;
 
 class ManageSettings extends SettingsPage
 {
@@ -57,11 +59,13 @@ class ManageSettings extends SettingsPage
                                     })
                                     ->action(function (array $data, ManageSettings $manageSettings): void {
 
+                                        $bookloreUrl = rtrim($data['booklore_url'], '/');
+
                                         try {
                                             app(BookloreApiService::class)->login(
                                                 $data['booklore_username'],
                                                 $data['booklore_password'],
-                                                $data['booklore_url'],
+                                                $bookloreUrl,
                                             );
 
                                             Notification::make()
@@ -102,24 +106,28 @@ class ManageSettings extends SettingsPage
                                         ]),
                                     ]),
 
-                                TextEntry::make('booklore_connected_message')
-                                    ->color('success')
-                                    ->icon(Heroicon::OutlinedCheckCircle)
-                                    ->iconColor('success')
+                                FluxCalloutEntry::make('booklore_connected_message')
+                                    ->color('emerald')
+//                                    ->icon('heroicon-o-check-circle')
+//                                    ->iconColor('success')
                                     ->hiddenLabel()
                                     ->visible($this->applicationSettings->booklore_username !== null)
-                                    ->html()
-                                    ->state("The user {$this->applicationSettings->booklore_username} is connected to Booklore at <a target='_blank' href='{$this->applicationSettings->booklore_url}'>{$this->applicationSettings->booklore_url}</a>."),
+                                    ->state(
+                                        new HtmlString("The user {$this->applicationSettings->booklore_username} is connected to Booklore at
+                                            <a target='_blank' href='{$this->applicationSettings->booklore_url}'>
+                                                {$this->applicationSettings->booklore_url}
+                                            </a>
+                                        ")),
 
                                 Select::make('booklore_library_id')
                                     ->label('Booklore library')
                                     ->required()
-                                    ->helperText('At which library should the articles be added?')
+                                    ->helperText('Which library should be used for storing publications?')
                                     ->visible($this->applicationSettings->booklore_username !== null)
                                     ->options(function () {
                                         try {
                                             return collect(app(BookloreApiService::class)->getLibraries())
-                                                ->mapWithKeys(fn ($library): array => [$library['id'] => $library['name']])
+                                                ->mapWithKeys(fn($library): array => [$library['id'] => $library['name']])
                                                 ->toArray();
                                         } catch (\Exception) {
                                             //
@@ -136,6 +144,7 @@ class ManageSettings extends SettingsPage
                                 Action::make('disconnect_booklore')
                                     ->visible($this->applicationSettings->booklore_username !== null)
                                     ->label('Disconnect Booklore')
+                                    ->link()
                                     ->requiresConfirmation()
                                     ->color('danger')
                                     ->action(function (): void {
@@ -152,7 +161,7 @@ class ManageSettings extends SettingsPage
                                     ->searchable()
                                     ->options(
                                         collect(Timezone::cases())
-                                            ->mapWithKeys(fn (Timezone $tz): array => [$tz->value => $tz->value])
+                                            ->mapWithKeys(fn(Timezone $tz): array => [$tz->value => $tz->value])
                                             ->toArray()
                                     )
                                     ->default(config('app.timezone')),
