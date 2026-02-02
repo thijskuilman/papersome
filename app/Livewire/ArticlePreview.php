@@ -2,10 +2,10 @@
 
 namespace App\Livewire;
 
-use Dom\HTMLDocument as DOMDocument;
 use App\Enums\SourceFormEvent;
 use App\Models\Article;
 use App\Models\Source;
+use Dom\HTMLDocument as DOMDocument;
 use Filament\Notifications\Notification;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\On;
@@ -49,8 +49,8 @@ class ArticlePreview extends Component
     {
         $article = Article::find($this->selectedArticleId);
 
-        if($article) {
-            $this->originalHtmlContent = $article->original_html_content ?? "";
+        if ($article) {
+            $this->originalHtmlContent = $article->original_html_content ?? '';
         } else {
             return;
         }
@@ -58,8 +58,8 @@ class ArticlePreview extends Component
         try {
             $doc = DOMDocument::createFromString($article->original_html_content, LIBXML_NOERROR);
 
-            foreach ($this->htmlQueryFilters  as $filter) {
-                if(!$filter['query']) {
+            foreach ($this->htmlQueryFilters as $filter) {
+                if (! $filter['query']) {
                     continue;
                 }
 
@@ -85,7 +85,7 @@ class ArticlePreview extends Component
 
             $this->articleContent = $html;
 
-            if($showNotification) {
+            if ($showNotification) {
                 Notification::make()
                     ->title('Refreshed article preview')
                     ->success()
@@ -97,7 +97,7 @@ class ArticlePreview extends Component
 
     }
 
-    public function render()
+    public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         return view('livewire.article-preview');
     }

@@ -22,15 +22,17 @@ class CodePreview extends Component
         $this->initialize();
     }
 
-    public function initialize(): void {
+    public function initialize(): void
+    {
         $this->largeCode = strlen($this->code) > 9000;
 
-        if(!$this->largeCode) {
+        if (! $this->largeCode) {
             $this->getContent();
         }
     }
 
-    public function updatedCode(): void {
+    public function updatedCode(): void
+    {
         $this->content = null;
         $this->initialize();
     }
@@ -44,7 +46,7 @@ class CodePreview extends Component
         )->toString();
     }
 
-    public function render()
+    public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         return view('livewire.code-preview');
     }
