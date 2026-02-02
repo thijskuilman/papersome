@@ -79,7 +79,7 @@ class CreateSource extends CreateRecord
                                         $set('name_manually_set', true);
                                     }),
 
-                                View::make('filament.schemas.components.create-source.form'),
+                                View::make('filament.schemas.components.source.create-form'),
                             ]),
 
                     ]),

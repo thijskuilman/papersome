@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->longText('excerpt');
             $table->longText('html_content')->nullable();
+            $table->longText('original_html_content')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->string('status')->default(ArticleStatus::Pending->value);
             $table->timestamps();

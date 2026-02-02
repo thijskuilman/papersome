@@ -23,11 +23,15 @@ class ReadabilityService
         try {
             $readability = $this->parseWithReadability(
                 url: $url,
-                queryFilters: $article->source->html_query_filters ?? []
             );
 
             $article->update([
-                'html_content' => $readability->getContent(),
+                'html_content' => $article->source->html_query_filters ? app(HtmlParseService::class)
+                    ->removeFilteredElements(
+                        html: $readability->getContent(),
+                        htmlQueryFilters: $article->source->html_query_filters,
+                    ) : $readability->getContent(),
+                'original_html_content' => $readability->getContent(),
                 'image' => $readability->getImage(),
                 'status' => ArticleStatus::Parsed->value,
             ]);
@@ -58,19 +62,11 @@ class ReadabilityService
     /**
      * @throws ParseException|RequestException|\Throwable
      */
-    public function parseWithReadability(string $url, array $queryFilters = []): ?Readability
+    public function parseWithReadability(string $url): ?Readability
     {
         $response = Http::get($url)->throw();
 
         $html = $response->body();
-
-        if (! empty($queryFilters)) {
-            $html = app(HtmlParseService::class)
-                ->removeFilteredElements(
-                    html: $html,
-                    htmlQueryFilters: $queryFilters
-                );
-        }
 
         $readability = new Readability(new Configuration);
 

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Sources\Schemas;
 
+use App\Enums\SourceFormEvent;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
@@ -9,6 +10,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 
@@ -50,6 +54,11 @@ class SourceForm
                             ->schema([
 
                                 Repeater::make('html_query_filters')
+                                    ->afterStateUpdated(fn($state, $livewire) => $livewire->dispatch(
+                                        event: SourceFormEvent::HtmlQueryFiltersUpdated->value,
+                                        filters: $state ?? []
+                                    ))
+                                    ->live()
                                     ->compact()
                                     ->label('Remove HTML elements')
                                     ->addActionLabel('Add filter')
@@ -76,6 +85,8 @@ class SourceForm
 
                                     ])
                                     ->columns(4),
+
+                                View::make('filament.schemas.components.source.layout-settings')
 
                             ]),
                     ])->columnSpanFull(),

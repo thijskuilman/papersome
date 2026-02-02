@@ -5,3 +5,16 @@
 @source '../../../../resources/views';
 
 @custom-variant dark (&:where(.dark, .dark *));
+.phiki {
+    @apply whitespace-pre-wrap wrap-break-word overflow-x-auto max-w-full py-2.5 px-5 rounded-[15px] h-[85vh];
+}
+
+.papersome-filter {
+    @apply opacity-80 outline outline-dashed outline-red-500 outline-offset-2 relative rounded-xs;
+}
+
+.papersome-filter::after {
+    content: "Filtered out";
+    @apply absolute -top-3 right-0 bg-red-500 text-white text-[0.65rem] px-1.5 py-0.5 rounded-md;
+}
+
