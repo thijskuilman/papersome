@@ -41,7 +41,7 @@ Papersome is still in development. Installation instructions will be added soon.
 - Pest v4
 - Laravel Pint
 - Rector
-- 
+
 ## Screenshots
 
 | Description | Screenshot |
