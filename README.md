@@ -43,14 +43,11 @@ Papersome is still in development. Installation instructions will be added soon.
 - Rector
 
 ## Screenshots
-
-| Description | Screenshot |
-|------------|---------|
-| Publication shelf | <a href="https://github.com/user-attachments/assets/2d866ed3-b881-42cd-b9c1-544369a01ae2"><img src="https://github.com/user-attachments/assets/2d866ed3-b881-42cd-b9c1-544369a01ae2" height="300px"></a> |
-| Add source | <a href="https://github.com/user-attachments/assets/405de3ad-fa19-46a2-8358-65ee23149def"><img src="https://github.com/user-attachments/assets/405de3ad-fa19-46a2-8358-65ee23149def" height="300px"></a> |
-| Sources overview | <a href="https://github.com/user-attachments/assets/541de82d-a990-4ad8-a7c3-79bf08c28ebc"><img src="https://github.com/user-attachments/assets/541de82d-a990-4ad8-a7c3-79bf08c28ebc" height="300px"></a> |
-| Edit collection | <a href="https://github.com/user-attachments/assets/317e149b-b374-4bc1-87c0-b79478c1bdf3"><img src="https://github.com/user-attachments/assets/317e149b-b374-4bc1-87c0-b79478c1bdf3" height="300px"></a> |
-| Finetune layout of RSS feeds | <a href="https://github.com/user-attachments/assets/d479072b-0788-4a3c-ae52-3291a08ec0f3"><img src="https://github.com/user-attachments/assets/d479072b-0788-4a3c-ae52-3291a08ec0f3" height="300px"></a> |
+<a href="https://github.com/user-attachments/assets/2d866ed3-b881-42cd-b9c1-544369a01ae2"><img src="https://github.com/user-attachments/assets/2d866ed3-b881-42cd-b9c1-544369a01ae2" height="128px">
+<a href="https://github.com/user-attachments/assets/405de3ad-fa19-46a2-8358-65ee23149def"><img src="https://github.com/user-attachments/assets/405de3ad-fa19-46a2-8358-65ee23149def" height="128px">
+<a href="https://github.com/user-attachments/assets/541de82d-a990-4ad8-a7c3-79bf08c28ebc"><img src="https://github.com/user-attachments/assets/541de82d-a990-4ad8-a7c3-79bf08c28ebc" height="128px">
+<a href="https://github.com/user-attachments/assets/317e149b-b374-4bc1-87c0-b79478c1bdf3"><img src="https://github.com/user-attachments/assets/317e149b-b374-4bc1-87c0-b79478c1bdf3" height="128px">
+<a href="https://github.com/user-attachments/assets/d479072b-0788-4a3c-ae52-3291a08ec0f3"><img src="https://github.com/user-attachments/assets/d479072b-0788-4a3c-ae52-3291a08ec0f3" height="128px">
 
 ## Contributing
 Contributions are welcome! If you’d like to propose a change:
