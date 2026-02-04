@@ -21,7 +21,7 @@ class BookloreApiService
 
     public function login(User $user, string $username, string $password, ?string $url = null): string
     {
-        $url = $url ?? $user->booklore_url;
+        $url ??= $user->booklore_url;
 
         if (
             $username === $user->booklore_username &&

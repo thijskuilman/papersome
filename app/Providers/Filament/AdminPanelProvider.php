@@ -53,6 +53,10 @@ class AdminPanelProvider extends PanelProvider
                 Action::make('logs')
                     ->url(fn (): string => ActivityLogResource::getUrl())
                     ->icon(Heroicon::OutlinedDocumentText),
+
+                Action::make('settings')
+                    ->url(fn (): string => ManageSettings::getUrl())
+                    ->icon(Heroicon::OutlinedCog),
             ])
             ->middleware([
                 EncryptCookies::class,

@@ -29,8 +29,8 @@ class BookloreSettings extends Page implements HasSchemas
 
     protected static string|null|\BackedEnum $navigationIcon = 'icon-booklore-gray';
 
+    protected static string|BackedEnum|null $activeNavigationIcon = 'icon-booklore';
 
-protected static string | BackedEnum | null $activeNavigationIcon = 'icon-booklore';
     protected static string|null|\UnitEnum $navigationGroup = 'Delivery targets';
 
     protected static ?string $navigationLabel = 'Booklore';
@@ -78,12 +78,10 @@ protected static string | BackedEnum | null $activeNavigationIcon = 'icon-booklo
                             ->modal()
                             ->color('gray')
                             ->icon(Heroicon::OutlinedKey)
-                            ->fillForm(function () use ($user): array {
-                                return [
-                                    'booklore_username' => $user?->booklore_username ?? '',
-                                    'booklore_url' => $user?->booklore_url ?? '',
-                                ];
-                            })
+                            ->fillForm(fn (): array => [
+                                'booklore_username' => $user?->booklore_username ?? '',
+                                'booklore_url' => $user?->booklore_url ?? '',
+                            ])
                             ->action(function (array $data): void {
                                 $user = Auth::user();
                                 $bookloreUrl = rtrim((string) $data['booklore_url'], '/');
@@ -154,7 +152,7 @@ protected static string | BackedEnum | null $activeNavigationIcon = 'icon-booklo
                                     return collect(app(BookloreApiService::class)->getLibraries($user))
                                         ->mapWithKeys(fn ($library): array => [$library['id'] => $library['name']])
                                         ->toArray();
-                                } catch (\Exception $e) {
+                                } catch (\Exception) {
                                     return [];
                                 }
                             })
@@ -222,6 +220,4 @@ protected static string | BackedEnum | null $activeNavigationIcon = 'icon-booklo
             ])
             ->statePath('data');
     }
-
-
 }

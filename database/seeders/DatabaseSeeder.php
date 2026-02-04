@@ -44,6 +44,7 @@ class DatabaseSeeder extends Seeder
             $settings = app(ApplicationSettings::class);
             try {
                 app(BookloreApiService::class)->login(
+                    user: User::first(),
                     username: $bookloreUsername,
                     password: $booklorePassword,
                     url: $bookloreUrl,
