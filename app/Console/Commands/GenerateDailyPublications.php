@@ -13,7 +13,6 @@ use App\Services\FeedService;
 use App\Services\LogService;
 use App\Services\PublicationService;
 use App\Services\ReadabilityService;
-use App\Settings\ApplicationSettings;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Carbon;
@@ -29,7 +28,6 @@ class GenerateDailyPublications extends Command
         public ReadabilityService $readabilityService,
         public PublicationService $publicationService,
         public BookloreService $bookloreService,
-        public ApplicationSettings $settings,
         public LogService $logService,
     ) {
         parent::__construct();
@@ -236,9 +234,13 @@ class GenerateDailyPublications extends Command
      */
     private function syncToBooklore(Publication $publication): void
     {
-        $hasBooklore = ! empty($this->settings->booklore_username)
-            && ! empty($this->settings->booklore_library_id)
-            && ! empty($this->settings->booklore_path_id)
+        $publication->loadMissing('collection.user');
+        $user = $publication->collection?->user;
+
+        $hasBooklore = $user
+            && ! empty($user->booklore_username)
+            && ! empty($user->booklore_library_id)
+            && ! empty($user->booklore_path_id)
             && ! empty($publication->epub_file_path);
 
         if (! $hasBooklore) {

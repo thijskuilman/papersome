@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\SourceType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -28,6 +29,11 @@ class Source extends Model
             'last_fetched_at' => 'datetime',
             'html_query_filters' => 'array',
         ];
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function articles(): HasMany

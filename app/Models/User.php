@@ -44,11 +44,22 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'booklore_library_id' => 'integer',
+            'booklore_path_id' => 'integer',
+            'booklore_access_token' => 'encrypted:string',
+            'booklore_refresh_token' => 'encrypted:string',
+            'booklore_access_token_expires_at' => 'datetime',
+            'booklore_retention_hours' => 'integer',
         ];
     }
 
     public function canAccessPanel(Panel $panel): bool
     {
         return true;
+    }
+
+    public function hasBookloreConnection(): bool
+    {
+        return (bool) $this->booklore_refresh_token || (bool) $this->booklore_access_token;
     }
 }
