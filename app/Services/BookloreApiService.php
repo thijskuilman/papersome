@@ -388,10 +388,10 @@ class BookloreApiService
 
         $this->uploadFile($user, $libraryId, $pathId, $filePath);
 
-        $startTime = \Carbon\Carbon::now()->getTimestamp();
+        $startTime = Carbon::now()->getTimestamp();
         $matchedBook = null;
 
-        while ((\Carbon\Carbon::now()->getTimestamp() - $startTime) < $timeoutSeconds) {
+        while ((Carbon::now()->getTimestamp() - $startTime) < $timeoutSeconds) {
             $books = $this->getLibraryBooks($user, $libraryId);
 
             foreach ($books as $book) {

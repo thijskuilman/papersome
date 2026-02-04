@@ -237,13 +237,7 @@ class GenerateDailyPublications extends Command
         $publication->loadMissing('collection.user');
         $user = $publication->collection?->user;
 
-        $hasBooklore = $user
-            && ! empty($user->booklore_username)
-            && ! empty($user->booklore_library_id)
-            && ! empty($user->booklore_path_id)
-            && ! empty($publication->epub_file_path);
-
-        if (! $hasBooklore) {
+        if (! $user->finishedBookloreSetup()) {
             $this->logService->info(
                 message: 'Skipping Booklore upload (credentials not configured).',
                 channel: ActivityLogChannel::GeneratePublications,

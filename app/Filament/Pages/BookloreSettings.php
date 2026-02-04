@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Enums\BookloreConnectionStatus;
 use App\Filament\Infolists\Components\FluxCalloutEntry;
 use App\Services\BookloreApiService;
 use App\Services\BookloreService;
@@ -41,12 +42,12 @@ class BookloreSettings extends Page implements HasSchemas
 
     public static function getNavigationBadgeColor(): string|array|null
     {
-        return auth()->user()->hasBookloreConnection() ? 'success' : null;
+        return auth()->user()->getBookloreStatus()->getColor();
     }
 
     public static function getNavigationBadge(): ?string
     {
-        return auth()->user()->hasBookloreConnection() ? 'Connected' : null;
+        return auth()->user()->getBookloreStatus()->getLabel();
     }
 
     public function mount(): void
@@ -83,14 +84,14 @@ class BookloreSettings extends Page implements HasSchemas
                 Section::make('Connection')
                     ->schema([
                         Action::make('sign_into_booklore')
-                            ->visible(! $user?->hasBookloreConnection())
+                            ->visible($user->getBookloreStatus() == BookloreConnectionStatus::NotConnected)
                             ->label('Sign into Booklore')
                             ->modal()
                             ->color('gray')
                             ->icon(Heroicon::OutlinedKey)
                             ->fillForm(fn (): array => [
-                                'booklore_username' => $user?->booklore_username ?? '',
-                                'booklore_url' => $user?->booklore_url ?? '',
+                                'booklore_username' => $user->booklore_username ?? '',
+                                'booklore_url' => $user->booklore_url ?? '',
                             ])
                             ->action(function (array $data): void {
                                 $user = Auth::user();
@@ -140,92 +141,93 @@ class BookloreSettings extends Page implements HasSchemas
                                 ]),
                             ]),
 
-                        FluxCalloutEntry::make('booklore_connected_message')
-                            ->color('emerald')
-                            ->icon('check-circle')
-                            ->hiddenLabel()
-                            ->visible($user?->hasBookloreConnection() === true)
-                            ->state(new HtmlString("The user {$user?->booklore_username} is connected to Booklore at
-                                <a target='_blank' href='{$user?->booklore_url}'>
-                                    {$user?->booklore_url}
+                        Grid::make(1)
+                            ->visible($user->getBookloreStatus() == BookloreConnectionStatus::IncompleteSetup || $user->getBookloreStatus() == BookloreConnectionStatus::Connected)
+                            ->schema([
+                                FluxCalloutEntry::make('booklore_connected_message')
+                                    ->color('emerald')
+                                    ->icon('check-circle')
+                                    ->hiddenLabel()
+                                    ->state(new HtmlString("The user {$user->booklore_username} is connected to Booklore at
+                                <a target='_blank' href='{$user->booklore_url}'>
+                                    {$user->booklore_url}
                                 </a>
                             ")),
 
-                        Select::make('booklore_library_id')
-                            ->label('Booklore library')
-                            ->required()
-                            ->live()
-                            ->helperText('Which library should be used for storing publications?')
-                            ->visible($user?->hasBookloreConnection() === true)
-                            ->options(function () use ($user) {
-                                try {
-                                    return collect(app(BookloreApiService::class)->getLibraries($user))
-                                        ->mapWithKeys(fn ($library): array => [$library['id'] => $library['name']])
-                                        ->toArray();
-                                } catch (\Exception) {
-                                    return [];
-                                }
-                            })
-                            ->afterStateUpdated(function ($state) use ($user): void {
-                                if ($user) {
-                                    $user->booklore_library_id = $state;
-                                    $user->save();
-                                }
-                            }),
+                                Select::make('booklore_library_id')
+                                    ->label('Booklore library')
+                                    ->required()
+                                    ->live()
+                                    ->helperText('Which library should be used for storing publications?')
+                                    ->options(function () use ($user) {
+                                        try {
+                                            return collect(app(BookloreApiService::class)->getLibraries($user))
+                                                ->mapWithKeys(fn ($library): array => [$library['id'] => $library['name']])
+                                                ->toArray();
+                                        } catch (\Exception) {
+                                            return [];
+                                        }
+                                    })
+                                    ->afterStateUpdated(function ($state) use ($user): void {
+                                        if ($user) {
+                                            $user->booklore_library_id = $state;
+                                            $user->save();
+                                        }
+                                    }),
 
-                        Select::make('booklore_path_id')
-                            ->label('Library path')
-                            ->required()
-                            ->visible(fn (Get $get): bool => $get('booklore_library_id') !== null)
-                            ->options(function (Get $get) use ($user): array {
-                                $libraryId = (int) $get('booklore_library_id');
-                                if (! $libraryId || ! $user) {
-                                    return [];
-                                }
-                                try {
-                                    return collect(app(BookloreService::class)->getLibraryPaths($user, $libraryId))
-                                        ->mapWithKeys(fn ($library): array => [$library['id'] => $library['path']])
-                                        ->toArray();
-                                } catch (\Exception) {
-                                    return [];
-                                }
-                            })
-                            ->afterStateUpdated(function ($state) use ($user): void {
-                                if ($user) {
-                                    $user->booklore_path_id = $state;
-                                    $user->save();
-                                }
-                            }),
+                                Select::make('booklore_path_id')
+                                    ->label('Library path')
+                                    ->required()
+                                    ->visible(fn (Get $get): bool => $get('booklore_library_id') !== null)
+                                    ->options(function (Get $get) use ($user): array {
+                                        $libraryId = (int) $get('booklore_library_id');
+                                        if (! $libraryId || ! $user) {
+                                            return [];
+                                        }
+                                        try {
+                                            return collect(app(BookloreService::class)->getLibraryPaths($user, $libraryId))
+                                                ->mapWithKeys(fn ($library): array => [$library['id'] => $library['path']])
+                                                ->toArray();
+                                        } catch (\Exception) {
+                                            return [];
+                                        }
+                                    })
+                                    ->afterStateUpdated(function ($state) use ($user): void {
+                                        if ($user) {
+                                            $user->booklore_path_id = $state;
+                                            $user->save();
+                                        }
+                                    }),
 
-                        TextInput::make('booklore_retention_hours')
-                            ->label('Booklore retention hours')
-                            ->numeric()
-                            ->minValue(1)
-                            ->helperText('How long after requesting deletion should a Booklore book actually be deleted.')
-                            ->visible($user?->hasBookloreConnection() === true)
-                            ->afterStateUpdated(function ($state) use ($user): void {
-                                if ($user) {
-                                    $user->booklore_retention_hours = (int) $state;
-                                    $user->save();
-                                }
-                            }),
+                                TextInput::make('booklore_retention_hours')
+                                    ->label('Booklore retention hours')
+                                    ->numeric()
+                                    ->minValue(1)
+                                    ->helperText('How long after requesting deletion should a Booklore book actually be deleted.')
+                                    ->afterStateUpdated(function ($state) use ($user): void {
+                                        if ($user) {
+                                            $user->booklore_retention_hours = (int) $state;
+                                            $user->save();
+                                        }
+                                    }),
 
-                        Action::make('disconnect_booklore')
-                            ->visible($user?->hasBookloreConnection() === true)
-                            ->label('Disconnect Booklore')
-                            ->link()
-                            ->requiresConfirmation()
-                            ->color('danger')
-                            ->action(function (): void {
-                                $user = Auth::user();
-                                app(BookloreApiService::class)->disconnect($user);
-                                if ($user) {
-                                    $user->booklore_library_id = null;
-                                    $user->booklore_path_id = null;
-                                    $user->save();
-                                }
-                                $this->js('window.location.reload()');
-                            }),
+                                Action::make('disconnect_booklore')
+                                    ->label('Disconnect Booklore')
+                                    ->link()
+                                    ->requiresConfirmation()
+                                    ->color('danger')
+                                    ->action(function (): void {
+                                        $user = Auth::user();
+                                        app(BookloreApiService::class)->disconnect($user);
+                                        if ($user) {
+                                            $user->booklore_library_id = null;
+                                            $user->booklore_path_id = null;
+                                            $user->save();
+                                        }
+                                        $this->js('window.location.reload()');
+                                    }),
+                            ]),
+
                     ]),
             ])
             ->statePath('data');

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\BookloreConnectionStatus;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -58,8 +59,20 @@ class User extends Authenticatable implements FilamentUser
         return true;
     }
 
-    public function hasBookloreConnection(): bool
+    public function getBookloreStatus(): BookloreConnectionStatus
     {
-        return (bool) $this->booklore_refresh_token || (bool) $this->booklore_access_token;
+        if (! $this->booklore_refresh_token || ! $this->booklore_access_token) {
+            return BookloreConnectionStatus::NotConnected;
+        }
+        if (! $this->booklore_library_id || ! $this->booklore_path_id) {
+            return BookloreConnectionStatus::IncompleteSetup;
+        }
+
+        return BookloreConnectionStatus::Connected;
+    }
+
+    public function finishedBookloreSetup(): bool
+    {
+        return $this->getBookloreStatus() === BookloreConnectionStatus::Connected;
     }
 }
