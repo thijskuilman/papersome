@@ -31,7 +31,7 @@ class CollectionResourceService
                 Select::make('source_id')
                     ->label('Source')
                     ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                    ->relationship('source', 'name')
+                    ->relationship(name: 'source', titleAttribute: 'name', modifyQueryUsing: fn($query) => $query->where('user_id', auth()->id()))
                     ->getOptionLabelFromRecordUsing(fn(Source $record) =>
                     $record->icon ? "<div class='flex gap-x-2 items-center'><img class='size-4' src='{$record->icon}'> {$record->name}</div>" : $record->name)
                     ->preload()
