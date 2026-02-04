@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\SourceType;
 use App\Models\Source;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,6 +21,7 @@ class SourceFactory extends Factory
             'url' => $this->faker->unique()->url(),
             'type' => $this->faker->randomElement([SourceType::Rss]),
             'last_fetched_at' => $this->faker->optional()->dateTimeBetween('-7 days', 'now'),
+            'user_id' => User::factory()->create(),
         ];
     }
 }

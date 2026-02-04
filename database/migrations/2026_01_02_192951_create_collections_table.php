@@ -1,8 +1,10 @@
 <?php
 
+use App\Enums\CoverTemplate;
 use App\Enums\DeliveryChannel;
 use App\Models\Collection;
 use App\Models\Source;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,7 +19,8 @@ return new class extends Migration
         Schema::create('collections', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
-            $table->string('cover_template')->default(\App\Enums\CoverTemplate::ClassicNewspaper->value);
+            $table->foreignIdFor(User::class, 'user_id')->constrained()->cascadeOnDelete();
+            $table->string('cover_template')->default(CoverTemplate::ClassicNewspaper->value);
             $table->time('cron')->nullable();
             $table->boolean('enabled')->default(true);
             $table->timestamps();
