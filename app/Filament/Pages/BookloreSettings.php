@@ -31,13 +31,23 @@ class BookloreSettings extends Page implements HasSchemas
 
     protected static string|BackedEnum|null $activeNavigationIcon = 'icon-booklore';
 
-    protected static string|null|\UnitEnum $navigationGroup = 'Delivery targets';
+    protected static string|null|\UnitEnum $navigationGroup = 'Delivery channels';
 
     protected static ?string $navigationLabel = 'Booklore';
 
     protected ?string $heading = 'Booklore';
 
     public ?array $data = [];
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return auth()->user()->hasBookloreConnection() ? 'success' : null;
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return auth()->user()->hasBookloreConnection() ? 'Connected' : null;
+    }
 
     public function mount(): void
     {
