@@ -30,6 +30,7 @@ class PublicationsOverview extends TableWidget
                 })
             )
             ->heading('Latest Publications')
+            ->emptyStateHeading('There are no publications yet')
             ->columns([
                 Stack::make([
                     ImageColumn::make('cover_image')

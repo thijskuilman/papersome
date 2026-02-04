@@ -13,3 +13,7 @@ Schedule::command('booklore:process-deletion-requests')
 Schedule::command('publications:prune-retention')
     ->hourly()
     ->runInBackground();
+
+Schedule::command('activity-logs:prune')
+    ->daily()
+    ->runInBackground();
