@@ -21,10 +21,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
+        $bookloreUsername = config('booklore.username');
+        $booklorePassword = config('booklore.password');
+        $bookloreUrl = config('booklore.url');
+        $bookloreLibraryId = config('booklore.library_id');
+        $booklorePathId = config('booklore.path_id');
+
+        $admin = User::factory()->create([
             'name' => 'Admin',
             'email' => 'admin@papersome.com',
             'password' => bcrypt('password'),
+            'booklore_url' => $bookloreUrl,
+            'booklore_username' => $bookloreUsername,
+            'booklore_library_id' => $bookloreLibraryId,
+            'booklore_path_id' => $booklorePathId,
         ]);
 
         User::factory()->create([
@@ -35,23 +45,14 @@ class DatabaseSeeder extends Seeder
 
         $this->seedSourcesAndCollections();
 
-        $bookloreUsername = config('booklore.username');
-        $booklorePassword = config('booklore.password');
-        $bookloreUrl = config('booklore.url');
-        $bookloreLibraryId = config('booklore.library_id');
-
-        if ($bookloreUsername && $booklorePassword && $bookloreUrl && $bookloreLibraryId) {
-            $settings = app(ApplicationSettings::class);
+        if ($bookloreUsername && $booklorePassword && $bookloreUrl && $bookloreLibraryId && $booklorePathId) {
             try {
                 app(BookloreApiService::class)->login(
-                    user: User::first(),
+                    user: $admin,
                     username: $bookloreUsername,
                     password: $booklorePassword,
                     url: $bookloreUrl,
                 );
-                $settings->booklore_library_id = config('booklore.library_id');
-                $settings->booklore_path_id = config('booklore.path_id');
-                $settings->save();
             } catch (\Exception) {
             }
         }

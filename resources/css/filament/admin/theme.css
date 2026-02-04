@@ -3,8 +3,10 @@
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views';
+@source '../../../../vendor/mwguerra/onboarding/resources/views/filament/widgets';
 
 @custom-variant dark (&:where(.dark, .dark *));
+
 .phiki {
     @apply whitespace-pre-wrap wrap-break-word overflow-x-auto max-w-full py-2.5 px-5 rounded-[15px] h-[85vh];
 }
@@ -17,4 +19,3 @@
     content: "Filtered out";
     @apply absolute -top-3 right-0 bg-red-500 text-white text-[0.65rem] px-1.5 py-0.5 rounded-md;
 }
-

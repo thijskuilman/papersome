@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\BookloreSettings;
 use App\Filament\Pages\ManageSettings;
 use App\Filament\Resources\ActivityLogs\ActivityLogResource;
 use App\Filament\Resources\Collections\CollectionResource;
@@ -85,7 +86,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-rss')
                                     ->iconColor('primary')
                                     ->linkToResourceCreate(SourceResource::class)
-                                    ->completedWhen(fn (): bool => Source::count() > 0)
+                                    ->completedWhen(fn (): bool => Source::where('user_id', auth()->id())->exists())
                                     ->buttonLabel('Create source')
                                     ->order(1),
 
@@ -95,7 +96,7 @@ class AdminPanelProvider extends PanelProvider
                                     ->icon('heroicon-o-newspaper')
                                     ->iconColor('warning')
                                     ->linkToResource(CollectionResource::class)
-                                    ->completedWhen(fn (): bool => Collection::count() > 0)
+                                    ->completedWhen(fn (): bool => Collection::where('user_id', auth()->id())->exists())
                                     ->buttonLabel('Create collection')
                                     ->order(2),
 
@@ -104,9 +105,9 @@ class AdminPanelProvider extends PanelProvider
                                     ->description('Automate delivery to Booklore.')
                                     ->icon('heroicon-o-truck')
                                     ->iconColor('info')
-                                    ->linkToPage(ManageSettings::class)
-                                    ->completedWhen(fn (): bool => app(ApplicationSettings::class)->booklore_refresh_token !== null)
-                                    ->buttonLabel('Open settings')
+                                    ->linkToPage(BookloreSettings::class)
+                                    ->completedWhen(fn (): bool => auth()->user()->booklore_refresh_token !== null)
+                                    ->buttonLabel('Set up Booklore')
                                     ->order(3),
                             ]);
                     }),
