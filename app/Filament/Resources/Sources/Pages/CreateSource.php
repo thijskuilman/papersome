@@ -123,7 +123,7 @@ class CreateSource extends CreateRecord
         $host = parse_url((string) $url, PHP_URL_HOST);
         $base = $scheme && $host ? "$scheme://$host" : null;
         $data['icon'] = Favicon::fetch($base ?? $data['url'])?->getFaviconUrl();
-
+        $data['user_id'] = auth()->id();
         return $data;
     }
 }

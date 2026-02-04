@@ -6,7 +6,6 @@ use App\Enums\CoverTemplate;
 use App\Filament\Resources\Collections\CollectionResource;
 use App\Filament\Resources\Collections\CollectionResourceService;
 use Filament\Forms\Components\Radio;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Pages\CreateRecord;
@@ -84,5 +83,11 @@ class CreateCollection extends CreateRecord
                         ]),
                     ]),
             ]);
+    }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['user_id'] = auth()->id();
+        return $data;
     }
 }
