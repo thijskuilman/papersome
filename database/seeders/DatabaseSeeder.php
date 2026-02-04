@@ -27,6 +27,12 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
 
+        User::factory()->create([
+            'name' => 'John',
+            'email' => 'john@papersome.com',
+            'password' => bcrypt('password'),
+        ]);
+
         $this->seedSourcesAndCollections();
 
         $bookloreUsername = config('booklore.username');
@@ -38,6 +44,7 @@ class DatabaseSeeder extends Seeder
             $settings = app(ApplicationSettings::class);
             try {
                 app(BookloreApiService::class)->login(
+                    user: User::first(),
                     username: $bookloreUsername,
                     password: $booklorePassword,
                     url: $bookloreUrl,
@@ -54,6 +61,7 @@ class DatabaseSeeder extends Seeder
     private function seedSourcesAndCollections(): void {
         $nos = Source::create([
             'name' => 'NOS Algemeen',
+            'user_id' => 1,
             'url' => 'https://feeds.nos.nl/nosnieuwsalgemeen',
             'type' => 'rss',
             'icon' => 'https://static.nos.nl/img/favicon/favicon-32x32.png',
@@ -75,6 +83,7 @@ class DatabaseSeeder extends Seeder
 
         Source::create([
             'name' => 'Tweakers - Reviews',
+            'user_id' => 1,
             'url' => 'https://tweakers.net/feeds/reviews.xml',
             'type' => 'rss',
             'icon' => 'https://tweakers.net/android-touch-icon-192x192.png',
@@ -82,6 +91,7 @@ class DatabaseSeeder extends Seeder
 
         Source::create([
             'name' => 'NRC',
+            'user_id' => 1,
             'url' => 'https://nrc.nl/rss/',
             'type' => 'rss',
             'prefix_parse_url' => 'http://192.168.1.137:5000/',
@@ -90,6 +100,7 @@ class DatabaseSeeder extends Seeder
 
         Source::create([
             'name' => 'Volkskrant',
+            'user_id' => 2,
             'url' => 'https://www.volkskrant.nl/nieuws-achtergrond/rss.xml',
             'type' => 'rss',
             'prefix_parse_url' => 'http://192.168.1.137:5000/',
@@ -98,6 +109,7 @@ class DatabaseSeeder extends Seeder
 
         $collection = Collection::create([
             'name' => 'Daily News',
+            'user_id' => 1,
             'booklore_retention_hours' => 8,
             'enabled' => true,
             'schedule' => [

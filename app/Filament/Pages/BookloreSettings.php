@@ -1,0 +1,235 @@
+<?php
+
+namespace App\Filament\Pages;
+
+use App\Enums\BookloreConnectionStatus;
+use App\Filament\Infolists\Components\FluxCalloutEntry;
+use App\Services\BookloreApiService;
+use App\Services\BookloreService;
+use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
+
+class BookloreSettings extends Page implements HasSchemas
+{
+    use InteractsWithSchemas;
+
+    protected string $view = 'filament.pages.booklore-settings';
+
+    protected static string|null|\BackedEnum $navigationIcon = 'icon-booklore-gray';
+
+    protected static string|BackedEnum|null $activeNavigationIcon = 'icon-booklore';
+
+    protected static string|null|\UnitEnum $navigationGroup = 'Delivery channels';
+
+    protected static ?string $navigationLabel = 'Booklore';
+
+    protected ?string $heading = 'Booklore';
+
+    public ?array $data = [];
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return auth()->user()->getBookloreStatus()->getColor();
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return auth()->user()->getBookloreStatus()->getLabel();
+    }
+
+    public function mount(): void
+    {
+        $user = Auth::user();
+
+        $this->form->fill([
+            'booklore_url' => $user->booklore_url,
+            'booklore_username' => $user->booklore_username,
+            'booklore_library_id' => $user->booklore_library_id,
+            'booklore_path_id' => $user->booklore_path_id,
+            'booklore_retention_hours' => $user->booklore_retention_hours,
+        ]);
+    }
+
+    public function submit(): void
+    {
+        $state = $this->form->getState();
+
+        auth()->user()->update($state);
+
+        Notification::make()
+            ->success()
+            ->title('Settings saved')
+            ->send();
+    }
+
+    public function form(Schema $schema): Schema
+    {
+        $user = Auth::user();
+
+        return $schema
+            ->components([
+                Section::make('Connection')
+                    ->schema([
+                        Action::make('sign_into_booklore')
+                            ->visible($user->getBookloreStatus() == BookloreConnectionStatus::NotConnected)
+                            ->label('Sign into Booklore')
+                            ->modal()
+                            ->color('gray')
+                            ->icon(Heroicon::OutlinedKey)
+                            ->fillForm(fn (): array => [
+                                'booklore_username' => $user->booklore_username ?? '',
+                                'booklore_url' => $user->booklore_url ?? '',
+                            ])
+                            ->action(function (array $data): void {
+                                $user = Auth::user();
+                                $bookloreUrl = rtrim((string) $data['booklore_url'], '/');
+
+                                try {
+                                    app(BookloreApiService::class)->login(
+                                        user: $user,
+                                        username: $data['booklore_username'],
+                                        password: $data['booklore_password'],
+                                        url: $bookloreUrl,
+                                    );
+
+                                    Notification::make()
+                                        ->success()
+                                        ->title('Connected to Booklore')
+                                        ->body('You can now use Booklore as a delivery channel')
+                                        ->send();
+
+                                    $this->js('window.location.reload()');
+                                } catch (\Exception $exception) {
+                                    Notification::make()
+                                        ->danger()
+                                        ->title('Connection error to Booklore')
+                                        ->body($exception->getMessage())
+                                        ->send();
+                                    $this->halt();
+                                }
+                            })
+                            ->schema([
+                                Grid::make(3)->schema([
+                                    TextInput::make('booklore_url')
+                                        ->label('Booklore URL')
+                                        ->placeholder('https://localhost:6060')
+                                        ->requiredWith(['booklore_username', 'booklore_password']),
+
+                                    TextInput::make('booklore_username')
+                                        ->label('Username')
+                                        ->placeholder('Booklore username')
+                                        ->requiredWith(['booklore_url', 'booklore_password']),
+
+                                    TextInput::make('booklore_password')
+                                        ->label('Password')
+                                        ->placeholder('Booklore password')
+                                        ->requiredWith(['booklore_url', 'booklore_username'])
+                                        ->password(),
+                                ]),
+                            ]),
+
+                        Grid::make(1)
+                            ->visible($user->getBookloreStatus() == BookloreConnectionStatus::IncompleteSetup || $user->getBookloreStatus() == BookloreConnectionStatus::Connected)
+                            ->schema([
+                                FluxCalloutEntry::make('booklore_connected_message')
+                                    ->color('emerald')
+                                    ->icon('check-circle')
+                                    ->hiddenLabel()
+                                    ->state(new HtmlString("The user {$user->booklore_username} is connected to Booklore at
+                                <a target='_blank' href='{$user->booklore_url}'>
+                                    {$user->booklore_url}
+                                </a>
+                            ")),
+
+                                Select::make('booklore_library_id')
+                                    ->label('Booklore library')
+                                    ->required()
+                                    ->live()
+                                    ->helperText('Which library should be used for storing publications?')
+                                    ->options(function () use ($user) {
+                                        try {
+                                            return collect(app(BookloreApiService::class)->getLibraries($user))
+                                                ->mapWithKeys(fn ($library): array => [$library['id'] => $library['name']])
+                                                ->toArray();
+                                        } catch (\Exception) {
+                                            return [];
+                                        }
+                                    })
+                                    ->afterStateUpdated(function ($state) use ($user): void {
+                                        if ($user) {
+                                            $user->booklore_library_id = $state;
+                                            $user->save();
+                                        }
+                                    }),
+
+                                Select::make('booklore_path_id')
+                                    ->label('Library path')
+                                    ->required()
+                                    ->visible(fn (Get $get): bool => $get('booklore_library_id') !== null)
+                                    ->options(function (Get $get) use ($user): array {
+                                        $libraryId = (int) $get('booklore_library_id');
+                                        if (! $libraryId || ! $user) {
+                                            return [];
+                                        }
+                                        try {
+                                            return collect(app(BookloreService::class)->getLibraryPaths($user, $libraryId))
+                                                ->mapWithKeys(fn ($library): array => [$library['id'] => $library['path']])
+                                                ->toArray();
+                                        } catch (\Exception) {
+                                            return [];
+                                        }
+                                    })
+                                    ->afterStateUpdated(function ($state) use ($user): void {
+                                        if ($user) {
+                                            $user->booklore_path_id = $state;
+                                            $user->save();
+                                        }
+                                    }),
+
+                                TextInput::make('booklore_retention_hours')
+                                    ->label('Booklore retention hours')
+                                    ->numeric()
+                                    ->minValue(1)
+                                    ->helperText('How long after requesting deletion should a Booklore book actually be deleted.')
+                                    ->afterStateUpdated(function ($state) use ($user): void {
+                                        if ($user) {
+                                            $user->booklore_retention_hours = (int) $state;
+                                            $user->save();
+                                        }
+                                    }),
+
+                                Action::make('disconnect_booklore')
+                                    ->label('Disconnect Booklore')
+                                    ->link()
+                                    ->requiresConfirmation()
+                                    ->color('danger')
+                                    ->action(function (): void {
+                                        $user = Auth::user();
+                                        app(BookloreApiService::class)->disconnect($user);
+                                        if ($user) {
+                                            $user->booklore_library_id = null;
+                                            $user->booklore_path_id = null;
+                                            $user->save();
+                                        }
+                                        $this->js('window.location.reload()');
+                                    }),
+                            ]),
+
+                    ]),
+            ])
+            ->statePath('data');
+    }
+}

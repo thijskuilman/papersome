@@ -6,6 +6,7 @@ use App\Enums\CoverTemplate;
 use App\Enums\ScheduleRepeatType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
@@ -30,6 +31,11 @@ class Collection extends Model
             'schedule' => 'array',
             'enabled' => 'boolean',
         ];
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function sources(): BelongsToMany

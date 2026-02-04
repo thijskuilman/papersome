@@ -23,7 +23,12 @@ class PublicationsOverview extends TableWidget
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn (): Builder => Publication::query())
+            ->query(fn (): Builder => Publication::query()
+                ->with('collection')
+                ->whereHas('collection', function ($q): void {
+                    $q->where('user_id', auth()->id());
+                })
+            )
             ->heading('Latest Publications')
             ->columns([
                 Stack::make([

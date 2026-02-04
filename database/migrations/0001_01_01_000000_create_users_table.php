@@ -17,6 +17,16 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
+            $table->string('booklore_url')->nullable();
+            $table->string('booklore_username')->nullable()->index();
+            $table->unsignedInteger('booklore_library_id')->nullable();
+            $table->unsignedInteger('booklore_path_id')->nullable();
+            $table->text('booklore_access_token')->nullable();
+            $table->text('booklore_refresh_token')->nullable();
+            $table->timestamp('booklore_access_token_expires_at')->nullable();
+            $table->integer('booklore_retention_hours')->default(8);
+
             $table->rememberToken();
             $table->timestamps();
         });

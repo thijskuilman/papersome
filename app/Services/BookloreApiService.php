@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Enums\ActivityLogChannel;
-use App\Settings\ApplicationSettings;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Client\Response;
@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Http;
 class BookloreApiService
 {
     public function __construct(
-        private readonly ApplicationSettings $settings,
         private readonly LogService $logService,
     ) {}
 
@@ -20,33 +19,35 @@ class BookloreApiService
      | Authentication
      |-----------------------------------------------------------------*/
 
-    public function login(string $username, string $password, ?string $url = null): string
+    public function login(User $user, string $username, string $password, ?string $url = null): string
     {
+        $url ??= $user->booklore_url;
+
         if (
-            $username === $this->settings->booklore_username &&
-            $this->settings->booklore_access_token &&
-            $this->settings->booklore_access_token_expires_at?->isFuture()
+            $username === $user->booklore_username &&
+            $user->booklore_access_token &&
+            $user->booklore_access_token_expires_at?->isFuture()
         ) {
             $this->logService->info(
                 message: 'Using cached Booklore access token',
                 channel: ActivityLogChannel::Booklore,
                 data: [
                     'username' => $username,
-                    'expires_at' => (string) $this->settings->booklore_access_token_expires_at,
+                    'expires_at' => (string) $user->booklore_access_token_expires_at,
                 ],
             );
 
-            return $this->settings->booklore_access_token;
+            return (string) $user->booklore_access_token;
         }
 
-        if ($this->settings->booklore_refresh_token) {
+        if ($user->booklore_refresh_token) {
             try {
                 $this->logService->info(
                     message: 'Refreshing Booklore token',
                     channel: ActivityLogChannel::Booklore,
                 );
 
-                return $this->refreshToken($url);
+                return $this->refreshToken($user, $url);
             } catch (Exception $e) {
                 $this->logService->error(
                     message: 'Failed to refresh Booklore token, clearing tokens',
@@ -55,13 +56,13 @@ class BookloreApiService
                         'error' => $e->getMessage(),
                     ],
                 );
-                $this->clearTokens();
+                $this->clearTokens($user);
             }
         }
 
         throw_if(! $username || ! $password, new Exception('Booklore credentials not set.'));
 
-        $response = Http::post($url.'/api/v1/auth/login', [
+        $response = Http::post(rtrim((string) $url, '/').'/api/v1/auth/login', [
             'username' => $username,
             'password' => $password,
         ]);
@@ -78,13 +79,13 @@ class BookloreApiService
             throw new Exception('Failed to log in to Booklore: '.$response->body());
         }
 
-        $this->settings->booklore_username = $username;
-        $this->settings->booklore_url = $url;
-        $this->settings->save();
+        $user->booklore_username = $username;
+        $user->booklore_url = $url;
+        $user->save();
 
         $data = $response->json();
 
-        $this->storeTokens($data);
+        $this->storeTokens($user, $data);
 
         $this->logService->success(
             message: 'Logged in to Booklore successfully',
@@ -97,18 +98,18 @@ class BookloreApiService
         return $data['accessToken'];
     }
 
-    public function refreshToken(?string $url = null): string
+    public function refreshToken(User $user, ?string $url = null): string
     {
-        $refreshToken = $this->settings->booklore_refresh_token;
+        $refreshToken = $user->booklore_refresh_token;
 
         throw_unless($refreshToken, new Exception('No refresh token available.'));
 
-        $response = Http::post($url.'/api/v1/auth/refresh', [
+        $response = Http::post(rtrim((string) ($url ?? $user->booklore_url), '/').'/api/v1/auth/refresh', [
             'refreshToken' => $refreshToken,
         ]);
 
         if (! $response->successful()) {
-            $this->clearTokens();
+            $this->clearTokens($user);
             $this->logService->error(
                 message: 'Failed to refresh Booklore token',
                 channel: ActivityLogChannel::Booklore,
@@ -122,7 +123,7 @@ class BookloreApiService
 
         $data = $response->json();
 
-        $this->storeTokens($data);
+        $this->storeTokens($user, $data);
 
         $this->logService->success(
             message: 'Refreshed Booklore token successfully',
@@ -132,20 +133,20 @@ class BookloreApiService
         return $data['accessToken'];
     }
 
-    private function storeTokens(array $data): void
+    private function storeTokens(User $user, array $data): void
     {
-        $this->settings->booklore_access_token = $data['accessToken'];
-        $this->settings->booklore_refresh_token = $data['refreshToken'] ?? $this->settings->booklore_refresh_token;
-        $this->settings->booklore_access_token_expires_at = $this->getJwtExpiry($data['accessToken']);
-        $this->settings->save();
+        $user->booklore_access_token = $data['accessToken'];
+        $user->booklore_refresh_token = $data['refreshToken'] ?? $user->booklore_refresh_token;
+        $user->booklore_access_token_expires_at = $this->getJwtExpiry($data['accessToken']);
+        $user->save();
     }
 
-    private function clearTokens(): void
+    private function clearTokens(User $user): void
     {
-        $this->settings->booklore_access_token = null;
-        $this->settings->booklore_refresh_token = null;
-        $this->settings->booklore_access_token_expires_at = null;
-        $this->settings->save();
+        $user->booklore_access_token = null;
+        $user->booklore_refresh_token = null;
+        $user->booklore_access_token_expires_at = null;
+        $user->save();
     }
 
     private function getJwtExpiry(string $jwt): ?Carbon
@@ -170,13 +171,13 @@ class BookloreApiService
      | HTTP helpers
      |-----------------------------------------------------------------*/
 
-    private function client()
+    private function client(User $user)
     {
-        return Http::withToken($this->settings->booklore_access_token)
+        return Http::withToken((string) $user->booklore_access_token)
             ->acceptJson();
     }
 
-    private function retryWithRefresh(callable $callback): Response
+    private function retryWithRefresh(User $user, callable $callback): Response
     {
         $response = $callback();
 
@@ -188,25 +189,26 @@ class BookloreApiService
             message: 'Access token expired, attempting refresh',
             channel: ActivityLogChannel::Booklore,
         );
-        $this->refreshToken($this->settings->booklore_url);
+        $this->refreshToken($user, $user->booklore_url);
 
         return $callback();
     }
 
-    private function request(string $method, string $url, array $options = []): Response
+    private function request(User $user, string $method, string $url, array $options = []): Response
     {
-        return $this->retryWithRefresh(fn () => $this->client()->send($method, $url, $options));
+        return $this->retryWithRefresh($user, fn () => $this->client($user)->send($method, $url, $options));
     }
 
     /* -----------------------------------------------------------------
      | Public API methods
      |-----------------------------------------------------------------*/
 
-    public function getLibraries(): array
+    public function getLibraries(User $user): array
     {
         $response = $this->request(
+            $user,
             'GET',
-            $this->settings->booklore_url.'/api/v1/libraries'
+            rtrim((string) $user->booklore_url, '/').'/api/v1/libraries'
         );
 
         if (! $response->successful()) {
@@ -224,11 +226,12 @@ class BookloreApiService
         return $response->json();
     }
 
-    public function getShelves(): array
+    public function getShelves(User $user): array
     {
         $response = $this->request(
+            $user,
             'GET',
-            $this->settings->booklore_url.'/api/v1/shelves'
+            rtrim((string) $user->booklore_url, '/').'/api/v1/shelves'
         );
 
         if (! $response->successful()) {
@@ -246,9 +249,9 @@ class BookloreApiService
         return $response->json();
     }
 
-    public function assignBooksToShelves(array $bookIds, array $shelvesToAssign = [], array $shelvesToUnassign = []): array
+    public function assignBooksToShelves(User $user, array $bookIds, array $shelvesToAssign = [], array $shelvesToUnassign = []): array
     {
-        $url = $this->settings->booklore_url.'/api/v1/books/shelves';
+        $url = rtrim((string) $user->booklore_url, '/').'/api/v1/books/shelves';
 
         $payload = [
             'bookIds' => array_values(array_map(intval(...), $bookIds)),
@@ -256,7 +259,7 @@ class BookloreApiService
             'shelvesToUnassign' => array_values(array_map(intval(...), $shelvesToUnassign)),
         ];
 
-        $response = $this->request('POST', $url, [
+        $response = $this->request($user, 'POST', $url, [
             'json' => $payload,
         ]);
 
@@ -292,13 +295,13 @@ class BookloreApiService
      *
      * @throws Exception
      */
-    public function uploadFile(int $libraryId, int $pathId, string $filePath): void
+    public function uploadFile(User $user, int $libraryId, int $pathId, string $filePath): void
     {
         throw_unless(file_exists($filePath), new Exception("File not found: {$filePath}"));
 
-        $url = $this->settings->booklore_url.'/api/v1/files/upload';
+        $url = rtrim((string) $user->booklore_url, '/').'/api/v1/files/upload';
 
-        $response = $this->retryWithRefresh(fn () => $this->client()
+        $response = $this->retryWithRefresh($user, fn () => $this->client($user)
             ->attach(
                 'file',
                 fopen($filePath, 'r'),
@@ -337,11 +340,11 @@ class BookloreApiService
         );
     }
 
-    public function getLibraryBooks(int $libraryId): array
+    public function getLibraryBooks(User $user, int $libraryId): array
     {
-        $url = $this->settings->booklore_url."/api/v1/libraries/{$libraryId}/book";
+        $url = rtrim((string) $user->booklore_url, '/')."/api/v1/libraries/{$libraryId}/book";
 
-        $response = $this->retryWithRefresh(fn () => $this->client()->get($url));
+        $response = $this->retryWithRefresh($user, fn () => $this->client($user)->get($url));
 
         if (! $response->successful()) {
             $this->logService->error(
@@ -362,6 +365,7 @@ class BookloreApiService
     }
 
     public function uploadFileAndWaitForBook(
+        User $user,
         int $libraryId,
         int $pathId,
         string $filePath,
@@ -382,13 +386,13 @@ class BookloreApiService
             ],
         );
 
-        $this->uploadFile($libraryId, $pathId, $filePath);
+        $this->uploadFile($user, $libraryId, $pathId, $filePath);
 
-        $startTime = \Carbon\Carbon::now()->getTimestamp();
+        $startTime = Carbon::now()->getTimestamp();
         $matchedBook = null;
 
-        while ((\Carbon\Carbon::now()->getTimestamp() - $startTime) < $timeoutSeconds) {
-            $books = $this->getLibraryBooks($libraryId);
+        while ((Carbon::now()->getTimestamp() - $startTime) < $timeoutSeconds) {
+            $books = $this->getLibraryBooks($user, $libraryId);
 
             foreach ($books as $book) {
                 if (isset($book['metadata']['title']) && $book['metadata']['title'] === $expectedTitle) {
@@ -428,12 +432,12 @@ class BookloreApiService
         return $matchedBook;
     }
 
-    public function disconnect(): void
+    public function disconnect(User $user): void
     {
-        $this->clearTokens();
-        $this->settings->booklore_url = null;
-        $this->settings->booklore_username = null;
-        $this->settings->save();
+        $this->clearTokens($user);
+        $user->booklore_url = null;
+        $user->booklore_username = null;
+        $user->save();
         $this->logService->info(
             message: 'Disconnected from Booklore and cleared credentials',
             channel: ActivityLogChannel::Booklore,
@@ -443,11 +447,11 @@ class BookloreApiService
     /**
      * @throws Exception
      */
-    public function deleteBooks(array $bookIds): void
+    public function deleteBooks(User $user, array $bookIds): void
     {
-        $url = $this->settings->booklore_url.'/api/v1/books';
+        $url = rtrim((string) $user->booklore_url, '/').'/api/v1/books';
 
-        $response = $this->request('DELETE', $url, [
+        $response = $this->request($user, 'DELETE', $url, [
             'query' => [
                 'ids' => implode(',', $bookIds),
             ],
@@ -477,11 +481,11 @@ class BookloreApiService
         );
     }
 
-    public function getLibrary(int $libraryId): array
+    public function getLibrary(User $user, int $libraryId): array
     {
-        $url = $this->settings->booklore_url."/api/v1/libraries/{$libraryId}";
+        $url = rtrim((string) $user->booklore_url, '/')."/api/v1/libraries/{$libraryId}";
 
-        $response = $this->request('GET', $url);
+        $response = $this->request($user, 'GET', $url);
 
         if (! $response->successful()) {
             $this->logService->error(

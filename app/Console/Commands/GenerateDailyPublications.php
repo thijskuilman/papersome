@@ -13,7 +13,6 @@ use App\Services\FeedService;
 use App\Services\LogService;
 use App\Services\PublicationService;
 use App\Services\ReadabilityService;
-use App\Settings\ApplicationSettings;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Carbon;
@@ -29,7 +28,6 @@ class GenerateDailyPublications extends Command
         public ReadabilityService $readabilityService,
         public PublicationService $publicationService,
         public BookloreService $bookloreService,
-        public ApplicationSettings $settings,
         public LogService $logService,
     ) {
         parent::__construct();
@@ -236,12 +234,10 @@ class GenerateDailyPublications extends Command
      */
     private function syncToBooklore(Publication $publication): void
     {
-        $hasBooklore = ! empty($this->settings->booklore_username)
-            && ! empty($this->settings->booklore_library_id)
-            && ! empty($this->settings->booklore_path_id)
-            && ! empty($publication->epub_file_path);
+        $publication->loadMissing('collection.user');
+        $user = $publication->collection?->user;
 
-        if (! $hasBooklore) {
+        if (! $user->finishedBookloreSetup()) {
             $this->logService->info(
                 message: 'Skipping Booklore upload (credentials not configured).',
                 channel: ActivityLogChannel::GeneratePublications,

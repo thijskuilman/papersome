@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\DeliveryChannel;
 use App\Models\Collection;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,6 +20,7 @@ class CollectionFactory extends Factory
             'name' => $this->faker->unique()->words(asText: true),
             'schedule' => null,
             'enabled' => $this->faker->boolean(85),
+            'user_id' => User::factory()->create(),
         ];
     }
 }

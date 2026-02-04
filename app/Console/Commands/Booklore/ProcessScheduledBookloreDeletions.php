@@ -3,9 +3,9 @@
 namespace App\Console\Commands\Booklore;
 
 use App\Enums\ActivityLogChannel;
+use App\Models\User;
 use App\Services\BookloreApiService;
 use App\Services\LogService;
-use App\Settings\ApplicationSettings;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -27,7 +27,6 @@ class ProcessScheduledBookloreDeletions extends Command
 
     public function __construct(
         public BookloreApiService $bookloreApiService,
-        public ApplicationSettings $settings,
         public LogService $logService,
     ) {
         parent::__construct();
@@ -45,20 +44,18 @@ class ProcessScheduledBookloreDeletions extends Command
         );
 
         $overrideHours = config('papersome.booklore_retention_hours');
-        $hours = is_null($overrideHours)
-            ? $this->settings->booklore_retention_hours ?? 8
-            : (int) $overrideHours;
 
-        $threshold = now()->subHours($hours);
+        // Process per user to respect per-user credentials and retention
+        $userIds = DB::table('booklore_deletion_requests')
+            ->select('user_id')
+            ->distinct()
+            ->pluck('user_id')
+            ->filter()
+            ->all();
 
-        $bookIdsToDelete = DB::table('booklore_deletion_requests')
-            ->where('deletion_requested_at', '<=', $threshold)
-            ->pluck('book_id')
-            ->toArray();
-
-        if (! $bookIdsToDelete) {
+        if (empty($userIds)) {
             $this->logService->info(
-                message: 'No deletion requests are due at this time.',
+                message: 'No deletion requests are queued.',
                 channel: ActivityLogChannel::ProcessScheduledBookloreDeletions,
                 command: $this,
             );
@@ -66,23 +63,64 @@ class ProcessScheduledBookloreDeletions extends Command
             return;
         }
 
-        try {
-            $this->bookloreApiService->deleteBooks($bookIdsToDelete);
-        } catch (\Exception $e) {
-            $this->logService->error(
-                message: 'Something went wrong while deleting books from Booklore: '.$e->getMessage().'',
-                channel: ActivityLogChannel::ProcessScheduledBookloreDeletions,
-                command: $this,
-                data: [
-                    'book_ids_to_delete' => $bookIdsToDelete,
-                ]
-            );
+        $totalDeleted = 0;
+
+        foreach ($userIds as $userId) {
+            $user = User::find($userId);
+            if (! $user) {
+                continue;
+            }
+
+            $hours = is_null($overrideHours)
+                ? ($user->booklore_retention_hours ?? 8)
+                : (int) $overrideHours;
+
+            $threshold = now()->subHours((int) $hours);
+
+            $bookIdsToDelete = DB::table('booklore_deletion_requests')
+                ->where('user_id', $user->id)
+                ->where('deletion_requested_at', '<=', $threshold)
+                ->pluck('book_id')
+                ->toArray();
+
+            if (! $bookIdsToDelete) {
+                continue;
+            }
+
+            try {
+                $this->bookloreApiService->deleteBooks($user, $bookIdsToDelete);
+                $totalDeleted += count($bookIdsToDelete);
+
+                // Remove processed rows
+                DB::table('booklore_deletion_requests')
+                    ->where('user_id', $user->id)
+                    ->whereIn('book_id', $bookIdsToDelete)
+                    ->delete();
+            } catch (\Exception $e) {
+                $this->logService->error(
+                    message: 'Error deleting books from Booklore: '.$e->getMessage().' (user '.$user->id.')',
+                    channel: ActivityLogChannel::ProcessScheduledBookloreDeletions,
+                    command: $this,
+                    data: [
+                        'user_id' => $user->id,
+                        'book_ids_to_delete' => $bookIdsToDelete,
+                    ]
+                );
+            }
         }
 
-        $this->logService->info(
-            message: 'Deleted '.count($bookIdsToDelete).' books from Booklore.',
-            channel: ActivityLogChannel::ProcessScheduledBookloreDeletions,
-            command: $this,
-        );
+        if ($totalDeleted === 0) {
+            $this->logService->info(
+                message: 'No deletion requests are due at this time.',
+                channel: ActivityLogChannel::ProcessScheduledBookloreDeletions,
+                command: $this,
+            );
+        } else {
+            $this->logService->info(
+                message: 'Deleted '.$totalDeleted.' books from Booklore.',
+                channel: ActivityLogChannel::ProcessScheduledBookloreDeletions,
+                command: $this,
+            );
+        }
     }
 }

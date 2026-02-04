@@ -4,19 +4,23 @@ namespace App\Services;
 
 use App\Enums\ActivityLogChannel;
 use App\Models\Publication;
-use App\Settings\ApplicationSettings;
+use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
 class BookloreService
 {
-    public function __construct(private readonly BookloreApiService $bookloreApiService, private readonly ApplicationSettings $settings, private readonly LogService $logService) {}
+    public function __construct(private readonly BookloreApiService $bookloreApiService, private readonly LogService $logService) {}
 
     /**
      * @throws Exception
      */
     public function uploadPublication(Publication $publication): void
     {
+        $publication->loadMissing('collection.user');
+        /** @var User $user */
+        $user = $publication->collection->user;
+
         $this->logService->info(
             message: 'Uploading publication to Booklore',
             channel: ActivityLogChannel::Booklore,
@@ -28,8 +32,9 @@ class BookloreService
 
         try {
             $book = $this->bookloreApiService->uploadFileAndWaitForBook(
-                libraryId: $this->settings->booklore_library_id,
-                pathId: $this->settings->booklore_path_id,
+                user: $user,
+                libraryId: (int) $user->booklore_library_id,
+                pathId: (int) $user->booklore_path_id,
                 filePath: \Storage::disk('public')->path($publication->epub_file_path),
                 expectedTitle: $publication->title
             );
@@ -58,10 +63,11 @@ class BookloreService
         }
     }
 
-    public function requestBookDeletion(int $bookId): void
+    public function requestBookDeletion(User $user, int $bookId): void
     {
         $existing = DB::table('booklore_deletion_requests')
             ->where('book_id', $bookId)
+            ->where('user_id', $user->id)
             ->first();
 
         if ($existing) {
@@ -77,6 +83,7 @@ class BookloreService
         }
 
         DB::table('booklore_deletion_requests')->insert([
+            'user_id' => $user->id,
             'book_id' => $bookId,
             'deletion_requested_at' => now(),
             'created_at' => now(),
@@ -92,9 +99,9 @@ class BookloreService
         );
     }
 
-    public function unassignFromKoboShelves(int $bookId): void
+    public function unassignFromKoboShelves(User $user, int $bookId): void
     {
-        $shelves = $this->bookloreApiService->getShelves();
+        $shelves = $this->bookloreApiService->getShelves($user);
 
         $koboShelfIds = collect($shelves)
             ->where('name', 'Kobo')
@@ -111,6 +118,7 @@ class BookloreService
 
         try {
             $this->bookloreApiService->assignBooksToShelves(
+                user: $user,
                 bookIds: [$bookId],
                 shelvesToUnassign: $koboShelfIds
             );
@@ -139,9 +147,9 @@ class BookloreService
     /**
      * @throws Exception
      */
-    public function getLibraryPaths(int $libraryId): array
+    public function getLibraryPaths(User $user, int $libraryId): array
     {
-        $library = $this->bookloreApiService->getLibrary($libraryId);
+        $library = $this->bookloreApiService->getLibrary($user, $libraryId);
 
         return $library['paths'] ?? [];
     }

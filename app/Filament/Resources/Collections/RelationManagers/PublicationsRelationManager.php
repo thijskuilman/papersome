@@ -57,8 +57,12 @@ class PublicationsRelationManager extends RelationManager
                         $bookloreService = app(BookloreService::class);
 
                         if ($record->booklore_book_id) {
-                            $bookloreService->unassignFromKoboShelves($record->booklore_book_id);
-                            $bookloreService->requestBookDeletion($record->booklore_book_id);
+                            $record->loadMissing('collection.user');
+                            $user = $record->collection->user;
+                            if ($user) {
+                                $bookloreService->unassignFromKoboShelves($user, (int) $record->booklore_book_id);
+                                $bookloreService->requestBookDeletion($user, (int) $record->booklore_book_id);
+                            }
                         }
                     }),
             ])
