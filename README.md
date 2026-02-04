@@ -1,10 +1,4 @@
-<p align="left">
-  <img src="https://github.com/user-attachments/assets/16a1d594-4f46-49f1-a56c-f407e91bf75c" 
-       alt="Papersome Logo" 
-       width="50" 
-       style="vertical-align: middle;">
-  <h1 style="font-size: 2em; vertical-align: middle; font-weight: bold;">Papersome</h1>
-</p>
+# <img src="https://github.com/user-attachments/assets/16a1d594-4f46-49f1-a56c-f407e91bf75c" width="40" /> Papersome
 
 <h4>Papersome is a self-hosted application for creating ePub newspapers or magazines from RSS/Atom feeds.</h4>
 
