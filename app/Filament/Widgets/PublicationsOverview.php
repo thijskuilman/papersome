@@ -25,7 +25,7 @@ class PublicationsOverview extends TableWidget
         return $table
             ->query(fn (): Builder => Publication::query()
                 ->with('collection')
-                ->whereHas('collection', function ($q) {
+                ->whereHas('collection', function ($q): void {
                     $q->where('user_id', auth()->id());
                 })
             )

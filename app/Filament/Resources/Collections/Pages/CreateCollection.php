@@ -34,7 +34,7 @@ class CreateCollection extends CreateRecord
         return $schema
             ->components([
                 Wizard::make()
-                        ->submitAction(new HtmlString(Blade::render('<x-filament::button type="submit">
+                    ->submitAction(new HtmlString(Blade::render('<x-filament::button type="submit">
                             Create
                         </x-filament::button>')))
                     ->columnSpanFull()
@@ -58,7 +58,7 @@ class CreateCollection extends CreateRecord
                                 ->hiddenLabel()
                                 ->size(TextSize::Large)
                                 ->weight(FontWeight::Bold)
-                                ->state("Determine the content of the publications"),
+                                ->state('Determine the content of the publications'),
 
                             TextEntry::make('sources_helper')
                                 ->hiddenLabel()
@@ -73,7 +73,7 @@ class CreateCollection extends CreateRecord
                                 ->hiddenLabel()
                                 ->size(TextSize::Large)
                                 ->weight(FontWeight::Bold)
-                                ->state("Set up a schedule"),
+                                ->state('Set up a schedule'),
 
                             TextEntry::make('sources_helper')
                                 ->hiddenLabel()
@@ -85,9 +85,11 @@ class CreateCollection extends CreateRecord
             ]);
     }
 
+    #[\Override]
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['user_id'] = auth()->id();
+
         return $data;
     }
 }
