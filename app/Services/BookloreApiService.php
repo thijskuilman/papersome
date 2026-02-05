@@ -394,7 +394,7 @@ class BookloreApiService
         while ((Carbon::now()->getTimestamp() - $startTime) < $timeoutSeconds) {
             $books = $this->getLibraryBooks($user, $libraryId);
             $this->logService->info(
-                message: 'Found books for ' . $user->name,
+                message: 'Found books for '.$user->name,
                 channel: ActivityLogChannel::Booklore,
                 data: [
                     'books' => $books,
@@ -403,7 +403,7 @@ class BookloreApiService
 
             foreach ($books as $book) {
 
-                if(str_contains(haystack: $book['fileName'], needle: $tag)) {
+                if (str_contains(haystack: (string) $book['fileName'], needle: $tag)) {
                     $matchedBook = $book;
                     break 2;
                 }
