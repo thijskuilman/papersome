@@ -40,6 +40,9 @@ services:
       - redis_data:/data
 
   scheduler:
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
     build:
       context: .
       dockerfile: Dockerfile
@@ -54,6 +57,9 @@ services:
       - .env.docker
 
   queue:
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
     build:
       context: .
       dockerfile: Dockerfile
@@ -84,23 +90,16 @@ services:
       timeout: 5s
       retries: 3
 
-  node:
+  node-build:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: papersome-node
+    container_name: papersome-node-build
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
       - node_modules:/var/www/html/node_modules
-    ports:
-      - "5173:5173"
-    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
-    depends_on:
-      - php
-#    user: "${PUID:-1000}:${PGID:-1000}"
-    env_file:
-      - .env.docker
+    command: [ "npm", "run", "build" ]
 
 volumes:
   db_data:

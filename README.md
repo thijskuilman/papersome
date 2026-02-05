@@ -34,21 +34,7 @@ Requirements: Docker Desktop 4+, Node/npm are bundled in the app container.
 Visit: http://localhost:8080
 
 Notes:
-- Containers share an env file `.env.docker`. It’s dev-friendly: `APP_ENV=local`, `APP_DEBUG=true`.
-- `APP_URL` is set to `http://php:8080` so other containers (like headless Chrome) can reach the app.
-- A `chromium` service is provided for Browsershot (remote-debugging port 9222). Config is in `config/browsershot.php`.
-- A `queue` worker and a `scheduler` service are included. Migrations and seeds are enabled by default via autorun.
 - If you use Unraid or a NAS, set `PUID`/`PGID` environment vars when running compose so files are written with the correct ownership (e.g., `PUID=99 PGID=100`).
-
-### Production-like run (local)
-
-Use the override file to enable caches and opcache:
-
-```
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
-```
-
-This keeps the same services but flips to `APP_ENV=production`, disables seeding by default, enables Laravel caches, and turns on PHP opcache.
 
 ### Common commands
 
