@@ -10,7 +10,59 @@ You can add RSS feeds as sources, bundle them into collections, and read them in
 | ![Magazine Frontpage](https://github.com/user-attachments/assets/8448a3e2-597e-4228-ae4c-e7722b48621e) | ![Magazine Article](https://github.com/user-attachments/assets/6df2df19-62d8-4e9e-a3e5-ed6f66198401) |
 
 ## Installation
-Papersome is still in development. Installation instructions will be added soon.
+Papersome is still in development. Below are Docker-based instructions for local development and a production-like run.
+
+### Docker Quickstart (local dev)
+
+Requirements: Docker Desktop 4+, Node/npm are bundled in the app container.
+
+1. Build images
+   - `docker compose build`
+2. Install PHP deps
+   - `docker compose run --rm php composer install --no-interaction --prefer-dist`
+3. Generate app key (writes to your local `.env`)
+   - `docker compose run --rm php php artisan key:generate`
+4. Install frontend deps
+   - `docker compose run --rm php npm ci`
+5. Build assets once (if you won’t run HMR)
+   - `docker compose run --rm php npm run build`
+6. Start the stack
+   - `docker compose up -d`
+7. (Optional) Start Vite HMR for faster frontend dev
+   - `docker compose up -d node`
+
+Visit: http://localhost:8080
+
+Notes:
+- Containers share an env file `.env.docker`. It’s dev-friendly: `APP_ENV=local`, `APP_DEBUG=true`.
+- `APP_URL` is set to `http://php:8080` so other containers (like headless Chrome) can reach the app.
+- A `chromium` service is provided for Browsershot (remote-debugging port 9222). Config is in `config/browsershot.php`.
+- A `queue` worker and a `scheduler` service are included. Migrations and seeds are enabled by default via autorun.
+- If you use Unraid or a NAS, set `PUID`/`PGID` environment vars when running compose so files are written with the correct ownership (e.g., `PUID=99 PGID=100`).
+
+### Production-like run (local)
+
+Use the override file to enable caches and opcache:
+
+```
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
+
+This keeps the same services but flips to `APP_ENV=production`, disables seeding by default, enables Laravel caches, and turns on PHP opcache.
+
+### Common commands
+
+- Tail logs: `docker compose logs -f php`
+- Run artisan: `docker compose exec php php artisan <command>`
+- Run migrations manually: `docker compose exec php php artisan migrate --seed`
+- Queue worker (already running): `docker compose logs -f queue`
+- Stop everything: `docker compose down`
+
+### Troubleshooting
+
+- If styles/scripts don’t update during development, make sure the `node` service is running for HMR, or re-run `npm run build` in the `php` container.
+- If Vite HMR cannot connect, ensure port 5173 is free and published; we run Vite with `--host 0.0.0.0` and map `5173:5173`.
+- If Browsershot times out, verify the `chromium` container is healthy and that `APP_URL` points to `http://php:8080` (internal DNS) in `.env.docker`.
 
 ## Key Features
 

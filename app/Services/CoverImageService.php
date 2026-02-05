@@ -23,6 +23,10 @@ class CoverImageService
             mkdir(dirname($fullPath), 0755, true);
         }
 
+        if($dockerUrl = config('app.docker_url')) {
+            URL::useOrigin($dockerUrl);
+        }
+
         $url = URL::route('cover.generate', [
             'publication' => $publication->id,
         ]);
@@ -38,9 +42,6 @@ class CoverImageService
                 ],
             );
 
-            // TODO: Might need this for docker...
-            //        URL::useOrigin('http://php:8080');
-
             $browsershot = Browsershot::url($url)
                 ->addChromiumArguments([
                     'no-sandbox',
@@ -49,9 +50,12 @@ class CoverImageService
                 ->windowSize(600, 800)
                 ->waitUntilNetworkIdle();
 
-            // TODO: For docker: chromium
+            // Configure remote Chromium (Docker) if provided via config/env
             if ($remoteInstanceName = config('browsershot.remote_instance_name')) {
-                $browsershot->setRemoteInstance(gethostbyname($remoteInstanceName));
+                $remoteHost = gethostbyname($remoteInstanceName);
+                $remotePort = (int) config('browsershot.remote_instance_port');
+                // Browsershot supports host and optional port
+                $browsershot->setRemoteInstance($remoteHost, $remotePort > 0 ? $remotePort : null);
             }
 
             if ($chromePath = config('browsershot.chrome_path')) {
