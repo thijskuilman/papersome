@@ -37,11 +37,13 @@ Papersome is still in development. Installation instructions will be added soon.
 - Rector
 
 ## Screenshots
-<a href="https://github.com/user-attachments/assets/2d866ed3-b881-42cd-b9c1-544369a01ae2"><img src="https://github.com/user-attachments/assets/2d866ed3-b881-42cd-b9c1-544369a01ae2" height="128px">
-<a href="https://github.com/user-attachments/assets/405de3ad-fa19-46a2-8358-65ee23149def"><img src="https://github.com/user-attachments/assets/405de3ad-fa19-46a2-8358-65ee23149def" height="128px">
-<a href="https://github.com/user-attachments/assets/541de82d-a990-4ad8-a7c3-79bf08c28ebc"><img src="https://github.com/user-attachments/assets/541de82d-a990-4ad8-a7c3-79bf08c28ebc" height="128px">
-<a href="https://github.com/user-attachments/assets/317e149b-b374-4bc1-87c0-b79478c1bdf3"><img src="https://github.com/user-attachments/assets/317e149b-b374-4bc1-87c0-b79478c1bdf3" height="128px">
-<a href="https://github.com/user-attachments/assets/d479072b-0788-4a3c-ae52-3291a08ec0f3"><img src="https://github.com/user-attachments/assets/d479072b-0788-4a3c-ae52-3291a08ec0f3" height="128px">
+| ☀️ Light | 🌙 Dark |
+|-----------|-----------|
+| <img height="200px" alt="shelf-light" src="https://github.com/user-attachments/assets/24575ad7-5f8a-4d8a-b193-399fda47ca54" /> | <img height="200px" alt="shelf-dark" src="https://github.com/user-attachments/assets/e3db5ae8-1edd-47f5-81ce-0d7cdfc28fc7" /> |
+| <img height="200px" alt="sources-light" src="https://github.com/user-attachments/assets/3a7e7ae4-3b65-44f3-9ddc-d2bf523c0a6f" /> | <img height="200px" alt="sources-dark" src="https://github.com/user-attachments/assets/e655a2c2-dee9-4c9e-a79f-6f1e405afabd" /> |
+| <img height="200px" alt="collections-light" src="https://github.com/user-attachments/assets/9fc5ca1f-936c-48d0-b01b-ca664c34e9e6" /> | <img height="200px" alt="collections-dark" src="https://github.com/user-attachments/assets/c141b2c7-8b1b-491c-8d11-76e3f4bd2a0d" /> |
+| <img height="200px" alt="collection-detail-light" src="https://github.com/user-attachments/assets/9057ee9e-8cb6-47e6-ae0b-123a4fc5b847" /> | <img height="200px" alt="collection-detail-dark" src="https://github.com/user-attachments/assets/4d50df70-51cc-4c1e-ba57-272ff0519099" /> |
+| <img height="200px" alt="source-layout-settings-light" src="https://github.com/user-attachments/assets/545e89df-d156-4759-921f-6822ae449ad1" /> | <img height="200px" alt="source-layout-settings-dark" src="https://github.com/user-attachments/assets/b2c3e582-6594-4e7c-883c-992108075d98" /> |
 
 ## Contributing
 Contributions are welcome! If you’d like to propose a change:
