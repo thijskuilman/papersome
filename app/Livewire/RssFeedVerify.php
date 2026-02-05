@@ -5,6 +5,8 @@ namespace App\Livewire;
 use App\Enums\SourceFormEvent;
 use App\Services\FeedService;
 use App\Services\ReadabilityService;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -59,7 +61,7 @@ class RssFeedVerify extends Component
 
     }
 
-    public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function render(): Factory|View
     {
         return view('livewire.rss-feed-verify');
     }

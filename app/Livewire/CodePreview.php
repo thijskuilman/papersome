@@ -2,6 +2,8 @@
 
 namespace App\Livewire;
 
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Reactive;
 use Livewire\Component;
 use Phiki\Adapters\Laravel\Facades\Phiki;
@@ -46,7 +48,7 @@ class CodePreview extends Component
         )->toString();
     }
 
-    public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function render(): Factory|View
     {
         return view('livewire.code-preview');
     }

@@ -7,6 +7,8 @@ use App\Models\Article;
 use App\Models\Source;
 use Dom\HTMLDocument as DOMDocument;
 use Filament\Notifications\Notification;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -97,7 +99,7 @@ class ArticlePreview extends Component
 
     }
 
-    public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function render(): Factory|View
     {
         return view('livewire.article-preview');
     }
