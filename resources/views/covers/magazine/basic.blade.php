@@ -10,7 +10,7 @@
                 @endphp
                 <img src="{{ $hero->image ?? 'https://via.placeholder.com/600x800' }}" alt="{{ $hero->title }}" class="absolute inset-0 w-full h-full object-cover">
 
-                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-black/30"></div>
 
                 <div class="absolute top-6 left-6 right-6 text-center">
                     <h1 class="text-5xl font-bold uppercase text-white tracking-wide drop-shadow-lg">

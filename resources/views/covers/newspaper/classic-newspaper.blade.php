@@ -26,7 +26,7 @@
                         <p class="text-[10px] text-gray-500 italic mb-2">By {{ $hero->author }}</p>
                     @endif
                     @if($hero->image)
-                        <img src="{{ $hero->image }}" alt="{{ $hero->title }}" class="w-full h-auto max-h-32 object-cover mt-2 rounded shadow-sm">
+                        <img src="{{ $hero->image }}" alt="{{ $hero->title }}" class="w-full h-auto max-h-24 object-cover mt-2 rounded shadow-sm">
                     @endif
                 </section>
             @endif
