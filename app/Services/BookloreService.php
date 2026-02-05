@@ -17,10 +17,6 @@ class BookloreService
      */
     public function uploadPublication(Publication $publication): void
     {
-        $publication->loadMissing('collection.user');
-        /** @var User $user */
-        $user = $publication->collection->user;
-
         $this->logService->info(
             message: 'Uploading publication to Booklore',
             channel: ActivityLogChannel::Booklore,
@@ -29,6 +25,10 @@ class BookloreService
                 'title' => $publication->title,
             ],
         );
+
+        $publication->loadMissing('collection.user');
+
+        $user = $publication->collection->user;
 
         try {
             $book = $this->bookloreApiService->uploadFileAndWaitForBook(
@@ -40,6 +40,7 @@ class BookloreService
             );
 
             $publication->booklore_book_id = $book['id'];
+
             $publication->save();
 
             $this->logService->success(
@@ -140,7 +141,6 @@ class BookloreService
                     'error' => $e->getMessage(),
                 ]
             );
-            throw $e;
         }
     }
 

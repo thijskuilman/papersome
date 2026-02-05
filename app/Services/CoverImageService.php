@@ -23,9 +23,6 @@ class CoverImageService
             mkdir(dirname($fullPath), 0755, true);
         }
 
-        // TODO: Any nicer way to do this?
-//        URL::useOrigin('http://php:8080');
-
         $url = URL::route('cover.generate', [
             'publication' => $publication->id,
         ]);
@@ -41,20 +38,25 @@ class CoverImageService
                 ],
             );
 
+            // TODO: Might need this for docker...
+            //        URL::useOrigin('http://php:8080');
+
             $browsershot = Browsershot::url($url)
-                // TODO: Remote
-//                ->setRemoteInstance(gethostbyname('chromium'))
                 ->addChromiumArguments([
                     'no-sandbox',
                     'disable-setuid-sandbox',
                 ])
                 ->windowSize(600, 800)
                 ->waitUntilNetworkIdle();
-//
-            // TODO: Re-enable
-//            if ($chromePath = config('browsershot.chrome_path')) {
-//                $browsershot->setChromePath($chromePath);
-//            }
+
+            // TODO: For docker: chromium
+            if ($remoteInstanceName = config('browsershot.remote_instance_name')) {
+                $browsershot->setRemoteInstance(gethostbyname($remoteInstanceName));
+            }
+
+            if ($chromePath = config('browsershot.chrome_path')) {
+                $browsershot->setChromePath($chromePath);
+            }
 
             $browsershot->save($fullPath);
 
