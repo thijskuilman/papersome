@@ -18,6 +18,9 @@ class SourceFactory extends Factory
     {
         return [
             'name' => $this->faker->unique()->company(),
+            'icon' => $this->faker->optional()->imageUrl(),
+            'prefix_parse_url' => $this->faker->optional()->url(),
+            'html_query_filters' => [],
             'url' => $this->faker->unique()->url(),
             'type' => $this->faker->randomElement([SourceType::Rss]),
             'last_fetched_at' => $this->faker->optional()->dateTimeBetween('-7 days', 'now'),
