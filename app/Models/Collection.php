@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\CoverTemplate;
 use App\Enums\ScheduleRepeatType;
+use Database\Factories\CollectionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +14,7 @@ use Illuminate\Support\Carbon;
 
 class Collection extends Model
 {
-    /** @use HasFactory<\Database\Factories\CollectionFactory> */
+    /** @use HasFactory<CollectionFactory> */
     use HasFactory;
 
     /**
@@ -76,7 +77,7 @@ class Collection extends Model
                 ScheduleRepeatType::Specific->value => in_array(
                     strtolower($now->format('D')),
                     array_map(strtolower(...), $entry['scheduled_days'] ?? []),
-                    true
+                    strict: true
                 ),
             };
         }

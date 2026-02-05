@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Enums\ActivityLogChannel;
 use App\Enums\ArticleStatus;
+use App\Enums\BookloreConnectionStatus;
 use App\Models\Article;
 use App\Models\Collection;
 use App\Models\Publication;
@@ -237,7 +238,7 @@ class GenerateDailyPublications extends Command
         $publication->loadMissing('collection.user');
         $user = $publication->collection?->user;
 
-        if (! $user->finishedBookloreSetup()) {
+        if (! $user->getBookloreStatus() == BookloreConnectionStatus::Connected) {
             $this->logService->info(
                 message: 'Skipping Booklore upload (credentials not configured).',
                 channel: ActivityLogChannel::GeneratePublications,

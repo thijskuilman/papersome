@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\PublicationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class Publication extends Model
 {
+    /** @use HasFactory<PublicationFactory> */
     use HasFactory;
 
     protected $guarded = [];
