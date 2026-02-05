@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\PublicationFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +15,17 @@ class Publication extends Model
 {
     /** @use HasFactory<PublicationFactory> */
     use HasFactory;
+    use HasUlids;
+
+    /**
+     * Get the columns that should receive a unique identifier.
+     *
+     * @return array<int, string>
+     */
+    public function uniqueIds(): array
+    {
+        return ['tag'];
+    }
 
     protected $guarded = [];
 

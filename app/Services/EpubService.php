@@ -32,7 +32,7 @@ class EpubService
         $epub = new EpubBuilder;
 
         $epub->setTitle($publication->title)
-            ->setAuthor('Various authors')
+            ->setAuthor($publication->tag)
             ->setLanguage('en')
             ->setDescription('');
 

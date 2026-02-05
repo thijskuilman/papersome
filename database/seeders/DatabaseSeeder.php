@@ -37,26 +37,34 @@ class DatabaseSeeder extends Seeder
             'booklore_path_id' => $booklorePathId,
         ]);
 
-        User::factory()->create([
+        $john = User::factory()->create([
             'name' => 'John',
             'email' => 'john@papersome.com',
             'password' => bcrypt('password'),
+            'booklore_url' => $bookloreUrl,
+            'booklore_username' => $bookloreUsername,
+            'booklore_library_id' => $bookloreLibraryId,
+            'booklore_path_id' => $booklorePathId,
         ]);
 
         $this->seedSourcesAndCollections();
 
         if ($bookloreUsername && $booklorePassword && $bookloreUrl && $bookloreLibraryId && $booklorePathId) {
-            try {
-                app(BookloreApiService::class)->login(
-                    user: $admin,
-                    username: $bookloreUsername,
-                    password: $booklorePassword,
-                    url: $bookloreUrl,
-                );
-            } catch (\Exception) {
-            }
-        }
+            app(BookloreApiService::class)->login(
+                user: $admin,
+                username: $bookloreUsername,
+                password: $booklorePassword,
+                url: $bookloreUrl,
+            );
 
+            sleep(3);
+            app(BookloreApiService::class)->login(
+                user: $john,
+                username: $bookloreUsername,
+                password: $booklorePassword,
+                url: $bookloreUrl,
+            );
+        }
     }
 
     private function seedSourcesAndCollections(): void {
@@ -99,15 +107,6 @@ class DatabaseSeeder extends Seeder
             'icon' => 'https://assets.nrc.nl/static/front/icons/favicon.ico',
         ]);
 
-        Source::create([
-            'name' => 'Volkskrant',
-            'user_id' => 2,
-            'url' => 'https://www.volkskrant.nl/nieuws-achtergrond/rss.xml',
-            'type' => 'rss',
-            'prefix_parse_url' => 'http://192.168.1.137:5000/',
-            'icon' => 'https://www.volkskrant.nl/favicon.ico',
-        ]);
-
         $collection = Collection::create([
             'name' => 'Daily News',
             'user_id' => 1,
@@ -131,5 +130,33 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $collection->sources()->attach($nos);
+
+        $volkskrant = Source::create([
+            'name' => 'Volkskrant',
+            'user_id' => 2,
+            'url' => 'https://www.volkskrant.nl/nieuws-achtergrond/rss.xml',
+            'type' => 'rss',
+            'prefix_parse_url' => 'http://192.168.1.137:5000/',
+            'icon' => 'https://www.volkskrant.nl/favicon.ico',
+        ]);
+
+        $collection2 = Collection::create([
+            'name' => 'John Test',
+            'user_id' => 2,
+            'booklore_retention_hours' => 8,
+            'enabled' => true,
+            'schedule' => [
+                [
+                    'repeat_type' => ScheduleRepeatType::Daily->value,
+                    'time' => '12:00',
+                ],
+                [
+                    'repeat_type' => ScheduleRepeatType::Daily->value,
+                    'time' => '21:00',
+                ],
+            ],
+        ]);
+
+        $collection2->sources()->attach($volkskrant);
     }
 }

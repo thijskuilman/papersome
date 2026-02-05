@@ -17,15 +17,6 @@ class BookloreService
      */
     public function uploadPublication(Publication $publication): void
     {
-        $this->logService->info(
-            message: 'Uploading publication to Booklore',
-            channel: ActivityLogChannel::Booklore,
-            data: [
-                'publication_id' => $publication->id,
-                'title' => $publication->title,
-            ],
-        );
-
         $publication->loadMissing('collection.user');
 
         $user = $publication->collection->user;
@@ -36,7 +27,7 @@ class BookloreService
                 libraryId: (int) $user->booklore_library_id,
                 pathId: (int) $user->booklore_path_id,
                 filePath: \Storage::disk('public')->path($publication->epub_file_path),
-                expectedTitle: $publication->title
+                tag: $publication->tag
             );
 
             $publication->booklore_book_id = $book['id'];

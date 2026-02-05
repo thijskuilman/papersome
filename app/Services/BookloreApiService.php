@@ -369,7 +369,7 @@ class BookloreApiService
         int $libraryId,
         int $pathId,
         string $filePath,
-        string $expectedTitle,
+        string $tag,
         int $timeoutSeconds = 15,
         int $pollIntervalMs = 500
     ): array {
@@ -380,7 +380,7 @@ class BookloreApiService
             channel: ActivityLogChannel::Booklore,
             data: [
                 'library_id' => $libraryId,
-                'expected_title' => $expectedTitle,
+                'tag' => $tag,
                 'timeout_seconds' => $timeoutSeconds,
                 'poll_interval_ms' => $pollIntervalMs,
             ],
@@ -393,12 +393,21 @@ class BookloreApiService
 
         while ((Carbon::now()->getTimestamp() - $startTime) < $timeoutSeconds) {
             $books = $this->getLibraryBooks($user, $libraryId);
+            $this->logService->info(
+                message: 'Found books for ' . $user->name,
+                channel: ActivityLogChannel::Booklore,
+                data: [
+                    'books' => $books,
+                ],
+            );
 
             foreach ($books as $book) {
-                if (isset($book['metadata']['title']) && $book['metadata']['title'] === $expectedTitle) {
+
+                if(str_contains(haystack: $book['fileName'], needle: $tag)) {
                     $matchedBook = $book;
                     break 2;
                 }
+
             }
 
             usleep($pollIntervalMs * 1000);
@@ -410,12 +419,12 @@ class BookloreApiService
                 channel: ActivityLogChannel::Booklore,
                 data: [
                     'library_id' => $libraryId,
-                    'expected_title' => $expectedTitle,
+                    'tag' => $tag,
                     'timeout_seconds' => $timeoutSeconds,
                 ],
             );
             throw new Exception(
-                "Timeout waiting for book with title '{$expectedTitle}' to appear in library {$libraryId}"
+                "Timeout waiting for book with tag '{$tag}' to appear in library {$libraryId}"
             );
         }
 
@@ -425,7 +434,7 @@ class BookloreApiService
             data: [
                 'library_id' => $libraryId,
                 'book_id' => $matchedBook['id'] ?? null,
-                'title' => $expectedTitle,
+                'title' => $tag,
             ],
         );
 

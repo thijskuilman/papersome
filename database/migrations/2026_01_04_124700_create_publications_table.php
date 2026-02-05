@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('epub_file_path')->nullable();
             $table->string('cover_image')->nullable();
             $table->string('booklore_book_id')->nullable();
+            $table->ulid('tag');
             $table->timestamps();
         });
     }
