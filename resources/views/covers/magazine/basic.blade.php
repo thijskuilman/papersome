@@ -16,7 +16,7 @@
 
                 {{-- Title & Date --}}
                 <div class="absolute top-6 left-6 right-6 text-center">
-                    <h1 class="text-5xl font-bold uppercase text-white tracking-wide drop-shadow-lg font-['Press_Start_2P']">
+                    <h1 class="text-5xl font-bold uppercase text-white tracking-wide drop-shadow-lg">
                         {{ $publication->collection->name }}
                     </h1>
 

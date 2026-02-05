@@ -8,8 +8,8 @@
             {{-- Title --}}
             <header class="text-center mb-4 relative">
                 <hr class="mb-3">
-                <h1 class="text-6xl font-bold tracking-tight uppercase">{{ $publication->collection->name }}</h1>
-                <p class="text-gray-600 text-sm mt-1">{{ now()->format('F j, Y') }}</p>
+                <h1 class="text-5xl font-extrabold tracking-tight uppercase">{{ $publication->collection->name }}</h1>
+                <p class="text-gray-600 text-lg mt-1">{{ now()->format('F j, Y') }}</p>
                 <hr class="my-3">
             </header>
 
@@ -19,7 +19,7 @@
                     $hero = $articles->shift();
                 @endphp
                 <section class="mb-4">
-                    <h2 class="text-3xl font-extrabold leading-tight mb-2">
+                    <h2 class="text-3xl font-extrabold leading-tight mb-2 line-clamp-3">
                         {{ $hero->title }}
                     </h2>
                     <p class="text-sm text-gray-700 mb-2 line-clamp-5">
@@ -34,13 +34,14 @@
                 </section>
             @endif
 
-            {{-- Articles --}}
+            <hr class="border-gray-400 mb-2">
+
             <div class="columns-2 gap-4 space-y-4">
                 @foreach($articles as $article)
-                    <article class="break-inside-avoid mb-4 p-2 border-b border-gray-300">
-                        <h3 class="text-base font-semibold mb-1">{{ $article->title }}</h3>
+                    <article class="break-inside-avoid mb-4 p-2">
+                        <h3 class="text-lg font-semibold mb-1 line-clamp-3">{{ $article->title }}</h3>
                         <p class="text-xs text-gray-700 mb-1 line-clamp-3">
-                            {{ \Illuminate\Support\Str::limit(strip_tags($article->excerpt), 100, '...') }}
+                           {!! \Illuminate\Support\Str::limit(strip_tags($article->html_content))  !!}
                         </p>
                         @if($article->author)
                             <p class="text-[10px] text-gray-500 italic mb-2">By {{ $article->author }}</p>

@@ -10,7 +10,7 @@ class CoverImageController extends Controller
     {
         return view('covers.'.$publication->collection->cover_template->getView(), [
             'publication' => $publication,
-            'articles' => $publication->articles,
+            'articles' => $publication->articles->take(3),
         ]);
     }
 }
