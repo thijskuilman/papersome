@@ -1,7 +1,6 @@
 <?php
 
 use App\Enums\CoverTemplate;
-use App\Enums\DeliveryChannel;
 use App\Models\Collection;
 use App\Models\Source;
 use App\Models\User;

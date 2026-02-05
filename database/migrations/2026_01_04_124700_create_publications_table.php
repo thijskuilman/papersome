@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\DeliveryStatus;
 use App\Models\Collection;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -18,8 +17,6 @@ return new class extends Migration
             $table->string('title');
             $table->string('epub_file_path')->nullable();
             $table->string('cover_image')->nullable();
-            $table->string('booklore_delivery_status')
-                ->default(DeliveryStatus::Pending->value);
             $table->string('booklore_book_id')->nullable();
             $table->timestamps();
         });
