@@ -2,10 +2,8 @@
 
 @section('content')
     <div class="flex items-center justify-center min-h-screen bg-gray-200 p-4">
-        {{-- TODO: Set width and height based on settings? --}}
         <div id="book-cover" class="bg-white w-[600px] h-[800px] shadow-xl border border-gray-300 p-6 font-serif text-black overflow-hidden">
 
-            {{-- Title --}}
             <header class="text-center mb-4 relative">
                 <hr class="mb-3">
                 <h1 class="text-5xl font-extrabold tracking-tight uppercase">{{ $publication->collection->name }}</h1>
@@ -13,7 +11,6 @@
                 <hr class="my-3">
             </header>
 
-            {{-- Hero --}}
             @if($articles->isNotEmpty())
                 @php
                     $hero = $articles->shift();
