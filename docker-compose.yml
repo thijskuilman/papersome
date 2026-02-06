@@ -2,41 +2,30 @@ services:
   php:
     build:
       context: .
-      dockerfile: docker/php/Dockerfile
+      dockerfile: Dockerfile
     container_name: papersome-php
     ports:
       - "8088:8080"
       - "8443:8443"
-    volumes:
-      - ./:/var/www/html
     env_file:
       - .env.docker
     depends_on:
-      - db
-      - redis
-      - chromium
+      db:
+        condition: service_started
+      redis:
+        condition: service_started
+      chromium:
+        condition: service_healthy
     restart: unless-stopped
-
-  node-build:
-    build:
-      context: .
-      dockerfile: docker/node/Dockerfile
-    container_name: papersome-node-build
-    volumes:
-      - ./:/app
-    command: ["npm", "run", "build"]
-    restart: "no"
 
   scheduler:
     build:
       context: .
-      dockerfile: docker/php/Dockerfile
+      dockerfile: Dockerfile
     container_name: papersome-scheduler
     entrypoint: ["php", "artisan", "schedule:work"]
     env_file:
       - .env.docker
-    volumes:
-      - ./:/var/www/html
     depends_on:
       - php
     restart: unless-stopped
@@ -44,33 +33,32 @@ services:
   queue:
     build:
       context: .
-      dockerfile: docker/php/Dockerfile
+      dockerfile: Dockerfile
     container_name: papersome-queue
     entrypoint: ["php", "artisan", "queue:work", "--tries=1", "--sleep=1"]
     env_file:
       - .env.docker
-    volumes:
-      - ./:/var/www/html
     depends_on:
-      - redis
       - php
+      - redis
     restart: unless-stopped
 
   chromium:
     image: zenika/alpine-chrome
-    command: [
-      "--headless",
-      "--disable-gpu",
-      "--remote-debugging-address=0.0.0.0",
-      "--remote-debugging-port=9222"
-    ]
+    container_name: papersome-chromium
+    command:
+      - "--headless"
+      - "--disable-gpu"
+      - "--remote-debugging-address=0.0.0.0"
+      - "--remote-debugging-port=9222"
     cap_add:
       - SYS_ADMIN
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9222" ]
+      test: ["CMD", "curl", "-f", "http://localhost:9222"]
       interval: 30s
       timeout: 5s
       retries: 3
+    restart: unless-stopped
 
   db:
     image: mariadb:11

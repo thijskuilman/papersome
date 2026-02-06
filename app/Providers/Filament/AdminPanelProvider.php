@@ -38,7 +38,8 @@ class AdminPanelProvider extends PanelProvider
             ->registration()
             ->id('admin')
             ->path('')
-            ->viteTheme('resources/css/filament/admin/theme.css')
+            // TODO: Re-enable
+//            ->viteTheme('resources/css/filament/admin/theme.css')
             ->login()
             ->colors([
                 'primary' => Color::Violet,
