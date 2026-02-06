@@ -34,6 +34,9 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
+
+COPY --from=composer /var/www/html/vendor /app/vendor
+
 RUN npm run build
 
 # ---------- Runtime PHP image ----------
