@@ -14,8 +14,6 @@ services:
         condition: service_started
       redis:
         condition: service_started
-      chromium:
-        condition: service_healthy
     restart: unless-stopped
 
   scheduler:
@@ -45,20 +43,19 @@ services:
 
   chromium:
     image: zenika/alpine-chrome
-    container_name: papersome-chromium
-    command:
-      - "--headless"
-      - "--disable-gpu"
-      - "--remote-debugging-address=0.0.0.0"
-      - "--remote-debugging-port=9222"
+    command: [
+      "--headless",
+      "--disable-gpu",
+      "--remote-debugging-address=0.0.0.0",
+      "--remote-debugging-port=9222"
+    ]
     cap_add:
       - SYS_ADMIN
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9222"]
+      test: [ "CMD", "curl", "-f", "http://localhost:9222" ]
       interval: 30s
       timeout: 5s
       retries: 3
-    restart: unless-stopped
 
   db:
     image: mariadb:11
