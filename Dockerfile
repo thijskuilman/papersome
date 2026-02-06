@@ -41,6 +41,8 @@ RUN npm run build
 # ---------- Runtime PHP image ----------
 FROM php-base
 
+RUN apk add --no-cache nodejs npm
+
 # Copy source code
 COPY . .
 
