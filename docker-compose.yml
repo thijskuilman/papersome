@@ -1,0 +1,87 @@
+services:
+  php:
+    volumes:
+      - ./storage:/var/www/html/storage
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: papersome-php
+    ports:
+      - "8088:8080"
+      - "8443:8443"
+    env_file:
+      - .env.docker
+    depends_on:
+      db:
+        condition: service_started
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  scheduler:
+    volumes:
+      - ./storage:/var/www/html/storage
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: papersome-scheduler
+    entrypoint: ["php", "artisan", "schedule:work"]
+    env_file:
+      - .env.docker
+    depends_on:
+      - php
+    restart: unless-stopped
+
+  queue:
+    volumes:
+      - ./storage:/var/www/html/storage
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: papersome-queue
+    entrypoint: ["php", "artisan", "queue:work", "--tries=1", "--sleep=1"]
+    env_file:
+      - .env.docker
+    depends_on:
+      - php
+      - redis
+    restart: unless-stopped
+
+  chromium:
+    image: zenika/alpine-chrome
+    command: [
+      "--headless",
+      "--disable-gpu",
+      "--remote-debugging-address=0.0.0.0",
+      "--remote-debugging-port=9222"
+    ]
+    cap_add:
+      - SYS_ADMIN
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9222" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  db:
+    image: mariadb:11
+    container_name: papersome-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootsecret
+      MYSQL_DATABASE: papersome
+      MYSQL_USER: papersome
+      MYSQL_PASSWORD: secret
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: papersome-redis
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  redis_data:

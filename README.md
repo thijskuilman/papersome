@@ -10,7 +10,14 @@ You can add RSS feeds as sources, bundle them into collections, and read them in
 | ![Magazine Frontpage](https://github.com/user-attachments/assets/8448a3e2-597e-4228-ae4c-e7722b48621e) | ![Magazine Article](https://github.com/user-attachments/assets/6df2df19-62d8-4e9e-a3e5-ed6f66198401) |
 
 ## Installation
-Papersome is still in development. Installation instructions will be added soon.
+Papersome is still in development. Below are Docker-based instructions for local development and a production-like run.
+
+### Docker Quickstart
+You can change the environment variables in `.env.docker` to suit your needs. After that, run the following commands:
+   - `docker compose build`
+   - `docker compose up -d`
+
+Visit: http://localhost:8088
 
 ## Key Features
 
