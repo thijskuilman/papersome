@@ -2,77 +2,59 @@ services:
   php:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/php/Dockerfile
     container_name: papersome-php
     ports:
-      - "8088:8080"   # HTTP
-      - "8443:8443"   # HTTPS
+      - "8088:8080"
+      - "8443:8443"
     volumes:
       - ./:/var/www/html
-      - node_modules:/var/www/html/node_modules
-#    user: "${PUID:-1000}:${PGID:-1000}"
     env_file:
       - .env.docker
     depends_on:
       - db
       - redis
+      - chromium
+    restart: unless-stopped
 
-  db:
-    image: mariadb:11
-    container_name: papersome-db
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: rootsecret
-      MYSQL_DATABASE: papersome
-      MYSQL_USER: papersome
-      MYSQL_PASSWORD: secret
-    ports:
-      - "3307:3306"
+  node-build:
+    build:
+      context: .
+      dockerfile: docker/node/Dockerfile
+    container_name: papersome-node-build
     volumes:
-      - db_data:/var/lib/mysql
-
-  redis:
-    image: redis:7-alpine
-    container_name: papersome-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
+      - ./:/app
+    command: ["npm", "run", "build"]
+    restart: "no"
 
   scheduler:
-    environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/php/Dockerfile
     container_name: papersome-scheduler
+    entrypoint: ["php", "artisan", "schedule:work"]
+    env_file:
+      - .env.docker
     volumes:
       - ./:/var/www/html
     depends_on:
       - php
-    entrypoint: ["php", "artisan", "schedule:work"]
-#    user: "${PUID:-1000}:${PGID:-1000}"
-    env_file:
-      - .env.docker
+    restart: unless-stopped
 
   queue:
-    environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/php/Dockerfile
     container_name: papersome-queue
-    depends_on:
-      - php
-      - redis
-    volumes:
-      - ./:/var/www/html
     entrypoint: ["php", "artisan", "queue:work", "--tries=1", "--sleep=1"]
-#    user: "${PUID:-1000}:${PGID:-1000}"
     env_file:
       - .env.docker
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - redis
+      - php
+    restart: unless-stopped
 
   chromium:
     image: zenika/alpine-chrome
@@ -90,18 +72,25 @@ services:
       timeout: 5s
       retries: 3
 
-  node-build:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: papersome-node-build
-    working_dir: /var/www/html
+  db:
+    image: mariadb:11
+    container_name: papersome-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootsecret
+      MYSQL_DATABASE: papersome
+      MYSQL_USER: papersome
+      MYSQL_PASSWORD: secret
     volumes:
-      - ./:/var/www/html
-      - node_modules:/var/www/html/node_modules
-    command: [ "npm", "run", "build" ]
+      - db_data:/var/lib/mysql
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: papersome-redis
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
 
 volumes:
   db_data:
   redis_data:
-  node_modules:
