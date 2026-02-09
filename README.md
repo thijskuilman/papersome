@@ -2,10 +2,10 @@
 
 <h4>Papersome is a self-hosted application for creating ePub newspapers or magazines from RSS/Atom feeds.</h4>
 
+You can add RSS feeds as sources, bundle them into collections, and read them in a newspaper or magazine-style layout with scheduled syncing to other platforms.
+
 > [!IMPORTANT]  
 > Papersome is still under heavy development. Features may change, break, or be incomplete.
-
-You can add RSS feeds as sources, bundle them into collections, and read them in a newspaper or magazine-style layout with scheduled syncing to other platforms.
 
 | Build RSS collections... | ... and read noise-free articles anywhere |
 |-----------|---------|
