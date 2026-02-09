@@ -8,16 +8,22 @@ use Illuminate\Support\Collection;
 
 class FeedService
 {
+    public function __construct(private readonly SearchReplaceService $searchReplaceService) {}
+
     public function storeArticlesFromSource(Source $source, int $articleLimit = 5): void
     {
         $items = $this->fetchRssItems($source->url);
 
         foreach ($items->take(limit: $articleLimit) as $item) {
+            $title = $this->searchReplaceService->apply(
+                rules: $source->search_replace,
+                subject: $item['title'],
+            );
             Article::firstOrCreate(
                 ['url' => $item['permalink']],
                 [
                     'source_id' => $source->id,
-                    'title' => $item['title'],
+                    'title' => $title,
                     'excerpt' => $item['description'] ?? '',
                     'published_at' => $item['date'],
                 ]

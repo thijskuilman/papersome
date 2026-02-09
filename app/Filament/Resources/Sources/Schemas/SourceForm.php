@@ -10,8 +10,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -48,13 +46,29 @@ class SourceForm
                                 TextInput::make('prefix_parse_url')
                                     ->url()
                                     ->maxLength(255),
+
+                                Repeater::make('search_replace')
+                                    ->label('Find & replace text in articles')
+                                    ->addActionLabel('Add rule')
+                                    ->table([
+                                        TableColumn::make('Find'),
+                                        TableColumn::make('Replace'),
+                                    ])->schema([
+                                        TextInput::make('find')
+                                            ->required()
+                                            ->placeholder('Add a term (case-insensitive)'),
+
+                                        TextInput::make('replace')
+                                            ->required()
+                                            ->placeholder('Add replacement'),
+                                    ]),
                             ]),
                         Tab::make('Layout settings')
                             ->icon(Heroicon::RectangleGroup)
                             ->schema([
 
                                 Repeater::make('html_query_filters')
-                                    ->afterStateUpdated(fn($state, $livewire) => $livewire->dispatch(
+                                    ->afterStateUpdated(fn ($state, $livewire) => $livewire->dispatch(
                                         event: SourceFormEvent::HtmlQueryFiltersUpdated->value,
                                         filters: $state ?? []
                                     ))
@@ -86,7 +100,7 @@ class SourceForm
                                     ])
                                     ->columns(4),
 
-                                View::make('filament.schemas.components.source.layout-settings')
+                                View::make('filament.schemas.components.source.layout-settings'),
 
                             ]),
                     ])->columnSpanFull(),
