@@ -13,7 +13,10 @@ use Illuminate\Support\Facades\Http;
 
 class ReadabilityService
 {
-    public function __construct(private readonly LogService $logService) {}
+    public function __construct(
+        private readonly LogService $logService,
+        private readonly SearchReplaceService $searchReplaceService,
+    ) {}
 
     public function setHtmlContentForArticle(Article $article): void
     {
@@ -25,13 +28,20 @@ class ReadabilityService
                 url: $url,
             );
 
+            $rawHtml = $readability->getContent();
+
+            $processedHtml = $this->searchReplaceService->apply(
+                rules: $article->source->search_replace,
+                subject: $rawHtml,
+            );
+
             $article->update([
                 'html_content' => $article->source->html_query_filters ? app(HtmlParseService::class)
                     ->removeFilteredElements(
-                        html: $readability->getContent(),
+                        html: $processedHtml,
                         htmlQueryFilters: $article->source->html_query_filters,
-                    ) : $readability->getContent(),
-                'original_html_content' => $readability->getContent(),
+                    ) : $processedHtml,
+                'original_html_content' => $rawHtml,
                 'image' => $readability->getImage(),
                 'status' => ArticleStatus::Parsed->value,
             ]);
