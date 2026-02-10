@@ -189,7 +189,8 @@ class EpubService
     {
         libxml_use_internal_errors(true);
 
-        $dom = new \DOMDocument('1.0', 'UTF-8');
+        $html = '<?xml encoding="UTF-8">' . $html;
+        $dom = new \DOMDocument();
         $dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
         $xpath = new \DOMXPath($dom);
