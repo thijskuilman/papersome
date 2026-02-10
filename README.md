@@ -23,14 +23,25 @@ You can add RSS feeds as sources, bundle them into collections, and read them in
 
 ## Key Features
 
-- Add and manage RSS/Atom feeds
-- Group feeds into collections
-- Read collections in newspaper or magazine layouts in ePub format
-- Schedule new publications for collections, for example daily or specific days
-- OPDS endpoint per user (`/opds/{userID}`) to browse and download generated publications.
-- Synchronize publications to Booklore. If you use [Kobo Sync]([https://duckduckgo.com](https://booklore.org/docs/integration/kobo )), they’re also synced to your Kobo device for offline reading.
-- Finetune the output of RSS feed articles via HTML filters
-- Multi-user support
+### 📰 Bundle RSS Feeds into magazines and newspapers
+- **RSS & Atom Feed Management:** Add and manage your favourite RSS/Atom feeds
+- **Collections:** Bundle multiple feeds into collections and publish them as newspapers or magazines.
+- **Scheduled Publishing:** Automatically generate new publications on a schedule (daily, weekly, or specific days).
+- **Newspaper & Magazine Layouts:** Apply newspaper or magazine covers to the publications.
+
+### 📖 Distraction-Free Reading
+- **Clean Article Extraction:** Uses [Readability](https://github.com/fivefilters/readability.php) to strip clutter for focused reading.
+- **Content Refinement Tools:** Remove leftover elements with custom CSS selectors or apply find & replace rules for fine-grained control.
+
+### 📚 Multiple delivery channels
+- **ePub Generation:** Download each publication as an ePub for offline reading on any compatible device.
+- **OPDS Catalog:** Browse and download your publications via a personal OPDS endpoint (`/opds/{userID}`).
+- **Booklore & Kobo Sync:** Seamlessly sync publications to [Booklore](https://github.com/booklore-app/BookLore) and [Kobo devices](https://booklore.org/docs/integration/kobo).
+
+### 👥 And more
+- **Multi-User Support:** Each user has their own feeds, collections, and publications.
+- **Per-User OPDS Feeds:** Keep libraries clean and separate across accounts.
+- **Light & Dark Mode:** The admin panel has a dark mode and a light mode.
 
 ## Screenshots
 | ☀️ Light | 🌙 Dark |
