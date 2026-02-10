@@ -89,6 +89,7 @@ class CreateCollection extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['user_id'] = auth()->id();
+        $data['booklore_retention_hours'] = 24;
 
         return $data;
     }
