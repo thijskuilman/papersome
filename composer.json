@@ -20,7 +20,7 @@
         "phiki/phiki": "^2.1",
         "sebastiansantillan/phpepub": "dev-main",
         "spatie/browsershot": "^5.2",
-        "symfony/html-sanitizer": "^7.4",
+        "symfony/html-sanitizer": "^8.0",
         "willvincent/feeds": "^2.7"
     },
     "require-dev": {
