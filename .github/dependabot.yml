@@ -1,0 +1,33 @@
+version: 2
+updates:
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule: { interval: "weekly", day: "monday", time: "06:00" }
+    open-pull-requests-limit: 10
+    allow: [{ dependency-type: "direct" }]
+    groups:
+      laravel:
+        patterns: ["laravel/*", "livewire/*", "filament/*"]
+      php-tools:
+        patterns: ["pestphp/*", "nunomaduro/*", "rector/*", "laravel/pint"]
+      patch-minor:
+        update-types: ["patch", "minor"]
+    labels: ["dependencies"]
+    commit-message: { prefix: "chore(composer)" }
+    rebase-strategy: "auto"
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule: { interval: "weekly" }
+    groups:
+      tailwind:
+        patterns: ["tailwindcss", "@tailwindcss/*"]
+      tooling:
+        patterns: ["vite", "eslint*", "prettier*"]
+    labels: ["dependencies"]
+    commit-message: { prefix: "chore(npm)" }
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule: { interval: "weekly" }
+    labels: ["ci"]
