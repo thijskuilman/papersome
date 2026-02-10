@@ -99,16 +99,6 @@ class AdminPanelProvider extends PanelProvider
                                     ->completedWhen(fn (): bool => Collection::where('user_id', auth()->id())->exists())
                                     ->buttonLabel('Create collection')
                                     ->order(2),
-
-                                OnboardingStep::make('set-up-delivery-channel')
-                                    ->title('Step 3: automate delivery')
-                                    ->description('Automate delivery to Booklore.')
-                                    ->icon('heroicon-o-truck')
-                                    ->iconColor('info')
-                                    ->linkToPage(BookloreSettings::class)
-                                    ->completedWhen(fn (): bool => auth()->user()->booklore_refresh_token !== null)
-                                    ->buttonLabel('Set up Booklore')
-                                    ->order(3),
                             ]);
                     }),
             ]);
