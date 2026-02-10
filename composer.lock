@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "17877ec9787a45bf3ee5a8800d43dc91",
+    "content-hash": "36d9eb016a72dbe6ff194b640b9fb6f1",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -7018,24 +7018,22 @@
         },
         {
             "name": "symfony/html-sanitizer",
-            "version": "v7.4.0",
+            "version": "v8.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/html-sanitizer.git",
-                "reference": "5b0bbcc3600030b535dd0b17a0e8c56243f96d7f"
+                "reference": "b091fe14296544172b1ec810cbd0af42e8d8ce89"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/html-sanitizer/zipball/5b0bbcc3600030b535dd0b17a0e8c56243f96d7f",
-                "reference": "5b0bbcc3600030b535dd0b17a0e8c56243f96d7f",
+                "url": "https://api.github.com/repos/symfony/html-sanitizer/zipball/b091fe14296544172b1ec810cbd0af42e8d8ce89",
+                "reference": "b091fe14296544172b1ec810cbd0af42e8d8ce89",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
                 "league/uri": "^6.5|^7.0",
-                "masterminds/html5": "^2.7.2",
-                "php": ">=8.2",
-                "symfony/deprecation-contracts": "^2.5|^3"
+                "php": ">=8.4"
             },
             "type": "library",
             "autoload": {
@@ -7068,7 +7066,7 @@
                 "sanitizer"
             ],
             "support": {
-                "source": "https://github.com/symfony/html-sanitizer/tree/v7.4.0"
+                "source": "https://github.com/symfony/html-sanitizer/tree/v8.0.0"
             },
             "funding": [
                 {
@@ -7088,7 +7086,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-10-30T13:39:42+00:00"
+            "time": "2025-10-30T14:17:19+00:00"
         },
         {
             "name": "symfony/http-foundation",
@@ -12906,5 +12904,5 @@
         "ext-dom": "*"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
