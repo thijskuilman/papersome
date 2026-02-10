@@ -54,7 +54,7 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
-    'docker_url' => env('APP_URL_DOCKER', 'http://php:8080'),
+    'docker_url' => env('APP_URL_DOCKER'),
 
     /*
     |--------------------------------------------------------------------------
