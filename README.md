@@ -27,6 +27,7 @@ You can add RSS feeds as sources, bundle them into collections, and read them in
 - Group feeds into collections
 - Read collections in newspaper or magazine layouts in ePub format
 - Schedule new publications for collections, for example daily or specific days
+- OPDS endpoint per user (`/opds/{userID}`) to browse and download generated publications.
 - Synchronize publications to Booklore. If you use [Kobo Sync]([https://duckduckgo.com](https://booklore.org/docs/integration/kobo )), they’re also synced to your Kobo device for offline reading.
 - Finetune the output of RSS feed articles via HTML filters
 - Multi-user support
