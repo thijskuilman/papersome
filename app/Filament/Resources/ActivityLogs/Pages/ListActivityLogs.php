@@ -9,6 +9,7 @@ class ListActivityLogs extends ListRecords
 {
     protected static string $resource = ActivityLogResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

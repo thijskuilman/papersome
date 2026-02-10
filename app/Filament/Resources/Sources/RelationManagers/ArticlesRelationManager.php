@@ -21,6 +21,7 @@ class ArticlesRelationManager extends RelationManager
 {
     protected static string $relationship = 'articles';
 
+    #[\Override]
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -31,6 +32,7 @@ class ArticlesRelationManager extends RelationManager
             ]);
     }
 
+    #[\Override]
     public function infolist(Schema $schema): Schema
     {
         return $schema

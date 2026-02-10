@@ -15,6 +15,7 @@ class Publication extends Model
 {
     /** @use HasFactory<PublicationFactory> */
     use HasFactory;
+
     use HasUlids;
 
     /**
@@ -22,6 +23,7 @@ class Publication extends Model
      *
      * @return array<int, string>
      */
+    #[\Override]
     public function uniqueIds(): array
     {
         return ['tag'];

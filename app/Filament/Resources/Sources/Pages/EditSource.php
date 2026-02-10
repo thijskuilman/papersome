@@ -11,6 +11,7 @@ class EditSource extends EditRecord
 {
     protected static string $resource = SourceResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

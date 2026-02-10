@@ -21,6 +21,7 @@ class Article extends Model
     /**
      * @return array<string, string|class-string>
      */
+    #[\Override]
     protected function casts(): array
     {
         return [

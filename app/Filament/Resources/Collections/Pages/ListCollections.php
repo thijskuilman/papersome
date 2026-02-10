@@ -11,11 +11,13 @@ class ListCollections extends ListRecords
 {
     protected static string $resource = CollectionResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
-        if(!Source::exists()) {
+        if (! Source::exists()) {
             return [];
         }
+
         return [
             CreateAction::make(),
         ];

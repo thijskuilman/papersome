@@ -10,6 +10,7 @@ class EditCollection extends EditRecord
 {
     protected static string $resource = CollectionResource::class;
 
+    #[\Override]
     protected function getHeaderActions(): array
     {
         return [

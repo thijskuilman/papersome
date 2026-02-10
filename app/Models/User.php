@@ -41,6 +41,7 @@ class User extends Authenticatable implements FilamentUser
      *
      * @return array<string, string>
      */
+    #[\Override]
     protected function casts(): array
     {
         return [
