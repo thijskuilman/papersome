@@ -20,7 +20,8 @@ You can add RSS feeds as sources, bundle them into collections, and read them in
 2. Build and start the containers:
    ```bash
    docker compose build
-   docker compose up -d```
+   docker compose up -d
+   ```
 3. Open Papersome at the URL configured during setup (default: http://localhost:8088).
 
 ## Key Features
