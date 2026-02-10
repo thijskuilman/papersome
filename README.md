@@ -5,7 +5,7 @@
 You can add RSS feeds as sources, bundle them into collections, and read them in a newspaper or magazine-style layout with scheduled syncing to other platforms.
 
 > [!IMPORTANT]  
-> Papersome is still under heavy development. Features may change, break, or be incomplete.
+> This is an early version of Papersome, so it may still contain bugs or limitations. Feedback is always welcome!
 
 | Build RSS collections... | ... and read noise-free articles anywhere |
 |-----------|---------|
@@ -13,7 +13,6 @@ You can add RSS feeds as sources, bundle them into collections, and read them in
 | ![Magazine Frontpage](https://github.com/user-attachments/assets/8448a3e2-597e-4228-ae4c-e7722b48621e) | ![Magazine Article](https://github.com/user-attachments/assets/6df2df19-62d8-4e9e-a3e5-ed6f66198401) |
 
 ## Installation
-Papersome is still in development. Below are Docker-based instructions for local development and a production-like run.
 
 ### Docker Quickstart
 
