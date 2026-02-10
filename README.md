@@ -16,16 +16,18 @@ You can add RSS feeds as sources, bundle them into collections, and read them in
 
 ### Docker Quickstart
 
-1. Run `./setup.sh` to generate a `.env.docker`
-2. Run `docker compose build`
-3. Run `docker compose up -d`
-4. Open your browser at the URL you set during setup (default: http://localhost:8088)
+1. Generate the Docker environment file with `./setup.sh`.
+2. Build and start the containers:
+   ```bash
+   docker compose build
+   docker compose up -d```
+3. Open Papersome at the URL configured during setup (default: http://localhost:8088).
 
 ## Key Features
 
 ### 📰 Bundle RSS Feeds into magazines and newspapers
 - **RSS & Atom Feed Management:** Add and manage your favourite RSS/Atom feeds
-- **Collections:** Bundle multiple feeds into collections and publish them as newspapers or magazines.
+- **Collections:*x* Bundle multiple feeds into collections and publish them as newspapers or magazines.
 - **Scheduled Publishing:** Automatically generate new publications on a schedule (daily, weekly, or specific days).
 - **Newspaper & Magazine Layouts:** Apply newspaper or magazine covers to the publications.
 
@@ -34,7 +36,7 @@ You can add RSS feeds as sources, bundle them into collections, and read them in
 - **Content Refinement Tools:** Remove leftover elements with custom CSS selectors or apply find & replace rules for fine-grained control.
 
 ### 📚 Multiple delivery channels
-- **ePub Generation:** Download each publication as an ePub for offline reading on any compatible device.
+- **ePub Files:** Download each publication as an ePub for offline reading on any compatible device.
 - **OPDS Catalog:** Browse and download your publications via a personal OPDS endpoint (`/opds/{userID}`).
 - **Booklore & Kobo Sync:** Seamlessly sync publications to [Booklore](https://github.com/booklore-app/BookLore) and [Kobo devices](https://booklore.org/docs/integration/kobo).
 
