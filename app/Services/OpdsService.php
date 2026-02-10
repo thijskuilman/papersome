@@ -38,8 +38,8 @@ class OpdsService
             }
 
             $xml[] = '  <entry>';
-            $xml[] = '    <id>urn:uuid:'.htmlspecialchars($entryId, ENT_XML1).'</id>';
-            $xml[] = '    <title>'.htmlspecialchars($title, ENT_XML1).'</title>';
+            $xml[] = '    <id>urn:uuid:'.htmlspecialchars((string) $entryId, ENT_XML1).'</id>';
+            $xml[] = '    <title>'.htmlspecialchars((string) $title, ENT_XML1).'</title>';
             $xml[] = '    <updated>'.$updated.'</updated>';
             $coverUrl = $publication->cover_image ? Storage::disk('public')->url($publication->cover_image) : null;
             if ($coverUrl !== null) {
