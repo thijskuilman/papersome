@@ -16,11 +16,11 @@ You can add RSS feeds as sources, bundle them into collections, and read them in
 Papersome is still in development. Below are Docker-based instructions for local development and a production-like run.
 
 ### Docker Quickstart
-You can change the environment variables in `.env.docker` to suit your needs. After that, run the following commands:
-   - `docker compose build`
-   - `docker compose up -d`
 
-Visit: http://localhost:8088
+1. Run `./setup.sh` to generate a `.env.docker`
+2. Run `docker compose build`
+3. Run `docker compose up -d`
+4. Open your browser at the URL you set during setup (default: http://localhost:8088)
 
 ## Key Features
 
