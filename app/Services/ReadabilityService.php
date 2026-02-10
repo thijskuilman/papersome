@@ -30,10 +30,10 @@ class ReadabilityService
 
             $rawHtml = $readability->getContent();
 
-            $processedHtml = $this->searchReplaceService->apply(
+            $processedHtml = $article->source->search_replace ? $this->searchReplaceService->apply(
                 rules: $article->source->search_replace,
                 subject: $rawHtml,
-            );
+            ) : $rawHtml;
 
             $article->update([
                 'html_content' => $article->source->html_query_filters ? app(HtmlParseService::class)

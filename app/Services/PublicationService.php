@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\ActivityLogChannel;
+use App\Enums\ArticleStatus;
 use App\Models\Article;
 use App\Models\Collection;
 use App\Models\Publication;
@@ -92,6 +93,7 @@ class PublicationService
         foreach ($collection->sources()->orderByPivot('sort')->get() as $source) {
             $articlesForSource = Article::query()
                 ->where('source_id', $source->id)
+                ->where('status', ArticleStatus::Parsed)
                 ->when($lastPublicationTimestamp, fn ($query) =>
                     $query->where('created_at', '>', $lastPublicationTimestamp)
                 )

@@ -15,10 +15,12 @@ class FeedService
         $items = $this->fetchRssItems($source->url);
 
         foreach ($items->take(limit: $articleLimit) as $item) {
-            $title = $this->searchReplaceService->apply(
+
+            $title = $source->search_replace ? $this->searchReplaceService->apply(
                 rules: $source->search_replace,
                 subject: $item['title'],
-            );
+            ) : $item['title'];
+
             Article::firstOrCreate(
                 ['url' => $item['permalink']],
                 [
