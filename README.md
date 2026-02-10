@@ -27,7 +27,7 @@ You can add RSS feeds as sources, bundle them into collections, and read them in
 
 ### 📰 Bundle RSS Feeds into magazines and newspapers
 - **RSS & Atom Feed Management:** Add and manage your favourite RSS/Atom feeds
-- **Collections:*x* Bundle multiple feeds into collections and publish them as newspapers or magazines.
+- **Create Collections:** Bundle multiple feeds into collections and publish them as newspapers or magazines.
 - **Scheduled Publishing:** Automatically generate new publications on a schedule (daily, weekly, or specific days).
 - **Newspaper & Magazine Layouts:** Apply newspaper or magazine covers to the publications.
 
